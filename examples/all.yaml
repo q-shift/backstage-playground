@@ -7,5 +7,5 @@ spec:
   targets:
     - ./entities.yaml
     - ./org.yaml
-    - ./templates/quarkus-extensions/template.yaml
-    - ./templates/quarkus-quickstart-picker/template.yaml
+    - ./templates/quarkus-wizzard/template.yaml
+    - ./templates/quarkus-quickstarts/template.yaml
