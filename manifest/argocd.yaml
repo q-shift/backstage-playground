@@ -30,7 +30,7 @@ spec:
         backstage:
           image:
             registry: "quay.io"
-            repository: "ch007m/backstage-qshift"
+            repository: "ch007m/backstage-qshift-ocp"
             tag: "latest"
             pullPolicy: "Always"
           extraAppConfig:
