@@ -10,6 +10,9 @@ on:
     branches:
       - main
 
+env:
+  REGISTRY: quay.io
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,6 +39,21 @@ jobs:
         run: |
           yarn build:all
 
+      - name: Set github output
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Build container image
         run: |
           yarn build-image -t backstage-qshift
+
+      - name: Build and Push with Buildx
+        uses: ./.github/actions/docker-build
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: "username"  #${{ secrets.QUAY_USERNAME }}
+          password: "password"  #${{ secrets.QUAY_TOKEN }}
+          imageName: ${{ github.repository }}
+          imageTags: |
+            type=sha,prefix=sha-,suffix=-${{ env.SHORT_SHA }},event=branch
+          imageLabels: qshift-backstage
+          push: false
