@@ -12,6 +12,7 @@ on:
 
 env:
   REGISTRY: quay.io
+  REGISTRY_ORG: ch007m
 
 jobs:
   build:
@@ -44,18 +45,18 @@ jobs:
 
       - name: Build container image
         run: |
-          yarn build-image -t ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
+          yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/backstage-qshift:${{ env.SHORT_SHA }}
 
-      #- name: Login to Quay.io Hub
-      #  uses: docker/login-action@v1
-      #  with:
-      #    registry: quay.io
-      #    username: ${{ secrets.QUAY_ROBOT_USER }}
-      #    password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - name: Login to Quay.io Hub
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT_USER }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Push the built image
         run: |
-          # docker push ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/backstage-qshift:${{ env.SHORT_SHA }}
           
-          docker tag ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }} ${{ env.REGISTRY }}/backstage-qshift:latest
-          # docker push ${{ env.REGISTRY }}/backstage-qshift:latest
+          docker tag ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/backstage-qshift:${{ env.SHORT_SHA }} ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}//backstage-qshift:latest
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}//backstage-qshift:latest
