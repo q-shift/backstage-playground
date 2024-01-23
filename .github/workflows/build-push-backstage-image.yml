@@ -61,4 +61,4 @@ jobs:
           
           docker push $IMAGE_NAME:${{ env.SHA_SHORT }}
           docker tag $IMAGE_NAME:${{ env.SHA_SHORT }} $IMAGE_NAME::latest
-          docker push $IMAGE_NAME::latest
+          docker push $IMAGE_NAME:latest
