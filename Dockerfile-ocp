@@ -24,7 +24,7 @@ USER 1001
 ENV CYPRESS_INSTALL_BINARY=0
 COPY --from=packages /opt/app-root/src/ ./
 RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn,uid=1001,gid=0 \
-    yarn install --frozen-lockfile --network-timeout 600000
+    yarn install --network-timeout 600000
 
 # Copy app code
 COPY --chown=1001:0 packages/backend .
