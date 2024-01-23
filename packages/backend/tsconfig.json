@@ -1,12 +1,9 @@
 {
   "extends": "@backstage/cli/config/tsconfig.json",
-  "include": [
-    "packages/app/src/**/*",
-    "packages/backen/src/**/*"
-  ],
+  "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "outDir": "dist-types",
+    "outDir": "../../dist-types/",
     "rootDir": "."
   }
 }
