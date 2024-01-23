@@ -13,9 +13,14 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 ## Instructions
 
-To use this project, git clone it and run the following command locally:
+### Locally
+To use this project, git clone it and run the following command:
 
 ```sh
 yarn install
 yarn dev
 ```
+
+### On a Kubernetes cluster
+
+
