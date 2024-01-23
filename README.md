@@ -10,6 +10,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 - [Node.js](https://nodejs.org/en) (18 or 20)
 - [nvm](https://github.com/nvm-sh/nvm), npm and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) installed
+- Read this blog post: https://medium.com/@chrisschneider/build-a-developer-portal-with-backstage-on-openshift-d2a97aca91ee
 
 ## Instructions
 

@@ -24,12 +24,15 @@ spec:
           enabled: true
           host: backstage.apps.qshift.snowdrop.dev
           className: nginx
+        serviceAccount:
+          create: true
+          name: my-backstage
         backstage:
           image:
             registry: "quay.io"
             repository: "ch007m/backstage-qshift"
             tag: "latest"
-            pullPolicy: "IfNotPresent"
+            pullPolicy: "Always"
           extraAppConfig:
             - filename: app-config.local.yaml
               configMapRef: my-app-config
