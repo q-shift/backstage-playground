@@ -44,16 +44,18 @@ jobs:
 
       - name: Build container image
         run: |
-          yarn build-image -t backstage-qshift
+          yarn build-image -t ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
 
-      - name: Build and Push with Buildx
-        uses: ./.github/actions/docker-build
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: "username"  #${{ secrets.QUAY_USERNAME }}
-          password: "password"  #${{ secrets.QUAY_TOKEN }}
-          imageName: ${{ github.repository }}
-          imageTags: |
-            type=sha,prefix=sha-,suffix=-${{ env.SHORT_SHA }},event=branch
-          imageLabels: qshift-backstage
-          push: false
+      #- name: Login to Quay.io Hub
+      #  uses: docker/login-action@v1
+      #  with:
+      #    registry: quay.io
+      #    username: ${{ secrets.QUAY_ROBOT_USER }}
+      #    password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - name: Push the built image
+        run: |
+          # docker push ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
+          
+          docker tag ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }} ${{ env.REGISTRY }}/backstage-qshift:latest
+          # docker push ${{ env.REGISTRY }}/backstage-qshift:latest
