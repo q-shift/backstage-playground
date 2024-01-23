@@ -1,0 +1,52 @@
+app:
+  baseUrl: https://backstage.apps.qshift.snowdrop.dev
+  title: Backstage
+backend:
+  baseUrl: https://backstage.apps.qshift.snowdrop.dev
+  cors:
+    origin: https://backstage.apps.qshift.snowdrop.dev
+    methods: [GET, POST, PUT, DELETE]
+    credentials: true
+  csp:
+    connect-src: ['self','http:','https:']
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  cache:
+    store: memory
+
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+integrations:
+  github:
+    - host: github.com
+      token: <GITHUB_TOKEN>
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: url
+      target: https://github.com/ch007m/my-backstage-templates/blob/main/kubernetes/all.yaml
+      rules:
+        - allow: [Template,Location,Component,System,Resource,User,Group]
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: https://kubernetes.default.svc
+          name: kind
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: <SERVICE_ACCOUNT_TOKEN>
