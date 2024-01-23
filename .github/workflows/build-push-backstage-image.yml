@@ -39,7 +39,7 @@ jobs:
 
       - name: Build backstage
         run: |
-          yarn build
+          yarn tsc
           yarn build:all
 
       - name: Set github output
