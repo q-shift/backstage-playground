@@ -42,7 +42,7 @@ jobs:
           yarn build:all
 
       - name: Set github output
-        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build container image
         run: |

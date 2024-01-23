@@ -1,6 +1,6 @@
 # Backstage QShift Showcase
 
-This backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
+The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
 - [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation)
 - [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
 - [ArgoCD plugin](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd)
