@@ -45,9 +45,13 @@ jobs:
       - name: Set github output
         run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build container image
+      #- name: Build container image (kubernetes)
+      #  run: |
+      #    yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+
+      - name: Build container image for ocp
         run: |
-          yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+          docker build -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }} -f Dockerfile-ocp .
 
       - name: Login to Quay.io Hub
         uses: docker/login-action@v1
