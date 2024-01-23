@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: helm-backstage
+  namespace: openshift-gitops
+spec:
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
+  source:
+    chart: backstage
+    repoURL: https://backstage.github.io/charts
+    targetRevision: 1.8.2
+    helm:
+      values: |
+        ingress:
+          enabled: true
+          host: backstage.apps.qshift.snowdrop.dev
+          className: nginx
+        backstage:
+          image:
+            registry: "quay.io"
+            repository: "ch007m/backstage-qshift"
+            tag: "latest"
+            pullPolicy: "IfNotPresent"
+          extraAppConfig:
+            - filename: app-config.local.yaml
+              configMapRef: my-app-config
+        postgresql:
+          enabled: false
