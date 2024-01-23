@@ -55,6 +55,7 @@ spec:
           type: number
           default: 8080
           description: Override the port exposed for the application
+
     - title: Provide information about the Java metadata
       required:
         - groupId
@@ -95,6 +96,7 @@ spec:
           ui:widget: textarea
           ui:options:
             rows: 5
+
     - title: Provide information about the CI method
       required:
         - ci
