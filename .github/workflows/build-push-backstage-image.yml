@@ -13,7 +13,7 @@ on:
 env:
   REGISTRY: quay.io
   REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
-  BACKSTAGE_IMAGE_NAME: backstage-qshift
+  BACKSTAGE_IMAGE_NAME: backstage-qshift-ocp
 
 jobs:
   build:

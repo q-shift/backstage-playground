@@ -31,6 +31,9 @@
       "plugins/*"
     ]
   },
+  "dependencies": {
+    "node-gyp": "9.4.1"
+  },
   "devDependencies": {
     "@backstage/cli": "^0.25.0",
     "@backstage/e2e-test-utils": "^0.1.0",
@@ -40,6 +43,7 @@
     "lerna": "^7.3.0",
     "node-gyp": "^9.0.0",
     "prettier": "^2.3.2",
+    "turbo": "1.10.16",
     "typescript": "~5.2.0"
   },
   "resolutions": {
