@@ -13,6 +13,7 @@
     "build": "turbo run build",
     "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
+    "build-ocp-image": "yarn workspace backend build-ocp-image",
     "tsc": "tsc",
     "tsc:full": "tsc --skipLibCheck false --incremental false",
     "clean": "backstage-cli repo clean",
