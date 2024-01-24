@@ -18,7 +18,7 @@ RUN npm install -g yarn
 # RUN dnf install -y python3 make gcc-c++ gcc gzip openssl && dnf clean all -> FAILS: https://github.com/ChrisSchneider/backstage-openshift-example/issues/1
 RUN dnf install -y -q --allowerasing --nobest nodejs-devel nodejs-libs \
   # already installed or installed as deps:
-  openssl openssl-devel ca-certificates sqlite sqlite-devel python3 nodejs-packaging && \
+  openssl openssl-devel ca-certificates sqlite sqlite-devel python3 nodejs-packaging gcc-c++ gcc make cmake cpp zlib zlib-devel brotli brotli-devel && \
   dnf update -y && dnf clean all
 USER 1001
 
