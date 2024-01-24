@@ -32,7 +32,8 @@ COPY --chown=1001:0 . .
 
 # Compile & build the packages
 RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn,uid=1001,gid=0 \
-    yarn tsc && \
+    # FAILS => error TS18003: No inputs were found in config file '/opt/app-root/src/tsconfig.json'. Specified 'include' paths were '["packages/*/src","plugins/*/src","plugins/*/dev","plugins/*/migrations"]' and 'exclude' paths were '["node_modules"]'.
+    # As the job is doing yarn tsc before to build the image, this action is not needed => yarn tsc &&\
     yarn --cwd packages/backend build
 RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle \
     && tar xzf packages/backend/dist/skeleton.tar.gz -C packages/backend/dist/skeleton \
