@@ -57,6 +57,7 @@ RUN $YARN install --frozen-lockfile --network-timeout 600000
 # Stage 3 - Build packages
 FROM deps AS build
 COPY $EXTERNAL_SOURCE_NESTED ./
+RUN chmod +x /opt/app-root/src/.yarn/releases/yarn-1.22.19.cjs
 
 RUN git config --global --add safe.directory ./
 # Upstream only
