@@ -48,8 +48,8 @@ jobs:
 
       - name: Build container image for ocp
         run: |
-          #yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
-          docker build -t -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }} -f Dockerfile-ocp-janus .
+          # yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+          docker build -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }} -f Dockerfile-ocp-janus .
 
       - name: Build container image (kubernetes)
         run: |
