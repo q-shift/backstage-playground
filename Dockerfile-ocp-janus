@@ -63,7 +63,7 @@ RUN git config --global --add safe.directory ./
 RUN rm app-config.yaml && mv app-config.example.yaml app-config.yaml
 
 # hadolint ignore=DL3059,DL4006,SC2086
-RUN $YARN build --filter=backend #&& \
+RUN $YARN build --filter=backend # &&
 
   # Build dynamic plugins: split commands for consistency with downstream
   #$YARN --cwd ./dynamic-plugins/imports export-dynamic --no-install && \
