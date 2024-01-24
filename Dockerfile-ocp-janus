@@ -60,7 +60,7 @@ COPY $EXTERNAL_SOURCE_NESTED ./
 
 RUN git config --global --add safe.directory ./
 # Upstream only
-RUN rm app-config.yaml && mv app-config.example.yaml app-config.yaml
+#RUN rm app-config.yaml && mv app-config.example.yaml app-config.yaml
 
 # hadolint ignore=DL3059,DL4006,SC2086
 RUN $YARN build --filter=backend # &&
@@ -134,6 +134,6 @@ ENV CHOKIDAR_USEPOLLING='1' CHOKIDAR_INTERVAL='10000'
 # To avoid running scripts when using `npm pack` to install dynamic plugins
 ENV NPM_CONFIG_ignore-scripts='true'
 
-ENTRYPOINT ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.example.yaml", "--config", "app-config.example.production.yaml"]
+ENTRYPOINT ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.example.production.yaml"]
 
 # append Brew metadata here
