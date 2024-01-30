@@ -1,11 +1,15 @@
+# yarn cache dir command returns /opt/app-root/src/.cache/yarn/v6
+# This is why the mount=type=cache is declared as such
+# RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0
+
 # Stage 1 - Copy backstage's files and needed linux packages
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-80 as packages
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal as packages
 
 USER 0
 
 WORKDIR /app
-COPY package.json yarn.lock tsconfig.json app-config.yaml ./
-COPY packages packages
+COPY --chown=1001:0 package.json yarn.lock tsconfig.json app-config.yaml ./
+COPY --chown=1001:0 packages packages
 
 # Comment this out if you don't have any internal plugins
 # COPY plugins plugins
@@ -13,16 +17,17 @@ COPY packages packages
 RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
 
 # Stage 2 - Install linux & node dependencies. Copy files from packages layer
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-80 as build
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal as build
 
 USER 0
 
-RUN dnf install -y -q --allowerasing --nobest nodejs-devel nodejs-libs \
-  # already installed or installed as deps:
-  openssl openssl-devel ca-certificates make cmake cpp gcc gcc-c++ zlib zlib-devel brotli brotli-devel python3 nodejs-packaging && \
-  dnf update -y && dnf clean all
+#RUN dnf install -y -q --allowerasing --nobest nodejs-devel nodejs-libs \
+#  # already installed or installed as deps:
+#  openssl openssl-devel ca-certificates make cmake cpp gcc gcc-c++ zlib zlib-devel brotli brotli-devel python3 nodejs-packaging && \
+#  dnf update -y && dnf clean all
+# RUN dnf upgrade --refresh -y && dnf install sqlite -y && dnf clean all
 
-RUN dnf upgrade --refresh -y && dnf install sqlite -y
+RUN microdnf install -y python3 zlib zlib-devel brotli brotli-devel make gcc-c++ gzip git && microdnf clean all
 
 RUN npm i -g yarn
 RUN npm i -g node-gyp
@@ -30,30 +35,35 @@ RUN npm i -g node-gyp
 WORKDIR /app
 COPY --from=packages /app .
 
-RUN yarn install --production=false --network-timeout 300000
-COPY . .
-RUN yarn tsc
-RUN yarn --cwd packages/backend build
+RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0 \
+    yarn install --production=false --network-timeout 300000
+COPY --chown=1001:0 . .
+
+RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0 \
+    yarn tsc && \
+    yarn --cwd packages/backend build
 
 RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle \
     && tar xzf packages/backend/dist/skeleton.tar.gz -C packages/backend/dist/skeleton \
     && tar xzf packages/backend/dist/bundle.tar.gz -C packages/backend/dist/bundle
 
 # Stage 3 - Build the actual backend image and install production dependencies
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-80
-
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal
 USER 0
 
-RUN dnf install -y -q --allowerasing --nobest python3 && \
-  dnf update -y && dnf clean all
+# Installing python, sqlite & tool used to build the techdoc
+RUN microdnf update -y && \
+  microdnf install -y python3 python3-pip sqlite-devel && \
+  pip3 install mkdocs-techdocs-core~=1.2 && \
+  microdnf clean all
 
-RUN dnf upgrade --refresh -y && dnf install sqlite -y
 RUN npm i -g yarn
 
 WORKDIR /app
 # Copy the install dependencies from the build stage and context
 COPY --from=build /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton/ ./
-RUN yarn install --frozen-lockfile --production --network-timeout 600000
+RUN --mount=type=cache,from=build,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0 \
+    yarn install --frozen-lockfile --production --network-timeout 600000
 
 # Copy the built packages from the build stage
 COPY --from=build /app/packages/backend/dist/bundle/ ./
@@ -64,7 +74,7 @@ COPY app-config.yaml .
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV production
 
-RUN chown -R 1001:1001 ./
+RUN chown -R 1001:0 ./
 RUN fix-permissions ./
 
 # From here on we use the user to run the backend.
