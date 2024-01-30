@@ -10,7 +10,6 @@
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
     "build:backend": "yarn workspace backend build",
-    "build": "turbo run build",
     "build:all": "backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",
     "build-ocp-image": "yarn workspace backend build-ocp-image",
@@ -41,7 +40,6 @@
     "lerna": "^7.3.0",
     "node-gyp": "^10.0.1",
     "prettier": "^2.3.2",
-    "turbo": "1.10.16",
     "typescript": "~5.2.0"
   },
   "resolutions": {
