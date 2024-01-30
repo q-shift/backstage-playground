@@ -1,6 +1,10 @@
-# yarn cache dir command returns /opt/app-root/src/.cache/yarn/v6
-# This is why the mount=type=cache is declared as such
+# To build the backstage image, simply run this command and pass the needed parameters
+# yarn build-ocp-image -t quay.io/ch007m/backstage-qshift-ocp --platform linux/amd64
+#
+# As yarn cache dir command returns /opt/app-root/src/.cache/yarn/v6,
+# this is why the mounted volume is declared as such
 # RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0
+#
 
 # Stage 1 - Copy backstage's files and needed linux packages
 FROM registry.access.redhat.com/ubi9/nodejs-18-minimal as packages
