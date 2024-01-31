@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: quay.io
-  REGISTRY_ORG: ch007m # ${{ secrets.QUAY_ORG }}
+  REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
   BACKSTAGE_OCP_IMAGE_NAME: backstage-qshift-ocp
   BACKSTAGE_IMAGE_NAME: backstage-qshift
 
