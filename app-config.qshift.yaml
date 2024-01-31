@@ -1,1 +1,101 @@
 # Generate me ;-)
+
+# Backstage override configuration for QShift
+
+organization:
+  name: QShift
+
+app:
+  title: QShift Backstage App
+  baseUrl: http://localhost:3000
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    # Used for enabling authentication, secret is shared by all backend plugins
+    # See https://backstage.io/docs/auth/service-to-service-auth for
+    # information on the format
+    keys:
+      - secret: Tg3vL6P2w74xP/fcSpmv0ulZw2Lx1wsr
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers: {}
+
+proxy:
+### Example for how to add a proxy endpoint for the frontend.
+### A typical reason to do this is to handle HTTPS and CORS for internal services.
+# endpoints:
+#   '/test':
+#     target: 'https://example.com'
+#     changeOrigin: true
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: url
+      target: https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
+      rules:
+        - allow: [Template,Location,Component,System,Resource,User,Group]
+    #- type: file
+    #  target: ../../examples/org.yaml
+
+integrations:
+  github:
+    - host: github.com
+      token: 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
+
+argocd:
+  username: admin
+  password: hU5ksdnFxK1qiH9gflR6jZIbz7BGQDEX
+  baseUrl: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: argocdQShift
+          url: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: https://kubernetes.default.svc
+          name: ocp-qshift
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: eyJhbGciOiJSUzI1NiIsImtpZCI6Ik1tbGtkcWpzNGNBcTRLS2ktU2I3ZVRaWlBMSFZYTHNQU0xHYWdObGtMdFEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJiYWNrc3RhZ2UiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoibXktYmFja3N0YWdlLXRva2VuLTJsN2IyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im15LWJhY2tzdGFnZSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjAyNjc1ZjZkLWQxMzQtNDkyOC1hOTFhLThmYmYyNTRhZDFlYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrc3RhZ2U6bXktYmFja3N0YWdlIn0.IOsJczM8NvcZUUpZm23ORz_pHs1L0iKSreQU3GyHEWiTAxDX3oNJKdoIrXTxbgJ3UJpCvywekkQMkEs--M7HB07a040f9DAf4R_R9R2vSYEMwJg5skZbdQRZaKNZiRGvQU37k4VCQRY-UigwHD1CwpochW5S0ndZ95Q1MciCh5DJpCN8v3ZmPp5MOhLqwTvUod4JW65iTzY1Ei5q6eUGS2Kz8XNzVGAu__PeKEmHUOdYbSS5gALm8lBYmyMyriWYpv9NWLZV4Q1bmIgBePs7I4HRRzHxS-KlfhTkd0Ory2ml2y7FFB3lDjjHM7LMCfdo6_gx7Zn8m3nhEzx62aeGj1RnYORyVc6TExVnQPxRMT5b-fmjT9TZNZnlDnRJMSSBARqrOHd5TSgQ6uwuCoZudr8xvTgzbmhWGVW7B8bIK6fTi77_1dC8LHtk5q6LGOp6yvOAPZmq1z02DtrY_1uJjfX1QXxELl6gk7DAUeZ7alujiatKvNU2JNVwE8zqsV9XeUhqgLJFfUgJur594iXhbWziXklLktpl2OMYpkW5WjM6FNNHaur9-okyXFFHZFS5-rG8io8eH1tChpfxhfwzgrK_oxUIVAxQ1LOuSTFWfWsJRHR_dGr7TvaE1LV2W0pqFeweZU4V6DulbLnUtbm6fgLS5A7ihpL-GQzqtmXTFG
