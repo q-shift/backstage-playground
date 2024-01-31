@@ -1,6 +1,9 @@
 # Intellij
 .idea/
 
+# Backstage
+app-config.qshift.yaml
+
 # macOS
 .DS_Store
 
