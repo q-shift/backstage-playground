@@ -58,6 +58,11 @@ import {
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
+import {
+    EntityArgoCDHistoryCard,
+    isArgocdAvailable,
+} from '@roadiehq/backstage-plugin-argo-cd';
+
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -125,6 +130,13 @@ const entityWarningContent = (
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
     {entityWarningContent}
+    <EntitySwitch>
+        <EntitySwitch.Case if={e => Boolean(isArgocdAvailable(e))}>
+            <Grid item sm={6}>
+                <EntityArgoCDHistoryCard />
+            </Grid>
+        </EntitySwitch.Case>
+    </EntitySwitch>
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
     </Grid>

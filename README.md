@@ -1,10 +1,10 @@
 # Backstage QShift Showcase
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
-- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation)
+- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation) - [pr/commit](https://github.com/q-shift/backstage-playground/commit/4c33a795897b151f7ba956595132878d700edb9d)
 - [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
-- [ArgoCD plugin](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd)
-- [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)
+- ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) - [pr/commit]()
+- [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton) - [pr/commit]()
 
 **Note**: It has been developed using backstage version: 1.21.0
 
@@ -21,10 +21,14 @@ To use this project, git clone it and run the following command:
 
 ```sh
 yarn install
-yarn dev
+yarn start --config ../../app-config.qshift.yaml
+yarn start-backend --config ../../app-config.qshift.yaml
 ```
 
+**Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
 ### On OCP
+
+TODO: To be reviewed please !
 
 First, log on to the ocp cluster and verify that OpenShift GitOps operator has been installed
 

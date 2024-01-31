@@ -2,8 +2,9 @@ import { CatalogClient } from '@backstage/catalog-client';
 import { Router } from 'express';
 import type { PluginEnvironment } from '../types';
 import { ScmIntegrations } from '@backstage/integration';
-import {createBuiltinActions, createRouter} from '@backstage/plugin-scaffolder-backend';
+import { createBuiltinActions, createRouter } from '@backstage/plugin-scaffolder-backend';
 import { cloneQuarkusQuickstart } from '@qshift/plugin-quarkus-backend';
+import { createArgoCdResources } from '@roadiehq/scaffolder-backend-argocd'
 
 export default async function createPlugin(
   env: PluginEnvironment,
@@ -20,7 +21,11 @@ export default async function createPlugin(
     reader: env.reader,
   });
 
-  const actions = [...builtInActions, cloneQuarkusQuickstart()];
+  const actions = [
+    createArgoCdResources( env.config, env.logger ),
+    ...builtInActions,
+    cloneQuarkusQuickstart()
+  ];
 
   return await createRouter({
     actions,
