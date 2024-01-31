@@ -1,0 +1,464 @@
+app:
+  baseUrl: https://backstage.apps.qshift.snowdrop.dev
+  title: Backstage
+backend:
+  auth:
+    keys:
+      - secret: Tg3vL6P2w74xP/fcSpmv0ulZw2Lx1wsr
+  baseUrl: https://backstage.apps.qshift.snowdrop.dev
+  cors:
+    origin: https://backstage.apps.qshift.snowdrop.dev
+    methods: [GET, POST, PUT, DELETE]
+    credentials: true
+  csp:
+    connect-src: ['self','http:','https:']
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  cache:
+    store: memory
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+integrations:
+  github:
+    - host: github.com
+      token: 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
+  #gitlab:
+  #  - host: gitlab.console-openshift-console.apps.qshift.snowdrop.dev/
+  #    token: "U8rSB2LaT54t7WIPVxYoXnQorlItpPeuN2ygavWJhFdmDAeWxj0etFNbkfvJ4ZLe"
+  #azure:
+  #  - host: server.company.com
+  #    credentials:
+  #    - personalAccessToken: PERSONAL_ACCESS_TOKEN
+
+argocd:
+  username: admin
+  password: hU5ksdnFxK1qiH9gflR6jZIbz7BGQDEX
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: argoCDQShift
+          url: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev/
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: url
+      target: https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
+      rules:
+        - allow: [Template,Location,Component,System,Resource,User,Group]
+
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: https://kubernetes.default.svc
+          name: ocp-qshift
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: eyJhbGciOiJSUzI1NiIsImtpZCI6Ik1tbGtkcWpzNGNBcTRLS2ktU2I3ZVRaWlBMSFZYTHNQU0xHYWdObGtMdFEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJiYWNrc3RhZ2UiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoibXktYmFja3N0YWdlLXRva2VuLTJsN2IyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im15LWJhY2tzdGFnZSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjAyNjc1ZjZkLWQxMzQtNDkyOC1hOTFhLThmYmYyNTRhZDFlYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrc3RhZ2U6bXktYmFja3N0YWdlIn0.IOsJczM8NvcZUUpZm23ORz_pHs1L0iKSreQU3GyHEWiTAxDX3oNJKdoIrXTxbgJ3UJpCvywekkQMkEs--M7HB07a040f9DAf4R_R9R2vSYEMwJg5skZbdQRZaKNZiRGvQU37k4VCQRY-UigwHD1CwpochW5S0ndZ95Q1MciCh5DJpCN8v3ZmPp5MOhLqwTvUod4JW65iTzY1Ei5q6eUGS2Kz8XNzVGAu__PeKEmHUOdYbSS5gALm8lBYmyMyriWYpv9NWLZV4Q1bmIgBePs7I4HRRzHxS-KlfhTkd0Ory2ml2y7FFB3lDjjHM7LMCfdo6_gx7Zn8m3nhEzx62aeGj1RnYORyVc6TExVnQPxRMT5b-fmjT9TZNZnlDnRJMSSBARqrOHd5TSgQ6uwuCoZudr8xvTgzbmhWGVW7B8bIK6fTi77_1dC8LHtk5q6LGOp6yvOAPZmq1z02DtrY_1uJjfX1QXxELl6gk7DAUeZ7alujiatKvNU2JNVwE8zqsV9XeUhqgLJFfUgJur594iXhbWziXklLktpl2OMYpkW5WjM6FNNHaur9-okyXFFHZFS5-rG8io8eH1tChpfxhfwzgrK_oxUIVAxQ1LOuSTFWfWsJRHR_dGr7TvaE1LV2W0pqFeweZU4V6DulbLnUtbm6fgLS5A7ihpL-GQzqtmXTFGY
+
+enabled:
+  kubernetes: true
+  techdocs: true
+  argocd: true
+  sonarqube: false
+  keycloak: false
+  ocm: true
+  github: false
+  githubOrg: false
+  gitlab: false
+  jenkins: false
+  tekton: true
+  azure: false
+dynamicPlugins:
+  rootDirectory: dynamic-plugins-root
+  frontend:
+    backstage.plugin-dynatrace:
+      mountPoints:
+        - mountPoint: entity.page.monitoring/cards
+          importName: DynatraceTab
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isDynatraceAvailable
+    backstage.plugin-github-actions:
+      mountPoints:
+        - mountPoint: entity.page.ci/cards
+          importName: EntityGithubActionsContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isGithubActionsAvailable
+    backstage.plugin-github-issues:
+      mountPoints:
+        - mountPoint: entity.page.issues/cards
+          importName: GithubIssuesCard
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - hasAnnotation: github.com/project-slug
+    backstage.plugin-jenkins:
+      mountPoints:
+        - mountPoint: entity.page.ci/cards
+          importName: EntityJenkinsContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isJenkinsAvailable
+    backstage.plugin-kubernetes:
+      mountPoints:
+        - mountPoint: entity.page.kubernetes/cards
+          importName: EntityKubernetesContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              anyOf:
+                - hasAnnotation: backstage.io/kubernetes-id
+                - hasAnnotation: backstage.io/kubernetes-namespace
+    backstage.plugin-lighthouse:
+      appIcons:
+        - name: lighthouse
+          importName: LighthouseIcon
+      dynamicRoutes:
+        - path: /lighthouse
+          importName: LighthousePage
+          menuItem:
+            icon: lighthouse
+            text: Lighthouse
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityLastLighthouseAuditCard
+          config:
+            layout:
+              gridColumnEnd:
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isLighthouseAvailable
+    backstage.plugin-pagerduty:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityPagerDutyCard
+          config:
+            layout:
+              gridColumnEnd:
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isPluginApplicableToEntity
+    backstage.plugin-sonarqube:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntitySonarQubeCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isSonarQubeAvailable
+    immobiliarelabs.backstage-plugin-gitlab:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityGitlabMergeRequestStatsCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isGitlabAvailable
+        - mountPoint: entity.page.ci/cards
+          importName: EntityGitlabPipelinesTable
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isGitlabAvailable
+        - mountPoint: entity.page.issues/cards
+          importName: EntityGitlabIssuesTable
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isGitlabAvailable
+        - mountPoint: entity.page.pull-requests/cards
+          importName: EntityGitlabMergeRequestsTable
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isGitlabAvailable
+    janus-idp.backstage-plugin-acr:
+      mountPoints:
+        - mountPoint: entity.page.image-registry/cards
+          importName: AcrPage
+          config:
+            layout:
+              gridColumn: 1 / -1
+            if:
+              anyOf:
+                - isAcrAvailable
+    janus-idp.backstage-plugin-jfrog-artifactory:
+      mountPoints:
+        - mountPoint: entity.page.image-registry/cards
+          importName: JfrogArtifactoryPage
+          config:
+            layout:
+              gridColumn: 1 / -1
+            if:
+              anyOf:
+                - isJfrogArtifactoryAvailable
+    janus-idp.backstage-plugin-nexus-repository-manager:
+      mountPoints:
+        - mountPoint: entity.page.image-registry/cards
+          importName: NexusRepositoryManagerPage
+          config:
+            layout:
+              gridColumn: 1 / -1
+            if:
+              anyOf:
+                - isNexusRepositoryManagerAvailable
+    janus-idp.backstage-plugin-ocm:
+      appIcons:
+        - name: ocmIcon
+          importName: OcmIcon
+      dynamicRoutes:
+        - path: /ocm
+          importName: OcmPage
+          menuItem:
+            icon: ocmIcon
+            text: Clusters
+      mountPoints:
+        - mountPoint: entity.page.overview/context
+          importName: ClusterContextProvider
+        - mountPoint: entity.page.overview/cards
+          importName: ClusterAvailableResourceCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isKind: resource
+                - isType: kubernetes-cluster
+        - mountPoint: entity.page.overview/cards
+          importName: ClusterInfoCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isKind: resource
+                - isType: kubernetes-cluster
+    janus-idp.backstage-plugin-quay:
+      mountPoints:
+        - mountPoint: entity.page.image-registry/cards
+          importName: QuayPage
+          config:
+            layout:
+              gridColumn: 1 / -1
+            if:
+              anyOf:
+                - isQuayAvailable
+    janus-idp.backstage-plugin-tekton:
+      mountPoints:
+        - mountPoint: entity.page.ci/cards
+          importName: TektonCI
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isTektonCIAvailable
+    janus-idp.backstage-plugin-topology:
+      mountPoints:
+        - mountPoint: entity.page.topology/cards
+          importName: TopologyPage
+          config:
+            layout:
+              gridColumn: "1 / -1"
+              height: 75vh
+            if:
+              anyOf:
+                - hasAnnotation: backstage.io/kubernetes-id
+                - hasAnnotation: backstage.io/kubernetes-namespace
+    roadiehq.backstage-plugin-argo-cd:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityArgoCDOverviewCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 8"
+                xs: "span 12"
+            if:
+              allOf:
+                - isArgocdAvailable
+        - mountPoint: entity.page.cd/cards
+          importName: EntityArgoCDHistoryCard
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isArgocdAvailable
+    roadiehq.backstage-plugin-datadog:
+      mountPoints:
+        - mountPoint: entity.page.monitoring/cards
+          importName: EntityDatadogContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isDatadogAvailable
+    roadiehq.backstage-plugin-github-insights:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityGithubInsightsComplianceCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isGithubInsightsAvailable
+    roadiehq.backstage-plugin-github-pull-requests:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityGithubPullRequestsOverviewCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isGithubPullRequestsAvailable
+        - mountPoint: entity.page.pull-requests/cards
+          importName: EntityGithubPullRequestsContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isGithubPullRequestsAvailable
+    roadiehq.backstage-plugin-jira:
+      mountPoints:
+        - mountPoint: entity.page.issues/cards
+          importName: EntityJiraOverviewCard
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isJiraAvailable
+    roadiehq.backstage-plugin-security-insights:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: EntityDependabotAlertsCard
+          config:
+            layout:
+              gridColumnEnd:
+                lg: "span 4"
+                md: "span 6"
+                xs: "span 12"
+            if:
+              allOf:
+                - isSecurityInsightsAvailable
+    backstage.plugin-techdocs:
+      routeBindings:
+        targets:
+          - importName: techdocsPlugin
+        bindings:
+          - bindTarget: catalogPlugin.externalRoutes
+            bindMap:
+              viewTechDoc: techdocsPlugin.routes.docRoot
+          - bindTarget: scaffolderPlugin.externalRoutes
+            bindMap:
+              viewTechDoc: techdocsPlugin.routes.docRoot
+      dynamicRoutes:
+        - path: /docs
+          importName: TechDocsIndexPage
+          menuItem:
+            icon: docs
+            text: Docs
+        - path: /docs/:namespace/:kind/:name/*
+          importName: TechDocsReaderPage
+      mountPoints:
+        - mountPoint: entity.page.docs/cards
+          importName: EntityTechdocsContent
+          config:
+            layout:
+              gridColumn: "1 / -1"
+            if:
+              allOf:
+                - isTechDocsAvailable
+        - mountPoint: search.page.results
+          importName: TechDocsSearchResultListItem
+        - mountPoint: search.page.filters
+          importName: TechdocsSearchFilter
+        - mountPoint: search.page.types
+          importName: techdocsSearchType
+          config:
+            props:
+              name: Documentation
+              icon: docs
+    backstage.plugin-tech-radar:
+      apiFactories:
+        - importName: TechRadarApi
+      appIcons:
+        - name: techRadar
+          importName: TechRadarIcon
+      dynamicRoutes:
+        - path: /tech-radar
+          importName: TechRadarPage
+          menuItem:
+            icon: techRadar
+            text: Tech Radar
+          config:
+            props:
+              width: 1500
+              height: 800
+    janus-idp.backstage-plugin-analytics-provider-segment:
+      apiFactories:
+        - importName: SegmentAnalyticsAp

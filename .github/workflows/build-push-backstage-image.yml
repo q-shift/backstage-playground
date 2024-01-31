@@ -12,6 +12,9 @@ on:
 
 env:
   REGISTRY: quay.io
+  REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
+  BACKSTAGE_OCP_IMAGE_NAME: backstage-qshift-ocp
+  BACKSTAGE_IMAGE_NAME: backstage-qshift
 
 jobs:
   build:
@@ -37,25 +40,37 @@ jobs:
 
       - name: Build backstage
         run: |
+          yarn tsc
           yarn build:all
 
       - name: Set github output
-        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build container image
+      - name: Build container image for ocp
         run: |
-          yarn build-image -t ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
+          yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
 
-      #- name: Login to Quay.io Hub
-      #  uses: docker/login-action@v1
-      #  with:
-      #    registry: quay.io
-      #    username: ${{ secrets.QUAY_ROBOT_USER }}
-      #    password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - name: Build container image (kubernetes)
+        run: |
+          yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+
+      - name: Login to Quay.io Hub
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT_USER }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Push the built image
         run: |
-          # docker push ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }}
+          IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}
           
-          docker tag ${{ env.REGISTRY }}/backstage-qshift:${{ env.SHORT_SHA }} ${{ env.REGISTRY }}/backstage-qshift:latest
-          # docker push ${{ env.REGISTRY }}/backstage-qshift:latest
+          docker push $IMAGE_NAME:${{ env.SHA_SHORT }}
+          docker tag $IMAGE_NAME:${{ env.SHA_SHORT }} $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
+          
+          OCP_IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}
+          
+          docker push $OCP_IMAGE_NAME:${{ env.SHA_SHORT }}
+          docker tag $OCP_IMAGE_NAME:${{ env.SHA_SHORT }} $OCP_IMAGE_NAME:latest
+          docker push $OCP_IMAGE_NAME:latest
