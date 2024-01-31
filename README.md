@@ -1,9 +1,9 @@
 # Backstage QShift Showcase
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
-- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation) - [pr/commit](https://github.com/q-shift/backstage-playground/commit/4c33a795897b151f7ba956595132878d700edb9d)
+- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation) - [pr/commit](https://github.com/q-shift/backstage-playground/pull/5)
 - [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
-- ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) - [pr/commit]()
+- ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) - [pr/commit](https://github.com/q-shift/backstage-playground/pull/7)
 - [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton) - [pr/commit]()
 
 **Note**: It has been developed using backstage version: 1.21.0
