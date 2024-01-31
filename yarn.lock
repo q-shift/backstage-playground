@@ -6077,10 +6077,10 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@qshift/plugin-quarkus-backend@^0.1.15":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.15.tgz#f8a6039ee16311cba48336957cf9513ea33198af"
-  integrity sha512-Hv2lIpwhYSKlh7bsEL76JlkvnDF2dpBLRtXQJwtQBSl9xmT2eNAPiUTWEUGyEAUcwJctGOmAuwwKdlXwfDaSSQ==
+"@qshift/plugin-quarkus-backend@^0.1.17":
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.17.tgz#936afc25805892f0a999a9984752d58c0379b970"
+  integrity sha512-/mEVo8hSFpdM0JGKC3Lz2/vOT6d3O1e3NSUCar39+lfWSe+VU3R5F5wAuswy7XVvm6i26HKFYxiW4NMCFtafsQ==
   dependencies:
     "@backstage/backend-common" "^0.20.0"
     "@backstage/config" "^1.1.1"
@@ -6096,10 +6096,10 @@
     winston "^3.2.1"
     yn "^4.0.0"
 
-"@qshift/plugin-quarkus@^0.1.15":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.15.tgz#375feb94e620c3fdd4052d779c97331d10068a7e"
-  integrity sha512-ROZhKkPVg/bZ3KocxDlLoG2MfDpt8xTJJiuhZV/KFPbDAgXKMaLtCfUishbBpI7baZup1B1YW5EJqsw6AKmVgw==
+"@qshift/plugin-quarkus@^0.1.17":
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.17.tgz#7772503d3b681de405ab7dcbe28b02c1aed0b6a0"
+  integrity sha512-NkH/0a7NvRLcGOBy2Gz0K7NO25jX+F/U/QOwpuXUsFWA1ezQbGibcD+MBrd8yDO++nZWVoYBm6uEzaHPLCwz+Q==
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.8.1"
@@ -9342,7 +9342,7 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@backstage/theme" "^0.5.0"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
-    "@qshift/plugin-quarkus" "^0.1.15"
+    "@qshift/plugin-quarkus" "^0.1.17"
     history "^5.0.0"
     react "^17.0.2"
     react-dom "^17.0.2"
