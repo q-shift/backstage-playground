@@ -35,7 +35,7 @@ auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
   providers: {}
 
-proxy:
+proxy: {}
 ### Example for how to add a proxy endpoint for the frontend.
 ### A typical reason to do this is to handle HTTPS and CORS for internal services.
 # endpoints:
@@ -66,9 +66,8 @@ catalog:
       rules:
         - allow: [Template,Location,Component,System,Resource,User,Group]
 
-integrations:
-{% if GITHUB_PERSONAL_ACCESS_TOKEN is defined %}
-  github:
+integrations: {% if not GITHUB_PERSONAL_ACCESS_TOKEN is defined %}{}{% endif %}
+{% if GITHUB_PERSONAL_ACCESS_TOKEN is defined %}  github:
     - host: github.com
       token: {{ GITHUB_PERSONAL_ACCESS_TOKEN }}
 {% endif %}
