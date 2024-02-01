@@ -39,7 +39,7 @@
     "@backstage/plugin-search-backend-module-techdocs": "^0.1.12",
     "@backstage/plugin-search-backend-node": "^1.2.12",
     "@backstage/plugin-techdocs-backend": "^1.9.1",
-    "@qshift/plugin-quarkus-backend": "^0.1.17",
+    "@qshift/plugin-quarkus-backend": "^0.1.18",
     "@roadiehq/scaffolder-backend-argocd": "^1.1.19",
     "app": "link:../app",
     "better-sqlite3": "^9.0.0",
