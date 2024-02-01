@@ -95,4 +95,4 @@ kubernetes:
           authProvider: 'serviceAccount'
           skipTLSVerify: true
           skipMetricsLookup: true
-          serviceAccountToken: ${SERVICE_ACCOUNT_TOKEN}
+          serviceAccountToken: ${SERVICE_ACCOUNT_TOKEN} # Example: kubectl -n backstage get secret my-backstage-token-2l7b2 -o go-template='{{.data.token | base64decode}}'

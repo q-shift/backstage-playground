@@ -13,6 +13,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - [Node.js](https://nodejs.org/en) (18 or 20)
 - [nvm](https://github.com/nvm-sh/nvm), npm and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) installed
 - Read this blog post: https://medium.com/@chrisschneider/build-a-developer-portal-with-backstage-on-openshift-d2a97aca91ee
+- Access to an OCP4.x cluster where Argo CD, Tekton are installed
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
 
@@ -24,9 +25,9 @@ To use this project, git clone it
 
 Create your `app-config.qshift.yaml` file using the [app-config.qshift-example.yaml](app-config.qshift-example.yaml) file included within this project.
 Take care to provide the following password/tokens:
-- GitHub Personall Access Token
-- Argocd Cluster password
-- Argocd Auth token
+- GitHub Personal Access Token
+- Argo CD Cluster password
+- Argo CD Auth token
 - etc
 
 Next run the following command:
