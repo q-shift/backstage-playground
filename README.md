@@ -13,11 +13,23 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - [Node.js](https://nodejs.org/en) (18 or 20)
 - [nvm](https://github.com/nvm-sh/nvm), npm and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) installed
 - Read this blog post: https://medium.com/@chrisschneider/build-a-developer-portal-with-backstage-on-openshift-d2a97aca91ee
+- [GitHub client](https://cli.github.com/) (optional)
+- [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
 
 ## Instructions
 
 ### Locally
-To use this project, git clone it and run the following command:
+
+To use this project, git clone it 
+
+Create your `app-config.qshift.yaml` file using the [app-config.qshift-example.yaml](app-config.qshift-example.yaml) file included within this project.
+Take care to provide the following password/tokens:
+- GitHub Personall Access Token
+- Argocd Cluster password
+- Argocd Auth token
+- etc
+
+Next run the following command:
 
 ```sh
 yarn install
@@ -26,9 +38,28 @@ yarn start-backend --config ../../app-config.qshift.yaml
 ```
 
 **Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
-### On OCP
+
+Next open backstage URL, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
+
+### Clean up
+
+To delete the GitHub repository created like the ArgoCD resources on the QShift server, use the following commands 
+```bash
+app=my-quarkus-app
+gh repo delete github.com/ch007m/$app --yes
+
+ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+ARGOCD_PWD=<ARGOCD_PWD>
+ARGOCD_USER=admin
+argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOCD_PWD --grpc-web
+
+argocd app delete $app-bootstrap --grpc-web -y
+argocd app list --grpc-web
+```
 
 TODO: To be reviewed please !
+
+### On OCP
 
 First, log on to the ocp cluster and verify that OpenShift GitOps operator has been installed
 
@@ -45,7 +76,7 @@ Deploy using ArgoCD the Backstage Helm chart:
 kubectl apply -f manifest/argocd.yaml
 ```
 
-## Additional resources
+#### Additional resources
 
 ArgoCD: https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd
 
