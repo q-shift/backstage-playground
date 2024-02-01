@@ -88,7 +88,7 @@ kubernetes:
   clusterLocatorMethods:
     - type: 'config'
       clusters:
-        - url: https://kubernetes.default.svc
+        - url: {{ KUBERNETES_SERVICE | default('https://kubernetes.default.svc') }}
           name: ocp-qshift
           authProvider: 'serviceAccount'
           skipTLSVerify: true
