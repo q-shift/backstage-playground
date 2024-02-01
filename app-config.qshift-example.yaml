@@ -1,0 +1,98 @@
+# Backstage override configuration for QShift
+
+organization:
+  name: QShift
+
+app:
+  title: QShift Backstage App
+  baseUrl: ${BACKSTAGE_URL}:3000 # we add the port only for localhost !!
+
+backend:
+  baseUrl: ${BACKSTAGE_URL}:7007  # we add the port only for localhost !!
+  listen:
+    port: 7007
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    # Used for enabling authentication, secret is shared by all backend plugins
+    # See https://backstage.io/docs/auth/service-to-service-auth for
+    # information on the format
+    keys: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers: {}
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: url
+      target: ${TEMPLATE_URL} # default could be : https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
+      rules:
+        - allow: [Template,Location,Component,System,Resource,User,Group]
+
+integrations:
+  github:
+    - host: github.com
+      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+      # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
+      token: ${GITHUB_PERSONAL_ACCESS_TOKEN}
+
+argocd:
+  username: admin
+  password: ${ARGOCD_ADMIN_PASSWORD}
+  baseUrl: ${ARGOCD_SERVER}
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: argocdQShift
+          url: ${ARGOCD_SERVER}
+
+proxy:
+  endpoints:
+    '/argocd/api':
+      target: ${ARGOCD_SERVER}
+      changeOrigin: true
+      secure: false
+      headers:
+        Cookie:
+          $env: ${ARGOCD_AUTH_TOKEN}
+
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: ${KUBERNETES_API_URL} # For in-cluster use: https://kubernetes.default.svc
+          name: ocp-qshift
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: ${SERVICE_ACCOUNT_TOKEN}
