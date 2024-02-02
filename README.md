@@ -26,12 +26,18 @@ Verify first that you have access to an OCP4.x cluster where Argo CD, Kubevirt, 
 
 Next create within the namespace where the pipeline will be executed to build the image the following secret
 ```bash
-encodeAuth=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
+QUAY_CREDS=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
+DOCKER_CREDS=$(echo -n "<DOCKER_USER>:<DOCKER_PWD>" | base64)
+QUAY_ORG=<QUAY_ORG>
+
 cat <<EOF > config.json
 {
   "auths": {
-    "quay.io/<QUAY_ORG>": {
-      "auth": "$encodeAuth"
+    "quay.io/${QUAY_ORG}": {
+      "auth": "$QUAY_CREDS"
+    },
+    "https://index.docker.io/v1/": {
+      "auth": "$DOCKER_CREDS"
     }
   }
 }
