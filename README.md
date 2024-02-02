@@ -95,7 +95,10 @@ First, log on to the ocp cluster and verify if the following operators have been
 - Red Hat OpenShift GitOps operator (>=1.11)
 - Red Hat OpenShift Pipelines (>= 1.13.1)
 
-Create the `app-config.qshift.yaml` file containing the appropriate password, tokens, urls, etc and create a ConfigMap packaging it. 
+Create the `app-config.qshift.yaml` file containing the appropriate password, tokens, urls, etc and create a ConfigMap packaging it.
+
+**Remark**: The baseURL within the app-config file should be the same as the ingress host as defined within the Helm values: `idp-backstage.apps.qshift.snowdrop.dev`
+
 Next, deploy it within the namespace where backstage will run.
 
 ```bash
