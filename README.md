@@ -90,51 +90,22 @@ TODO: To be reviewed please !
 
 ### On OCP
 
-First, log on to the ocp cluster and verify that OpenShift GitOps operator has been installed
+First, log on to the ocp cluster and verify if the following operators have been installed: 
 
-Create the following configMap containing the backstage configuration file `app-config.local.yaml` under the project/namespace `openshift-gitops`
+- Red Hat OpenShift GitOps operator (>=1.11)
+- Red Hat OpenShift Pipelines (>= 1.13.1)
+
+Create the `app-config.qshift.yaml` file containing the appropriate password, tokens, urls, etc and create a ConfigMap packaging it. 
+Next, deploy it within the namespace where backstage will run.
+
 ```bash
-NAMESPACE=openshift-gitops
+NAMESPACE=backstage
 kubectl create configmap my-app-config -n $NAMESPACE \
-  --from-file=app-config.local.yaml=$(pwd)/manifest/app-config.local.yaml \
+  --from-file=app-config.qshift.yaml=app-config.qshift.yaml \
   -o yaml --dry-run=client | kubectl apply -n $NAMESPACE -f -
 ```
-
-Deploy using ArgoCD the Backstage Helm chart:
+Deploy backstage on the platform using this ArgoCD Application CR:
 ```bash
 kubectl apply -f manifest/argocd.yaml
 ```
-
-#### Additional resources
-
-ArgoCD: https://argo-cd.readthedocs.io/en/stable/getting_started/#1-install-argo-cd
-
-```bash
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/core-install.yaml
-
-DOMAIN_NAME=127.0.0.1.nip.io
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: argocd-server-ingress
-  namespace: argocd
-  annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: argocd.$DOMAIN_NAME
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              name: https
-EOF
-```
+Verify if backstage is alive using the URL: `https://backstage.apps.qshift.snowdrop.dev`
