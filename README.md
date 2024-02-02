@@ -13,11 +13,33 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - [Node.js](https://nodejs.org/en) (18 or 20)
 - [nvm](https://github.com/nvm-sh/nvm), npm and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) installed
 - Read this blog post: https://medium.com/@chrisschneider/build-a-developer-portal-with-backstage-on-openshift-d2a97aca91ee
-- Access to an OCP4.x cluster where Argo CD, Tekton are installed
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
 
 ## Instructions
+
+### First steps
+
+Before to run the backstage playground, it is needed to perform some first steps to be able to play the scenario without issues !
+
+Verify first that you have access to an OCP4.x cluster where Argo CD, Kubevirt, Tekton have been installed (using their corresponding operator) and are configure properly
+
+Next create within the namespace where the pipeline will be executed to build the image the following secret
+```bash
+encodeAuth=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
+cat <<EOF > config.json
+{
+  "auths": {
+    "quay.io/<QUAY_ORG>": {
+      "auth": "$encodeAuth"
+    }
+  }
+}
+EOF
+kubectl create secret generic dockerconfig-secret -n <PIPELINE_NAMESPACE> --from-file=config.json
+```
+Create a GitHub Personal Access token (see backstage instruction [here](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)) to been able to 
+scaffold a Quarkus application within your GitHub organization
 
 ### Locally
 
