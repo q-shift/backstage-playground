@@ -1,6 +1,6 @@
 ingress:
   enabled: true
-  host: backstage.apps.qshift.snowdrop.dev
+  host: idp-backstage.apps.qshift.snowdrop.dev
   className: nginx
 serviceAccount:
   create: true
