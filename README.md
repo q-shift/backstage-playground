@@ -108,4 +108,7 @@ Deploy backstage on the platform using this ArgoCD Application CR:
 ```bash
 kubectl apply -f manifest/argocd.yaml
 ```
+
+**NOTE**: This project builds (with the help iof a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
+
 Verify if backstage is alive using the URL: `https://backstage.apps.qshift.snowdrop.dev`
