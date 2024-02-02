@@ -14,14 +14,13 @@ spec:
       path: manifest/backstage
     - # Helm values to be used to deploy backstage
       repoURL: 'https://github.com/q-shift/backstage-playground'
-      path: manifest/helm
       ref: helm-values
     - chart: backstage
       repoURL: https://backstage.github.io/charts
       targetRevision: 1.8.2
       helm:
         valueFiles:
-         - $helm-values/values.yaml
+         - $helm-values/manifest/helm/values.yaml
   syncPolicy:
     automated:
       prune: true
