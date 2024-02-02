@@ -1,6 +1,6 @@
 ingress:
   enabled: true
-  host: idp-backstage.apps.qshift.snowdrop.dev
+  #host: idp-backstage.apps.qshift.snowdrop.dev
   className: openshift-default
 serviceAccount:
   create: true
