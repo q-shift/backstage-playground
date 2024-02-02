@@ -7,7 +7,7 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: openshift-gitops
+    namespace: backstage
   sources:
     - # Additional resources to install and not packaged part of the backstage chart
       repoURL: 'https://github.com/q-shift/backstage-playground'
@@ -21,6 +21,25 @@ spec:
       helm:
         valueFiles:
          - $helm-values/manifest/helm/values.yaml
+        #values: |
+        #  ingress:
+        #    enabled: true
+        #    host: idp-backstage.apps.qshift.snowdrop.dev
+        #    className: openshift-default
+        #  serviceAccount:
+        #    create: true
+        #    name: my-backstage
+        #  backstage:
+        #    image:
+        #      registry: "quay.io"
+        #      repository: "ch007m/backstage-qshift-ocp"
+        #      tag: "latest"
+        #      pullPolicy: "Always"
+        #    extraAppConfig:
+        #      - filename: app-config.qshift.yaml
+        #        configMapRef: my-app-config
+        #  postgresql:
+        #    enabled: false
   syncPolicy:
     automated:
       prune: true
