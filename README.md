@@ -70,24 +70,6 @@ yarn start-backend --config ../../app-config.qshift.yaml
 
 Next open backstage URL, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
-### Clean up
-
-To delete the GitHub repository created like the ArgoCD resources on the QShift server, use the following commands 
-```bash
-app=my-quarkus-app
-gh repo delete github.com/ch007m/$app --yes
-
-ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
-ARGOCD_PWD=<ARGOCD_PWD>
-ARGOCD_USER=admin
-argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOCD_PWD --grpc-web
-
-argocd app delete $app-bootstrap --grpc-web -y
-argocd app list --grpc-web
-```
-
-TODO: To be reviewed please !
-
 ### On OCP
 
 First, log on to the ocp cluster and verify if the following operators have been installed: 
@@ -111,4 +93,20 @@ kubectl apply -f manifest/argocd.yaml
 
 **NOTE**: This project builds (with the help iof a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
 
-Verify if backstage is alive using the URL: `https://backstage.apps.qshift.snowdrop.dev`
+Verify if backstage is alive using the URL: `https://idp-backstage.apps.qshift.snowdrop.dev`
+
+### Clean up
+
+To delete the GitHub repository created like the ArgoCD resources on the QShift server, use the following commands
+```bash
+app=my-quarkus-app
+gh repo delete github.com/ch007m/$app --yes
+
+ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+ARGOCD_PWD=<ARGOCD_PWD>
+ARGOCD_USER=admin
+argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOCD_PWD --grpc-web
+
+argocd app delete $app-bootstrap --grpc-web -y
+argocd app list --grpc-web
+```
