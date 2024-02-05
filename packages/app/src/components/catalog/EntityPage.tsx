@@ -134,13 +134,6 @@ const entityWarningContent = (
 const overviewContent = (
   <Grid container spacing={3} alignItems="stretch">
     {entityWarningContent}
-    <EntitySwitch>
-        <EntitySwitch.Case if={e => Boolean(isArgocdAvailable(e))}>
-            <Grid item sm={6}>
-                <EntityArgoCDHistoryCard />
-            </Grid>
-        </EntitySwitch.Case>
-    </EntitySwitch>
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
     </Grid>
@@ -192,6 +185,10 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
+      <EntityLayout.Route path="/cd" title="CD">
+        <EntityArgoCDHistoryCard />
+      </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
         <EntityKubernetesContent refreshIntervalMs={30000} />
