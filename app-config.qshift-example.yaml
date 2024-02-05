@@ -103,3 +103,6 @@ kubernetes:
     - group: 'tekton.dev'
       apiVersion: 'v1'
       plural: 'taskruns'
+    - apiVersion: 'v1'
+      group: 'route.openshift.io'
+      plural: 'routes'
