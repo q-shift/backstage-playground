@@ -1,7 +1,8 @@
-ingress:
+# NOT NEEDED AS WE USE AN OCP ROUTE
+# ingress:
   # enabled: true
   # host: idp-backstage.apps.qshift.snowdrop.dev
-  className: openshift-default
+  # className: openshift-default
 serviceAccount:
   create: true
   name: my-backstage
