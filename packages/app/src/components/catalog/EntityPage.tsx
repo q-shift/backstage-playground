@@ -60,10 +60,8 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
 import {
     EntityArgoCDHistoryCard,
-    isArgocdAvailable,
 } from '@roadiehq/backstage-plugin-argo-cd';
 import {
-    isTektonCIAvailable,
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
 
