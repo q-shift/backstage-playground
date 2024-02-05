@@ -6,7 +6,7 @@ spec:
   host: idp-backstage.apps.qshift.snowdrop.dev
   to:
     kind: Service
-    name: my-backstage
+    name: helm-backstage
     weight: 100
   port:
     targetPort: http-backend
