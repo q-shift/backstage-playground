@@ -62,6 +62,10 @@ import {
     EntityArgoCDHistoryCard,
     isArgocdAvailable,
 } from '@roadiehq/backstage-plugin-argo-cd';
+import {
+    isTektonCIAvailable,
+    TektonCI,
+} from '@janus-idp/backstage-plugin-tekton';
 
 
 const techdocsContent = (
@@ -191,6 +195,10 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
         <EntityKubernetesContent refreshIntervalMs={30000} />
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/pipelines" title="Tekton pipelines">
+         <TektonCI />
     </EntityLayout.Route>
   </EntityLayout>
 );
