@@ -105,7 +105,7 @@ prompt_variables() {
     if [ -n "$BACKSTAGE_APP_BASE_URL" ]; then
         log_message 5 "BACKSTAGE_APP_BASE_URL: ${BACKSTAGE_APP_BASE_URL}"
     else
-        prompt_variable 'BACKSTAGE_APP_BASE_URL' 'Backstage APP Base URL' 0 3000
+        prompt_variable 'BACKSTAGE_APP_BASE_URL' 'Backstage APP Base URL' 0 'localhost:3000'
     fi
 
     if [ -n "$BACKSTAGE_BACKEND_BASE_HOST" ]; then
