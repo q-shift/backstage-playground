@@ -21,6 +21,14 @@ log_message_nonl() {
     fi
 }
 
+# Check the system requirements
+check_requirements() {
+    if ! command -v jinja2 &> /dev/null
+    then
+        log_message 0 "ERROR: jinja2 not installed!"
+        exit 1
+    fi
+}
 
 show_usage () {
     echo ""
@@ -176,6 +184,8 @@ DEFAULT_JINJA2_TEMPLATE_FILE="./manifest/app-config.local.yaml.j2"
 JINJA2_TEMPLATE_VARIABLES=""
 JINJA2_TEMPLATE_SECRETS=""
 LOGGING_VERBOSITY=1
+
+check_requirements
 
 set +e
 while [ $# -gt 0 ]; do
