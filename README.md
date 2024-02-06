@@ -113,3 +113,82 @@ argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOC
 argocd app delete $app-bootstrap --grpc-web -y
 argocd app list --grpc-web
 ```
+
+
+## Tools
+
+### `app-config.yaml` template
+
+The `template_app_config_local.sh` is a tool to help in the generation of 
+ the `app-config.yaml` file. It contains several resources that can be either 
+ enabled or not depending on the provided information.
+
+The goal of the bash script is to transform the provided parameters into 
+ `jinja2` variables that will be replaced inside the script.
+
+The script prompts variables to the user upon execution, 
+ **unless they are defined using the inputs of the script**.
+
+**NOTE**: The script is executed in _strict_ mode so all the 
+ variables that are defined in the template and don't have a _default_ 
+ value must be provided.
+
+| Variable | Meaning |
+| --- | --- |
+| `--batch` | Execute in batch mode. Skips the parameter prompt. |
+| `--help` | Show the script help message. |
+| `--template_file` | Custom location for the template file. |
+| `--verbosity` | Verbosity level for the script output. |
+
+When called without the batch mode the input parameters will be requested to the user, if not already defined.
+
+
+```bash
+./template_app_config_local_prompt.sh
+```
+
+```
+Template file location (default: ./manifest/app-config.local.yaml.j2): 
+Backstage APP Base URL (default: localhost:3000): 
+Backstage Backend Base Host (default: localhost): 
+Backstage Backend Base Port (default: 7007): 
+Catalog Template URL (default: https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml): 
+GitHub Personal Access Token: 
+ArgoCD Server: 
+ArgoCD Admin Password: 
+Kubernetes Service (default: https://kubernetes.default.svc): 
+Service Account Token: 
+```
+
+```bash
+./template_app_config_local.sh --batch \
+  -SERVICE_ACCOUNT_TOKEN I_WONT_TELL \
+  -ARGOCD_ADMIN_PASSWORD password \
+  -ARGOCD_SERVER https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev/ \
+  -GITHUB_PERSONAL_ACCESS_TOKEN I_WONT_TELL_EITHER
+```
+
+Print the help.
+
+```bash
+$ ./template_app_config_local.sh --help
+
+Script for templating the jinja2 app-config.yaml file.
+
+NOTE: The script parameters must come before the template parameters.
+
+Syntax:
+
+template_app_config_local.sh <parameters> <template variables>
+
+Script optional parameters:
+
+--batch				Execute in batch mode. Skips the parameter prompt.
+--help				Show this message
+--template_file <value>		Custom location for the template file.
+--verbosity <value>		Verbosity level for the script output.
+
+Template variables will be provided using the - prefix, e.g.:
+
+  -BACKSTAGE_APP_BASE_URL localhost:3000
+```

@@ -5,18 +5,18 @@ organization:
 
 app:
   title: QShift Backstage App
-  baseUrl: {{ BACKSTAGE_URL | default('localhost:3000') }}
+  baseUrl: {{ BACKSTAGE_APP_BASE_URL | default('localhost:3000') }}
 
 backend:
-  baseUrl: {{ BACKSTAGE_URL | default('localhost:7007') }}
+  baseUrl: {{ BACKSTAGE_BACKEND_BASE_HOST | default('localhost') }}:{{ BACKSTAGE_BACKEND_BASE_PORT | default('7007') }}
   listen:
-    port: 7007
+    port: {{ BACKSTAGE_BACKEND_BASE_PORT | default('7007') }}
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:3000
+    origin: {{ BACKSTAGE_APP_BASE_URL | default('localhost:3000') }}
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
