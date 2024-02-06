@@ -3,12 +3,6 @@
 #
 # Script for templating the jinja2 app-config.local.yaml file.
 
-vvv=xxx
-declare $vvv=123
-echo ${vvv}
-echo ${xxx}
-echo ${!vvv}
-
 set -o errexit
 
 log_message() {
