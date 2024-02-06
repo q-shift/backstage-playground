@@ -16,7 +16,7 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:3000
+    origin: ${BACKSTAGE_URL}:3000 # we add the port only for localhost !!
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
@@ -103,3 +103,6 @@ kubernetes:
     - group: 'tekton.dev'
       apiVersion: 'v1'
       plural: 'taskruns'
+    - apiVersion: 'v1'
+      group: 'route.openshift.io'
+      plural: 'routes'
