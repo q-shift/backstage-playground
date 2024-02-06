@@ -25,7 +25,8 @@ log_message_nonl() {
 check_requirements() {
     if ! command -v jinja2 &> /dev/null
     then
-        log_message 0 "ERROR: jinja2 not installed!"
+        log_message 0 "ERROR: jinja2 not installed! Install it using:"
+        log_message 0 "  sudo dnf install python3-jinja2-cli"
         exit 1
     fi
 }
