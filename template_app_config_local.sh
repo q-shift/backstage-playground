@@ -49,7 +49,6 @@ show_usage () {
 prompt_variables() {
     echo " "
 
-    
     if [ -n "$JINJA2_TEMPLATE_FILE" ]; then
         log_message 5 "JINJA2_TEMPLATE_FILE: ${JINJA2_TEMPLATE_FILE}"
     else
@@ -88,6 +87,16 @@ prompt_variables() {
         fi
     fi
 
+    if [ -n "$BACKSTAGE_AUTH_SECRET" ]; then
+        log_message 5 "BACKSTAGE_AUTH_SECRET: ********"
+    else
+        read -sp 'Backstage Authentication Secret: ' BACKSTAGE_AUTH_SECRET
+        echo ""
+        if [ -n "$BACKSTAGE_AUTH_SECRET" ]; then
+            JINJA2_TEMPLATE_SECRETS+=" -DBACKSTAGE_AUTH_SECRET=${BACKSTAGE_AUTH_SECRET}"
+        fi
+    fi
+
     if [ -n "$TEMPLATE_URL" ]; then
         log_message 5 "TEMPLATE_URL: ${TEMPLATE_URL}"
     else
@@ -98,11 +107,12 @@ prompt_variables() {
     fi
 
     if [ -n "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
-        log_message 5 "GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+        log_message 5 "GITHUB_PERSONAL_ACCESS_TOKEN: ********"
     else
         read -sp 'GitHub Personal Access Token: ' GITHUB_PERSONAL_ACCESS_TOKEN
+        echo ""
         if [ -n "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
-            JINJA2_TEMPLATE_VARIABLES+=" -DGITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}"
+            JINJA2_TEMPLATE_SECRETS+=" -DGITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}"
         fi
     fi
 
@@ -115,12 +125,23 @@ prompt_variables() {
         fi
     fi
 
+    if [ -n "$ARGOCD_AUTH_TOKEN" ]; then
+        log_message 5 "ARGOCD_AUTH_TOKEN: ********"
+    else
+        read -sp 'ArgoCD Authentication Token: ' ARGOCD_AUTH_TOKEN
+        echo ""
+        if [ -n "$ARGOCD_AUTH_TOKEN" ]; then
+            JINJA2_TEMPLATE_SECRETS+=" -DARGOCD_AUTH_TOKEN=${ARGOCD_AUTH_TOKEN}"
+        fi
+    fi
+
     if [ -n "$ARGOCD_ADMIN_PASSWORD" ]; then
-        log_message 5 "ARGOCD_ADMIN_PASSWORD: ${ARGOCD_ADMIN_PASSWORD}"
+        log_message 5 "ARGOCD_ADMIN_PASSWORD: ********"
     else
         read -sp 'ArgoCD Admin Password: ' ARGOCD_ADMIN_PASSWORD
+        echo ""
         if [ -n "$ARGOCD_ADMIN_PASSWORD" ]; then
-            JINJA2_TEMPLATE_VARIABLES+=" -DARGOCD_ADMIN_PASSWORD=${ARGOCD_ADMIN_PASSWORD}"
+            JINJA2_TEMPLATE_SECRETS+=" -DARGOCD_ADMIN_PASSWORD=${ARGOCD_ADMIN_PASSWORD}"
         fi
     fi
 
@@ -134,11 +155,12 @@ prompt_variables() {
     fi
 
     if [ -n "$SERVICE_ACCOUNT_TOKEN" ]; then
-        log_message 5 "SERVICE_ACCOUNT_TOKEN: ${SERVICE_ACCOUNT_TOKEN}"
+        log_message 5 "SERVICE_ACCOUNT_TOKEN: ********"
     else
         read -sp 'Service Account Token: ' SERVICE_ACCOUNT_TOKEN
+        echo ""
         if [ -n "$SERVICE_ACCOUNT_TOKEN" ]; then
-            JINJA2_TEMPLATE_VARIABLES+=" -DSERVICE_ACCOUNT_TOKEN=${SERVICE_ACCOUNT_TOKEN}"
+            JINJA2_TEMPLATE_SECRETS+=" -DSERVICE_ACCOUNT_TOKEN=${SERVICE_ACCOUNT_TOKEN}"
         fi
     fi
 }
@@ -148,6 +170,7 @@ prompt_variables() {
 BATCH_EXECUTION=0
 DEFAULT_JINJA2_TEMPLATE_FILE="./manifest/app-config.local.yaml.j2"
 JINJA2_TEMPLATE_VARIABLES=""
+JINJA2_TEMPLATE_SECRETS=""
 LOGGING_VERBOSITY=1
 
 set +e
@@ -167,7 +190,12 @@ while [ $# -gt 0 ]; do
         value="${1}";
         shift;
         log_message 9 "param: ${param}, value: ${value}"
-        JINJA2_TEMPLATE_VARIABLES+=" -D${param}=${value}"
+        case "$param" in 
+            *SECRET*) JINJA2_TEMPLATE_SECRETS+=" -D${param}=${value}" ;;
+            *TOKEN*) JINJA2_TEMPLATE_SECRETS+=" -D${param}=${value}" ;;
+            *PASS*) JINJA2_TEMPLATE_SECRETS+=" -D${param}=${value}" ;;
+            *) JINJA2_TEMPLATE_VARIABLES+=" -D${param}=${value}" ;;
+        esac
         if [ ! "${BATCH_EXECUTION}" -eq "1" ]; then
         #     JINJA2_TEMPLATE_VARIABLES+=" -D${param}=${value}"
         # else
@@ -192,11 +220,11 @@ log_message 2 "  ${JINJA2_TEMPLATE_VARIABLES}"
 
 log_message 5 ""
 log_message 5 "Command being called to generate the template:"
-log_message 5 "  jinja2 ${JINJA2_TEMPLATE_VARIABLES} ${JINJA2_TEMPLATE_FILE} --strict > app-config.local.yaml"
+log_message 5 "  jinja2 ${JINJA2_TEMPLATE_VARIABLES} JINJA2_TEMPLATE_SECRETS ${JINJA2_TEMPLATE_FILE} --strict > app-config.local.yaml"
 
 log_message 1 ""
 log_message_nonl 1 "Starting the template process..."
 
-jinja2 ${JINJA2_TEMPLATE_VARIABLES} ${JINJA2_TEMPLATE_FILE} --strict > app-config.local.yaml
+jinja2 ${JINJA2_TEMPLATE_VARIABLES} ${JINJA2_TEMPLATE_SECRETS} ${JINJA2_TEMPLATE_FILE} --strict > app-config.local.yaml
 
 log_message 1 " OK!"
