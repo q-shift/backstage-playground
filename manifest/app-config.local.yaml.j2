@@ -29,7 +29,7 @@ backend:
     # See https://backstage.io/docs/auth/service-to-service-auth for
     # information on the format
     keys:
-      - secret: Tg3vL6P2w74xP/fcSpmv0ulZw2Lx1wsr
+      - secret: {{ BACKSTAGE_AUTH_SECRET }}
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
@@ -42,6 +42,14 @@ proxy: {}
 #   '/test':
 #     target: 'https://example.com'
 #     changeOrigin: true
+  endpoints:
+    '/argocd/api':
+      target: {{ ARGOCD_SERVER }}
+      changeOrigin: true
+      secure: false
+      headers:
+        Cookie:
+          $env: {{ ARGOCD_AUTH_TOKEN }}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
