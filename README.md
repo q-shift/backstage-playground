@@ -144,7 +144,7 @@ When called without the batch mode the input parameters will be requested to the
 
 
 ```bash
-./template_app_config_local_prompt.sh
+./template_app_config_local.sh
 ```
 
 ```
