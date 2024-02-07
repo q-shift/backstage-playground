@@ -60,6 +60,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
 import {
     EntityArgoCDHistoryCard,
+    EntityArgoCDOverviewCard,
 } from '@roadiehq/backstage-plugin-argo-cd';
 import {
     TektonCI,
@@ -185,6 +186,7 @@ const serviceEntityPage = (
     </EntityLayout.Route>
 
       <EntityLayout.Route path="/cd" title="CD">
+        <EntityArgoCDOverviewCard />
         <EntityArgoCDHistoryCard />
       </EntityLayout.Route>
 
