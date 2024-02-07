@@ -1,6 +1,6 @@
 import { useK8sObjectsResponse } from '../services/useK8sObjectsResponse';
 import { K8sResourcesContext } from '../services/K8sResourcesContext';
-import { ModelsPlural } from "../models";
+import {ModelsPlural} from "../models";
 
 export const QuarkusComponent = (props: any) => {
     const watchedResources = [
