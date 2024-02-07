@@ -185,10 +185,16 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-      <EntityLayout.Route path="/cd" title="CD">
-        <EntityArgoCDOverviewCard />
-        <EntityArgoCDHistoryCard />
-      </EntityLayout.Route>
+    <EntityLayout.Route path="/cd" title="CD">
+      <Grid container spacing={3} alignItems="stretch">    
+        <Grid item md={12}>
+          <EntityArgoCDOverviewCard />
+        </Grid>
+        <Grid item md={12}>
+          <EntityArgoCDHistoryCard />
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
         <EntityKubernetesContent refreshIntervalMs={30000} />
