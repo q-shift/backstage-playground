@@ -64,6 +64,7 @@ import {
 import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
+import { QuarkusConsolePage } from "@internal/plugin-quarkus-console";
 
 
 const techdocsContent = (
@@ -184,12 +185,16 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-      <EntityLayout.Route path="/cd" title="CD">
-        <EntityArgoCDHistoryCard />
+    <EntityLayout.Route path="/cd" title="CD">
+      <EntityArgoCDHistoryCard />
+    </EntityLayout.Route>
+
+      <EntityLayout.Route path="/quarkus" title="Quarkus">
+          <QuarkusConsolePage />
       </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
-        <EntityKubernetesContent refreshIntervalMs={30000} />
+      <EntityKubernetesContent refreshIntervalMs={30000} />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/pipelines" title="Tekton pipelines">
