@@ -64,7 +64,7 @@ import {
 import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
-import { QuarkusConsolePage } from "@internal/plugin-quarkus-console";
+import {QuarkusComponent, QuarkusConsolePage} from "@internal/plugin-quarkus-console";
 
 
 const techdocsContent = (
@@ -190,7 +190,7 @@ const serviceEntityPage = (
     </EntityLayout.Route>
 
       <EntityLayout.Route path="/quarkus" title="Quarkus">
-          <QuarkusConsolePage />
+        <QuarkusComponent />
       </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">

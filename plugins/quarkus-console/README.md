@@ -27,7 +27,68 @@ The section describes the different steps followed to create the plugin and inte
 "@backstage/plugin-kubernetes": "0.11.3",
 "@backstage/plugin-kubernetes-common": "0.7.4",
 ```
-- 
+- Create under the folder `components` a new file `QuarkusComponent.tsx`. This typescript will be used as entry function to get the resources associated to an entity
+```typescript
+import { useK8sObjectsResponse } from '../services/useK8sObjectsResponse';
+import { K8sResourcesContext } from '../services/K8sResourcesContext';
+
+export enum ModelsPlural {
+    pods = 'pods',
+} 
+
+export const QuarkusComponent = (props: any) => {
+    const watchedResources = [
+        ModelsPlural.pods,
+    ];
+    const k8sResourcesContextData = useK8sObjectsResponse(watchedResources);
+
+    return (
+        <K8sResourcesContext.Provider value={k8sResourcesContextData}>
+            /* TODO */
+        </K8sResourcesContext.Provider>
+    );
+};
+```
+- Create a new folder `services` where we will declare the different services able to fetch the kubernetes resources: `useK8sObjectsResponse`, `useK8sResourcesClusters`, etc
+```typescript
+// ./src/services/useK8sObjectsResponse
+import { useState } from 'react';
+
+import { useEntity } from '@backstage/plugin-catalog-react';
+import { useKubernetesObjects } from '@backstage/plugin-kubernetes';
+
+import { K8sResourcesContextData } from '../types/types';
+import { useAllWatchResources } from './useAllWatchResources';
+import { useK8sResourcesClusters } from './useK8sResourcesClusters';
+
+export const useK8sObjectsResponse = (
+    watchedResource: string[],
+): K8sResourcesContextData => {
+    const { entity } = useEntity();
+    const { kubernetesObjects, loading, error } = useKubernetesObjects(entity);
+    const [selectedCluster, setSelectedCluster] = useState<number>(0);
+    const watchResourcesData = useAllWatchResources(
+        watchedResource,
+        { kubernetesObjects, loading, error },
+        selectedCluster,
+    );
+    const { clusters, errors: clusterErrors } = useK8sResourcesClusters({
+        kubernetesObjects,
+        loading,
+        error,
+    });
+    return {
+        watchResourcesData,
+        loading,
+        responseError: error,
+        selectedClusterErrors: clusterErrors?.[selectedCluster] ?? [],
+        clusters,
+        setSelectedCluster,
+        selectedCluster,
+    };
+};
+```
+
 
 ## Getting started
 
