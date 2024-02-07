@@ -18,6 +18,7 @@ The section describes the different steps followed to create the plugin and inte
 - New `<SidebarItem icon={QuarkusIcon} to="quarkus" text="Quarkus" />` added to `src/components/Root/Root.tsx`
 - New `<EntityLayout.Route path="/quarkus" title="Quarkus">` added to the `EntityPage.tsx`
 - If you plan to use some images `<img src="myImage" .../>`, then create a `imgs` folder and move your svg files there.
+- Refactor the code to manage the data and types in separate files: `data.ts`, `type.ts`
 
 ### Access Kubernetes
 
@@ -26,6 +27,7 @@ The section describes the different steps followed to create the plugin and inte
 "@backstage/plugin-kubernetes": "0.11.3",
 "@backstage/plugin-kubernetes-common": "0.7.4",
 ```
+- 
 
 ## Getting started
 
