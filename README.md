@@ -53,10 +53,12 @@ To use this project, git clone it
 
 Create your `app-config.qshift.yaml` file using the [app-config.qshift-example.yaml](app-config.qshift-example.yaml) file included within this project.
 Take care to provide the following password/tokens:
-- GitHub Personal Access Token
-- Argo CD Cluster password
-- Argo CD Auth token
-- etc
+
+| Type                         |                                                                                   How to get it                                                                                    | 
+|------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| GitHub Personal Access Token |                                   See [backstage doc](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)                                    |
+| Argo CD Cluster password     |                                  `kubectl -n openshift-gitops get secret/openshift-gitops-cluster -ojson jq '.data."admin.password" \| @base64d'                                   | 
+| Argo CD Auth token           | `curl -sk -X POST -H "Content-Type: application/json" -d '{"username": "'${ARGOCD_USER}'","password": "'${ARGOCD_PWD}'"}' "https://$ARGOCD_SERVER/api/v1/session" \| jq -r .token` |
 
 Next run the following command:
 
