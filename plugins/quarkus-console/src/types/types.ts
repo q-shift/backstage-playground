@@ -2,7 +2,6 @@ import {
   V1CronJob,
   V1DaemonSet,
   V1Deployment,
-  V1IngressRule,
   V1Job,
   V1Pod,
   V1ReplicaSet,
@@ -37,11 +36,6 @@ export type K8sResponseData = {
   [key: string]: { data: K8sWorkloadResource[] };
 };
 
-export type IngressRule = {
-  schema: string;
-  rules: V1IngressRule[];
-};
-
 export type ClusterError = {
   errorType?: string;
   message?: string;
@@ -59,24 +53,4 @@ export type K8sResourcesContextData = {
   clusters: string[];
   setSelectedCluster: React.Dispatch<React.SetStateAction<number>>;
   selectedCluster?: number;
-};
-
-export type TektonResponseData = {
-  [key: string]: { data: any[] };
-};
-
-export type TopologyDisplayOption = {
-  id: string;
-  label: string;
-  value: boolean;
-};
-
-export type DisplayFilters = TopologyDisplayOption[];
-export type SetAppliedTopologyFilters = (
-  filters: TopologyDisplayOption[],
-) => void;
-
-export type FilterContextType = {
-  filters?: DisplayFilters;
-  setAppliedTopologyFilters?: SetAppliedTopologyFilters;
 };
