@@ -65,6 +65,10 @@ import {
 import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
+import {
+    QuarkusComponent,
+    QuarkusComponentPodsTable,
+} from "@internal/plugin-quarkus-console";
 import { TopologyPage } from '@janus-idp/backstage-plugin-topology';
 
 
@@ -185,6 +189,10 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/topology" title="Topology">
         <TopologyPage />
     </EntityLayout.Route>
+    
+    <EntityLayout.Route path="/quarkus" title="Quarkus">
+      <QuarkusComponentPodsTable />
+    </EntityLayout.Route>
 
     <EntityLayout.Route path="/cd" title="CD">
       <Grid container spacing={3} alignItems="stretch">    
@@ -198,7 +206,7 @@ const serviceEntityPage = (
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
-        <EntityKubernetesContent refreshIntervalMs={30000} />
+      <EntityKubernetesContent refreshIntervalMs={30000} />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/pipelines" title="Tekton pipelines">
