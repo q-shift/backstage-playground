@@ -65,6 +65,7 @@ import {
 import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
+import { TopologyPage } from '@janus-idp/backstage-plugin-topology';
 
 
 const techdocsContent = (
@@ -155,10 +156,6 @@ const serviceEntityPage = (
       {overviewContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/ci-cd" title="CI/CD">
-      {cicdContent}
-    </EntityLayout.Route>
-
     <EntityLayout.Route path="/api" title="API">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -183,6 +180,10 @@ const serviceEntityPage = (
 
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/topology" title="Topology">
+        <TopologyPage />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/cd" title="CD">
