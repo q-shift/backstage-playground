@@ -1,9 +1,15 @@
 import {useK8sObjectsResponse} from '../services/useK8sObjectsResponse';
 import {K8sResourcesContext} from '../services/K8sResourcesContext';
 import {ModelsPlural} from "../models";
+import {
+    V1Pod,
+} from '@kubernetes/client-node';
 import React from 'react';
-import {K8sResponseData, K8sWorkloadResource} from "../types/types";
-import {V1Pod} from "@kubernetes/client-node";
+import {
+    Content,
+    Page,
+} from '@backstage/core-components';
+import {K8sWorkloadResource} from "../types/types";
 
 export const QuarkusComponent = () => {
     const watchedResources = [
@@ -13,38 +19,51 @@ export const QuarkusComponent = () => {
 
     return (
         <K8sResourcesContext.Provider value={k8sResourcesContextData}>
-            <MyComp/>
+            {/* <Pod2/> */}
+            <Pod1/>
         </K8sResourcesContext.Provider>
     );
 };
 
-const MyComp = () => {
-    const k8sResponse = React.useContext(K8sResourcesContext);
-    const k8sData = k8sResponse.watchResourcesData;
-    const podsData = k8sData["pods"];
-    let podData: V1Pod = {};
-
-    if (podsData && podsData.data && podsData.data.length > 0) {
-        // Access the first entry
-        const podData = podsData.data[0];
-        console.log("Pod data:", JSON.stringify(podData));
-    }
-
-/*    const students = [
-        { name: 'John Doe', age: 12 },
-        { name: 'Jane Doe', age: 14 },
-    ];*/
+{/* ==> item.metadata is undefined */}
+const Pod1 = () => {
+    const { watchResourcesData } = React.useContext(K8sResourcesContext);
+    const k8sResources: K8sWorkloadResource[] | undefined = watchResourcesData?.pods?.data;
+    const pods: V1Pod[] = k8sResources ? k8sResources : [];
+    console.log("Pods :",pods);
 
     return (
-        <p>
-{/*            {students.map((student, index) => (
-                <div key={index}>
-                    <span>{student.name}</span>
-                    <span>{student.age}</span>
+        <Page themeId="tool">
+            <Content>
+                <div>
+                {pods.length > 0 && pods.map((item, i) => {
+                    return (
+                        <div key={i}>Pod name: {item.metadata.name}</div>
+                    );
+                })}
                 </div>
-            ))}*/}
-            <br/>
-            <span>Pod data: {JSON.stringify(podData)}</span>
-        </p>
-    )
+            </Content>
+        </Page>
+    );
+};
+
+{/* That works */}
+const Pod2 = () => {
+    const {
+        watchResourcesData,
+    } = React.useContext(K8sResourcesContext);
+
+    return (
+        <Page themeId="tool">
+            <Content>
+                <div>
+                    {watchResourcesData?.pods?.data?.map((item, i) => {
+                        return (
+                            <div key={i}>Pod name: {item.metadata.name}</div>
+                        );
+                    })}
+                </div>
+            </Content>
+        </Page>
+    );
 };
