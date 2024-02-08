@@ -60,6 +60,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
 import {
     EntityArgoCDHistoryCard,
+    EntityArgoCDOverviewCard,
 } from '@roadiehq/backstage-plugin-argo-cd';
 import {
     TektonCI,
@@ -68,6 +69,7 @@ import {
     QuarkusComponent,
     QuarkusComponentPodsTable,
 } from "@internal/plugin-quarkus-console";
+import { TopologyPage } from '@janus-idp/backstage-plugin-topology';
 
 
 const techdocsContent = (
@@ -158,10 +160,6 @@ const serviceEntityPage = (
       {overviewContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/ci-cd" title="CI/CD">
-      {cicdContent}
-    </EntityLayout.Route>
-
     <EntityLayout.Route path="/api" title="API">
       <Grid container spacing={3} alignItems="stretch">
         <Grid item md={6}>
@@ -188,13 +186,24 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-    <EntityLayout.Route path="/cd" title="CD">
-      <EntityArgoCDHistoryCard />
+    <EntityLayout.Route path="/topology" title="Topology">
+        <TopologyPage />
+    </EntityLayout.Route>
+    
+    <EntityLayout.Route path="/quarkus" title="Quarkus">
+      <QuarkusComponentPodsTable />
     </EntityLayout.Route>
 
-      <EntityLayout.Route path="/quarkus" title="Quarkus">
-        <QuarkusComponentPodsTable />
-      </EntityLayout.Route>
+    <EntityLayout.Route path="/cd" title="CD">
+      <Grid container spacing={3} alignItems="stretch">    
+        <Grid item md={12}>
+          <EntityArgoCDOverviewCard />
+        </Grid>
+        <Grid item md={12}>
+          <EntityArgoCDHistoryCard />
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
       <EntityKubernetesContent refreshIntervalMs={30000} />

@@ -5,6 +5,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
 - ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd)
 - [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)
+- [Topology plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)
 
 **Note**: It has been developed using backstage version: 1.21.0
 
@@ -53,10 +54,13 @@ To use this project, git clone it
 
 Create your `app-config.qshift.yaml` file using the [app-config.qshift-example.yaml](app-config.qshift-example.yaml) file included within this project.
 Take care to provide the following password/tokens:
-- GitHub Personal Access Token
-- Argo CD Cluster password
-- Argo CD Auth token
-- etc
+
+| Type                         |                                                                                   How to get it                                                                                    | 
+|------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| GitHub Personal Access Token |                                   See [backstage doc](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)                                    |
+| Argo CD Cluster password     |                                `kubectl -n openshift-gitops get secret/openshift-gitops-cluster -ojson \| jq '.data."admin.password" \| @base64d'`                                 | 
+| Argo CD Auth token           | `curl -sk -X POST -H "Content-Type: application/json" -d '{"username": "'${ARGOCD_USER}'","password": "'${ARGOCD_PWD}'"}' "https://$ARGOCD_SERVER/api/v1/session" \| jq -r .token` |
+| Backstage's kubernetes Token |                                     `kubectl -n backstage get secret my-backstage-token-xxx -o go-template='{{.data.token \| base64decode}}'`                                      |
 
 Next run the following command:
 
@@ -86,8 +90,7 @@ Next, deploy it within the namespace where backstage will run.
 ```bash
 NAMESPACE=backstage
 kubectl create configmap my-app-config -n $NAMESPACE \
-  --from-file=app-config.qshift.yaml=app-config.qshift.yaml \
-  -o yaml --dry-run=client | kubectl apply -n $NAMESPACE -f -
+  --from-file=app-config.qshift.yaml=app-config.qshift.yaml | kubectl apply -n $NAMESPACE -f -
 ```
 Deploy backstage on the platform using this ArgoCD Application CR:
 ```bash
