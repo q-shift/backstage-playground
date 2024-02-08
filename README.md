@@ -26,7 +26,7 @@ Before to run the backstage playground, it is needed to perform some first steps
 
 Verify first that you have access to an OCP4.x cluster where Argo CD, Kubevirt, Tekton have been installed (using their corresponding operator) and are configure properly
 
-Next create within the namespace where the pipeline will be executed to build the image the following secret
+Next create the following secret.
 ```bash
 QUAY_CREDS=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
 DOCKER_CREDS=$(echo -n "<DOCKER_USER>:<DOCKER_PWD>" | base64)
@@ -44,8 +44,10 @@ cat <<EOF > config.json
   }
 }
 EOF
-kubectl create secret generic dockerconfig-secret -n <PIPELINE_NAMESPACE> --from-file=config.json
+kubectl create secret generic dockerconfig-secret -n <PIPELINE_BUILD_NAMESPACE> --from-file=config.json
 ```
+**NOTE**: The <PIPELINE_BUILD_NAMESPACE> corresponds to the namespace specified during the scaffolding's step and is suffixed with `-build` (example: `qshift-build`).
+
 Create a GitHub Personal Access token (see backstage instruction [here](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)) to been able to 
 scaffold a Quarkus application within your GitHub organization
 

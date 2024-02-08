@@ -6636,10 +6636,10 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@qshift/plugin-quarkus-backend@^0.1.18":
-  version "0.1.18"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.18.tgz#c95d820228ae08ec87541ad158694bf6ec7180aa"
-  integrity sha512-syWprfbec2Hv/H3auhXiTPdUmqCzeawRpdR0FIWlbbZZ/dNVG6jeSv0RUHEx+t+IRbjmlEgGMaHVx7vmg5+imQ==
+"@qshift/plugin-quarkus-backend@^0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.20.tgz#1527855ebeb2159ae42c466a8460d07a694aacd8"
+  integrity sha512-asQ4DaItfceoJb5wcNHYnw+GdcS+CdyJnro9VppIV4TNXHNN4Ji6IY1C4QWx5sTuiMJerwX4MuqIP/4kbO/Bgg==
   dependencies:
     "@backstage/backend-common" "^0.20.0"
     "@backstage/config" "^1.1.1"
@@ -6655,13 +6655,35 @@
     winston "^3.2.1"
     yn "^4.0.0"
 
-"@qshift/plugin-quarkus@^0.1.18":
-  version "0.1.18"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.18.tgz#973c66f7c350e45ec0df95bccfb950f45546f842"
-  integrity sha512-T4f3eomq3Q8PLe5+6nI0vqdDGyPoosXYVCHfky1VtUUXK3OoRu2YuvnnHsY+OjQVHr7WgKb3nwkJ3vTpjDIl0Q==
+"@qshift/plugin-quarkus-console@^0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-console/-/plugin-quarkus-console-0.1.20.tgz#cc12fa48b42ec92ed9f83f95b39a719f4d60c1d7"
+  integrity sha512-hBSHXwxOH9sNKksFuck5cNpkj0x6AxL1GSGJfbtjToxtlrOw6EX4mzmQGgASX4k2IC8jfpcASC8LvjsOD/VGzQ==
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.8.1"
+    "@backstage/plugin-kubernetes" "0.11.4"
+    "@backstage/plugin-kubernetes-common" "0.7.3"
+    "@backstage/plugin-scaffolder" "^1.17.0"
+    "@backstage/plugin-scaffolder-react" "^1.7.0"
+    "@backstage/theme" "^0.5.0"
+    "@material-ui/core" "^4.12.4"
+    "@material-ui/icons" "^4.9.1"
+    "@material-ui/lab" "^4.0.0-alpha.61"
+    "@rjsf/utils" "^5.15.1"
+    axios "^1.6.5"
+    react-use "^17.2.4"
+    styled-components "^6.1.8"
+
+"@qshift/plugin-quarkus@^0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.20.tgz#a78ed0ca45e7394e476993510e5187f404df17e2"
+  integrity sha512-K5pPy8PC6sJ+aMT3A8bHGjIaSmlaVxWz536OoH6g0LNfbvZTkMPfUHFDyjalQtNOYhgsApwQ+AAd9n+qawRosA==
+  dependencies:
+    "@backstage/core-components" "^0.13.9"
+    "@backstage/core-plugin-api" "^1.8.1"
+    "@backstage/plugin-kubernetes" "0.11.4"
+    "@backstage/plugin-kubernetes-common" "0.7.3"
     "@backstage/plugin-scaffolder" "^1.17.0"
     "@backstage/plugin-scaffolder-react" "^1.7.0"
     "@backstage/theme" "^0.5.0"
@@ -10295,12 +10317,12 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@backstage/plugin-techdocs-react" "^1.1.14"
     "@backstage/plugin-user-settings" "^0.7.14"
     "@backstage/theme" "^0.5.0"
-    "@internal/plugin-quarkus-console" "^0.1.0"
     "@janus-idp/backstage-plugin-tekton" "^3.5.3"
     "@janus-idp/backstage-plugin-topology" "^1.18.2"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
-    "@qshift/plugin-quarkus" "^0.1.18"
+    "@qshift/plugin-quarkus" "^0.1.20"
+    "@qshift/plugin-quarkus-console" "^0.1.20"
     "@roadiehq/backstage-plugin-argo-cd" "2.4.1"
     history "^5.0.0"
     react "^17.0.2"
