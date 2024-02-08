@@ -41,6 +41,7 @@
     "@backstage/plugin-techdocs-backend": "^1.9.1",
     "@qshift/plugin-quarkus-backend": "^0.1.18",
     "@roadiehq/scaffolder-backend-argocd": "^1.1.19",
+    "@roadiehq/backstage-plugin-argo-cd-backend": "^2.14.0",
     "app": "link:../app",
     "better-sqlite3": "^9.0.0",
     "dockerode": "^3.3.1",

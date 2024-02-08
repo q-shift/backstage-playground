@@ -60,6 +60,7 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { EntityKubernetesContent } from '@backstage/plugin-kubernetes';
 import {
     EntityArgoCDHistoryCard,
+    EntityArgoCDOverviewCard,
 } from '@roadiehq/backstage-plugin-argo-cd';
 import {
     TektonCI,
@@ -184,9 +185,16 @@ const serviceEntityPage = (
       {techdocsContent}
     </EntityLayout.Route>
 
-      <EntityLayout.Route path="/cd" title="CD">
-        <EntityArgoCDHistoryCard />
-      </EntityLayout.Route>
+    <EntityLayout.Route path="/cd" title="CD">
+      <Grid container spacing={3} alignItems="stretch">    
+        <Grid item md={12}>
+          <EntityArgoCDOverviewCard />
+        </Grid>
+        <Grid item md={12}>
+          <EntityArgoCDHistoryCard />
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
 
     <EntityLayout.Route path="/kubernetes" title="Kubernetes">
         <EntityKubernetesContent refreshIntervalMs={30000} />

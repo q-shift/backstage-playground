@@ -6958,7 +6958,7 @@
     lodash "^4.17.21"
     lodash-es "^4.17.21"
 
-"@roadiehq/backstage-plugin-argo-cd-backend@^2.12.1":
+"@roadiehq/backstage-plugin-argo-cd-backend@^2.12.1", "@roadiehq/backstage-plugin-argo-cd-backend@^2.14.0":
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/@roadiehq/backstage-plugin-argo-cd-backend/-/backstage-plugin-argo-cd-backend-2.14.0.tgz#c7899905528f8c252aebb274bf5aa3447ff6a3a4"
   integrity sha512-uXyVB+etTDlw0uSzPtUVHY+KuqBq00izx+QzgnuavIywAGPb98bzo8Ix34pCqrxVSZVLiJJkQapsXa/LkOgjhg==
@@ -6973,10 +6973,10 @@
     winston "^3.2.1"
     yn "^4.0.0"
 
-"@roadiehq/backstage-plugin-argo-cd@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/@roadiehq/backstage-plugin-argo-cd/-/backstage-plugin-argo-cd-2.5.1.tgz#e234d81fc4cc55633330ab174b617c9671bf8dfb"
-  integrity sha512-R2NyZ0EGOn5vu5XD8ia+PYPs0DbX1U/qjODoROfWVTPQbqQj3ogsxXfDFU3Zitx0IQHAPFAcRBcCWmd89fvujw==
+"@roadiehq/backstage-plugin-argo-cd@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@roadiehq/backstage-plugin-argo-cd/-/backstage-plugin-argo-cd-2.4.1.tgz#5b874e690bb9f37e2462433f93151821ce33b1f6"
+  integrity sha512-9S8+DXP01/2pPCaK9+tvdBl5+5MquPisR1KptFh+sr0088VtfPZqUv7gAT/WykzgDca/oLXhMh9dLXJWd0S7Nw==
   dependencies:
     "@backstage/catalog-model" "^1.4.3"
     "@backstage/core-components" "^0.13.8"
@@ -10197,7 +10197,7 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
     "@qshift/plugin-quarkus" "^0.1.18"
-    "@roadiehq/backstage-plugin-argo-cd" "^2.5.1"
+    "@roadiehq/backstage-plugin-argo-cd" "2.4.1"
     history "^5.0.0"
     react "^17.0.2"
     react-dom "^17.0.2"
