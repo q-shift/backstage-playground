@@ -57,8 +57,9 @@ Take care to provide the following password/tokens:
 | Type                         |                                                                                   How to get it                                                                                    | 
 |------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | GitHub Personal Access Token |                                   See [backstage doc](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)                                    |
-| Argo CD Cluster password     |                                 `kubectl -n openshift-gitops get secret/openshift-gitops-cluster -ojson \| jq '.data."admin.password" \| @base64d'`                                 | 
+| Argo CD Cluster password     |                                `kubectl -n openshift-gitops get secret/openshift-gitops-cluster -ojson \| jq '.data."admin.password" \| @base64d'`                                 | 
 | Argo CD Auth token           | `curl -sk -X POST -H "Content-Type: application/json" -d '{"username": "'${ARGOCD_USER}'","password": "'${ARGOCD_PWD}'"}' "https://$ARGOCD_SERVER/api/v1/session" \| jq -r .token` |
+| Backstage's kubernetes Token |                                     `kubectl -n backstage get secret my-backstage-token-xxx -o go-template='{{.data.token \| base64decode}}'`                                      |
 
 Next run the following command:
 
@@ -88,8 +89,7 @@ Next, deploy it within the namespace where backstage will run.
 ```bash
 NAMESPACE=backstage
 kubectl create configmap my-app-config -n $NAMESPACE \
-  --from-file=app-config.qshift.yaml=app-config.qshift.yaml \
-  -o yaml --dry-run=client | kubectl apply -n $NAMESPACE -f -
+  --from-file=app-config.qshift.yaml=app-config.qshift.yaml | kubectl apply -n $NAMESPACE -f -
 ```
 Deploy backstage on the platform using this ArgoCD Application CR:
 ```bash
