@@ -1,7 +1,7 @@
-import { quarkusConsolePlugin } from './plugin';
+import {QuarkusConsolePlugin} from './plugin';
 
 describe('quarkus-console', () => {
   it('should export plugin', () => {
-    expect(quarkusConsolePlugin).toBeDefined();
+    expect(QuarkusConsolePlugin).toBeDefined();
   });
 });

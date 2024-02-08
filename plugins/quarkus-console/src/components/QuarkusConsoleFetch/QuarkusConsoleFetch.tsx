@@ -1,24 +1,14 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import { Table, TableColumn, Progress, ResponseErrorPanel } from '@backstage/core-components';
 import useAsync from 'react-use/lib/useAsync';
 import { Apps } from './data';
 import { App } from "./type";
-
-const useStyles = makeStyles({
-  avatar: {
-    height: 32,
-    width: 32,
-    borderRadius: '50%',
-  },
-});
 
 type DenseTableProps = {
   apps: App[];
 };
 
 export const DenseTable = ({ apps }: DenseTableProps) => {
-  const classes = useStyles();
   const columns: TableColumn[] = [
     { title: 'Name', field: 'name' },
     { title: 'Kind', field: 'kind' },

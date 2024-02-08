@@ -69,8 +69,9 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         <SidebarItem icon={HomeIcon} to="catalog" text="Home" />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
-        {/* Quarkus applications */}
+        {/* Quarkus applications - NOT USED
         <SidebarItem icon={QuarkusIcon} to="quarkus" text="Quarkus" />
+        */}
 
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
         {/* End global nav */}

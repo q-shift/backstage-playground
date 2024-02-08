@@ -6,6 +6,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd)
 - [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)
 - [Topology plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)
+- Quarkus Console Plugin (WIP)
 
 **Note**: It has been developed using backstage version: 1.21.0
 
