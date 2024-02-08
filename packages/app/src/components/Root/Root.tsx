@@ -26,7 +26,6 @@ import {
 } from '@backstage/core-components';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
-import { QuarkusIcon } from "@internal/plugin-quarkus-console";
 
 const useSidebarLogoStyles = makeStyles({
   root: {
