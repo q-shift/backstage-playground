@@ -36,7 +36,7 @@ export const QuarkusComponentPodsTable = () => {
 const Pods = () => {
     const { watchResourcesData } = React.useContext(K8sResourcesContext);
     const k8sResources: K8sWorkloadResource[] | undefined = watchResourcesData?.pods?.data;
-    const pods: V1Pod[] = k8sResources ? k8sResources : [];
+    const pods: V1Pod[] = k8sResources ? k8sResources as V1Pod[]: [];
     console.log("Pods :",pods);
 
     return (

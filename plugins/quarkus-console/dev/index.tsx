@@ -1,9 +1,9 @@
 import React from 'react';
 import { createDevApp } from '@backstage/dev-utils';
-import { quarkusConsolePlugin, QuarkusConsolePage } from '../src/plugin';
+import { QuarkusConsolePlugin, QuarkusConsolePage } from '../src/plugin';
 
 createDevApp()
-  .registerPlugin(quarkusConsolePlugin)
+  .registerPlugin(QuarkusConsolePlugin)
   .addPage({
     element: <QuarkusConsolePage />,
     title: 'Root Page',

@@ -66,7 +66,6 @@ import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
 import {
-    QuarkusComponent,
     QuarkusComponentPodsTable,
 } from "@internal/plugin-quarkus-console";
 import { TopologyPage } from '@janus-idp/backstage-plugin-topology';
