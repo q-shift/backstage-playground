@@ -132,7 +132,7 @@ prompt_variables() {
     if [ -n "$BACKSTAGE_AUTH_SECRET" ]; then
         log_message 5 "BACKSTAGE_AUTH_SECRET: ********"
     else
-        prompt_variable 'BACKSTAGE_AUTH_SECRET' 'Backstage Authentication Secret' 1
+        prompt_variable 'BACKSTAGE_AUTH_SECRET' 'Backstage Authentication Secret' 1 $(node -p 'require("crypto").randomBytes(24).toString("base64")')
     fi
 
     if [ -n "$TEMPLATE_URL" ]; then
