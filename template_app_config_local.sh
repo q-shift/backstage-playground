@@ -45,7 +45,7 @@ show_usage () {
     echo ""
     echo -e "--batch\t\t\t\tExecute in batch mode. Skips the parameter prompt."
     echo -e "--help\t\t\t\tShow this message"
-    echo -e "--template_file <value>\t\tCustom location for the template file."
+    echo -e "--template_file <value>\t\tPath to use your custom backstage app-config template file."
     echo -e "--verbosity <value>\t\tVerbosity level for the script output."
     echo ""
     echo "Template variables will be provided using the - prefix, e.g.:"
@@ -144,7 +144,7 @@ prompt_variables() {
     if [ -n "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
         log_message 5 "GITHUB_PERSONAL_ACCESS_TOKEN: ********"
     else
-        prompt_variable 'GITHUB_PERSONAL_ACCESS_TOKEN' 'GitHub Personal Access Token' 1
+        prompt_variable 'GITHUB_PERSONAL_ACCESS_TOKEN' 'The GitHub Personal Access Token to access your Org' 1
     fi
 
     if [ -n "$ARGOCD_SERVER" ]; then
