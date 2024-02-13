@@ -97,7 +97,7 @@ kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env
 
 Deploy the q-shift backstage application:
 ```bash
-cat manifest/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
+cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
 kubectl apply -f argocd.yaml
 ```
 

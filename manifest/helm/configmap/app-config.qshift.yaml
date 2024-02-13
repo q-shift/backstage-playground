@@ -27,7 +27,8 @@ backend:
     # Used for enabling authentication, secret is shared by all backend plugins
     # See https://backstage.io/docs/auth/service-to-service-auth for
     # information on the format
-    keys: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
+    keys:
+    - secret: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
