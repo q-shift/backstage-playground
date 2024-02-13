@@ -43,6 +43,7 @@ show_usage () {
     echo ""
     echo "Script optional parameters:"
     echo ""
+    echo -e "--accept_defaults\t\tWhen defaults are proposed accept them without prompting for input."
     echo -e "--batch\t\t\t\tExecute in batch mode. Skips the parameter prompt."
     echo -e "--help\t\t\t\tShow this message"
     echo -e "--template_file <value>\t\tPath to use your custom backstage app-config template file."
@@ -55,7 +56,7 @@ show_usage () {
 }
 
 prompt_variable() {
-    log_message 9 "# prompt_variable script"
+    log_message 9 "## prompt_variable script"
     declare name=$1
     declare prompt_text=$2
     declare is_secret=$3
@@ -68,65 +69,95 @@ prompt_variable() {
     if [ -n "$default_value" ]; then
         prompt_text+=" (default: ${default_value})"
     fi
-    log_message 9 "Prompt variable: <name: $name>; <default_value: $default_value>"
-    if [ -n "${!name}" ]; then
-        log_message 5 "${name}: ${value}"
-    else
-        read ${read_switch} "${prompt_text}: " LOCAL_VARIABLE
+    log_message 9 "## Prompt variable: <name: $name>; <default_value: $default_value>"
+    if [ "${ACCEPT_DEFAULTS}" -eq "1" ] && [ -n "$default_value" ] ; then
         if [ "${is_secret}" -eq "1" ]; then
-            # Change line, required for usability as the read was made without printing the characters.
-            echo ""
-        fi
-        # log_message 9 "LOCAL_VARIABLE: <${LOCAL_VARIABLE}>"
-        if [ -n "$LOCAL_VARIABLE" ]; then
-            # log_message 9 "LOCAL_VARIABLE defined: <${LOCAL_VARIABLE}>"
-            if [ "${is_secret}" -eq "1" ]; then
-                JINJA2_TEMPLATE_SECRETS+=" -D${name}=${value}"
-            else
-                JINJA2_TEMPLATE_VARIABLES+=" -D${name}=${value}"
-            fi
+            JINJA2_TEMPLATE_SECRETS+=" -D${name}=${default_value}"
+            log_message 9 "## JINJA2_TEMPLATE_SECRETS: <${JINJA2_TEMPLATE_SECRETS}>"
         else
-            if [ -n "$default_value" ]; then
+            JINJA2_TEMPLATE_VARIABLES+=" -D${name}=${default_value}"
+            log_message 9 "## JINJA2_TEMPLATE_VARIABLES: <${JINJA2_TEMPLATE_VARIABLES}>"
+        fi
+    else
+        if [ -n "${!name}" ]; then
+            log_message 5 "${name}: ${value}"
+        else
+            read ${read_switch} "${prompt_text}: " LOCAL_VARIABLE
+            if [ "${is_secret}" -eq "1" ]; then
+                # Change line, required for usability as the read was made without printing the characters.
+                echo ""
+            fi
+            log_message 9 "## LOCAL_VARIABLE: <${LOCAL_VARIABLE}>"
+            if [ -n "$LOCAL_VARIABLE" ]; then
+                log_message 9 "## LOCAL_VARIABLE defined: <${LOCAL_VARIABLE}>"
                 if [ "${is_secret}" -eq "1" ]; then
-                    JINJA2_TEMPLATE_SECRETS+=" -D${name}=${default_value}"
+                    JINJA2_TEMPLATE_SECRETS+=" -D${name}=${LOCAL_VARIABLE}"
+                    log_message 9 "## JINJA2_TEMPLATE_SECRETS: <${JINJA2_TEMPLATE_SECRETS}>"
                 else
-                    JINJA2_TEMPLATE_VARIABLES+=" -D${name}=${default_value}"
+                    JINJA2_TEMPLATE_VARIABLES+=" -D${name}=${LOCAL_VARIABLE}"
+                    log_message 9 "## JINJA2_TEMPLATE_VARIABLES: <${JINJA2_TEMPLATE_VARIABLES}>"
+                fi
+            else
+                log_message 9 "## LOCAL_VARIABLE not defined, using default if exists: <${LOCAL_VARIABLE},${default_value}>"
+                if [ -n "$default_value" ]; then
+                    log_message 9 "## default is defined: <${default_value}>"
+                    if [ "${is_secret}" -eq "1" ]; then
+                        JINJA2_TEMPLATE_SECRETS+=" -D${name}=${default_value}"
+                        log_message 9 "## JINJA2_TEMPLATE_SECRETS: <${JINJA2_TEMPLATE_SECRETS}>"
+                    else
+                        JINJA2_TEMPLATE_VARIABLES+=" -D${name}=${default_value}"
+                        log_message 9 "## JINJA2_TEMPLATE_VARIABLES: <${JINJA2_TEMPLATE_VARIABLES}>"
+                    fi
                 fi
             fi
         fi
     fi
+    log_message 9 ""
 }
 
 # Prompt the input variables
 prompt_variables() {
-    log_message 9 "# prompt_variable script"
+    log_message 9 "## # prompt_variable script"
     log_message 0 ""
 
     if [ -n "$JINJA2_TEMPLATE_FILE" ]; then
         log_message 5 "JINJA2_TEMPLATE_FILE: ${JINJA2_TEMPLATE_FILE}"
     else
-        read -p 'Template file location (default: ./manifest/app-config.local.yaml.j2): ' JINJA2_TEMPLATE_FILE
-        if [ ! -n "$JINJA2_TEMPLATE_FILE" ]; then
-            JINJA2_TEMPLATE_FILE='./manifest/app-config.local.yaml.j2'
-        fi
+        prompt_variable 'JINJA2_TEMPLATE_FILE' 'Template file location' 0 './manifest/app-config.local.yaml.j2'
+        # read -p 'Template file location (default: ./manifest/app-config.local.yaml.j2): ' JINJA2_TEMPLATE_FILE
+        # if [ ! -n "$JINJA2_TEMPLATE_FILE" ]; then
+        #     JINJA2_TEMPLATE_FILE='./manifest/app-config.local.yaml.j2'
+        # fi
     fi
 
-    if [ -n "$BACKSTAGE_APP_BASE_URL" ]; then
-        log_message 5 "BACKSTAGE_APP_BASE_URL: ${BACKSTAGE_APP_BASE_URL}"
+    if [ -n "$BACKSTAGE_BASE_URL" ]; then
+        log_message 5 "BACKSTAGE_BASE_URL: ${BACKSTAGE_BASE_URL}"
     else
-        prompt_variable 'BACKSTAGE_APP_BASE_URL' 'Backstage APP Base URL' 0 'localhost:3000'
+        prompt_variable 'BACKSTAGE_BASE_URL' 'Backstage URL' 0 'localhost'
     fi
 
-    if [ -n "$BACKSTAGE_BACKEND_BASE_HOST" ]; then
-        log_message 5 "BACKSTAGE_BACKEND_BASE_HOST: ${BACKSTAGE_BACKEND_BASE_HOST}"
+    # if [ -n "$BACKSTAGE_APP_BASE_URL" ]; then
+    #     log_message 5 "BACKSTAGE_APP_BASE_URL: ${BACKSTAGE_APP_BASE_URL}"
+    # else
+    #     prompt_variable 'BACKSTAGE_APP_BASE_URL' 'Backstage URL' 0 'localhost'
+    # fi
+
+    if [ -n "$BACKSTAGE_FRONTEND_BASE_PORT" ]; then
+        log_message 5 "BACKSTAGE_FRONTEND_BASE_PORT: ${BACKSTAGE_FRONTEND_BASE_PORT}"
     else
-        prompt_variable 'BACKSTAGE_BACKEND_BASE_HOST' 'Backstage Backend Base Host' 0 'localhost'
+        prompt_variable 'BACKSTAGE_FRONTEND_BASE_PORT' 'Backstage frontend application port' 0 '3000'
     fi
+
+    # if [ -n "$BACKSTAGE_BACKEND_BASE_HOST" ]; then
+    #     log_message 5 "BACKSTAGE_BACKEND_BASE_HOST: ${BACKSTAGE_BACKEND_BASE_HOST}"
+    # else
+    #     prompt_variable 'BACKSTAGE_BACKEND_BASE_HOST' 'Backstage Backend Base Host' 0 'localhost'
+    # fi
 
     if [ -n "$BACKSTAGE_BACKEND_BASE_PORT" ]; then
         log_message 5 "BACKSTAGE_BACKEND_BASE_PORT: ${BACKSTAGE_BACKEND_BASE_PORT}"
     else
-        prompt_variable 'BACKSTAGE_BACKEND_BASE_PORT' 'Backstage Backend Base Port' 0 '7007'
+        prompt_variable 'BACKSTAGE_BACKEND_BASE_PORT' 'Backstage backend application port' 0 '7007'
     fi
 
     if [ -n "$BACKSTAGE_AUTH_SECRET" ]; then
@@ -181,6 +212,7 @@ prompt_variables() {
 #################################################################
 
 BATCH_EXECUTION=0
+ACCEPT_DEFAULTS=0
 DEFAULT_JINJA2_TEMPLATE_FILE="./manifest/app-config.local.yaml.j2"
 JINJA2_TEMPLATE_VARIABLES=""
 JINJA2_TEMPLATE_SECRETS=""
@@ -190,9 +222,10 @@ check_requirements
 
 set +e
 while [ $# -gt 0 ]; do
-    log_message 9 "$1"
+    log_message 9 "## $1"
     if [[ $1 == "--"* ]]; then
         case $1 in
+            --accept_defaults) ACCEPT_DEFAULTS=1; shift ;;
             --help) show_usage; break 2 ;;
             --batch) BATCH_EXECUTION=1; shift ;;
             --template_file) JINJA2_TEMPLATE_FILE="${2}"; shift; shift ;; 
@@ -204,7 +237,7 @@ while [ $# -gt 0 ]; do
         shift;
         value="${1}";
         shift;
-        log_message 9 "param: ${param}, value: ${value}"
+        log_message 9 "## param: ${param}, value: ${value}"
         case "$param" in 
             *SECRET*) JINJA2_TEMPLATE_SECRETS+=" -D${param}=${value}" ;;
             *TOKEN*) JINJA2_TEMPLATE_SECRETS+=" -D${param}=${value}" ;;

@@ -1,22 +1,25 @@
 # Backstage override configuration for QShift
+{% set backstage_base_url = BACKSTAGE_BASE_URL | default('localhost') %}
+{% set backstage_frontend_port = BACKSTAGE_FRONTEND_BASE_PORT | default('3000') %}
+{% set backstage_backend_port = BACKSTAGE_BACKEND_BASE_PORT | default('7007') %}
 
 organization:
   name: QShift
 
 app:
   title: QShift Backstage App
-  baseUrl: {{ BACKSTAGE_APP_BASE_URL | default('localhost:3000') }}
+  baseUrl: {{ backstage_base_url }}:{{ backstage_frontend_port }}
 
 backend:
-  baseUrl: {{ BACKSTAGE_BACKEND_BASE_HOST | default('localhost') }}:{{ BACKSTAGE_BACKEND_BASE_PORT | default('7007') }}
+  baseUrl: {{ backstage_base_url }}:{{ backstage_backend_port }}
   listen:
-    port: {{ BACKSTAGE_BACKEND_BASE_PORT | default('7007') }}
+    port: {{ backstage_backend_port }}
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: {{ BACKSTAGE_APP_BASE_URL | default('localhost:3000') }}
+    origin: {{ backstage_base_url }}:{{ backstage_frontend_port }}
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
@@ -35,7 +38,7 @@ auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
   providers: {}
 
-proxy: {}
+proxy: 
 ### Example for how to add a proxy endpoint for the frontend.
 ### A typical reason to do this is to handle HTTPS and CORS for internal services.
 # endpoints:
