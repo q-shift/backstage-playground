@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: helm-backstage
+  namespace: $NAMESPACE
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: $NAMESPACE
+  sources:
+    - repoURL: 'https://github.com/ch007m/backstage-playground'
+      targetRevision: HEAD
+      path: manifest/helm
+      helm:
+        values: |
+          namespace: $NAMESPACE
+    - chart: backstage
+      repoURL: https://backstage.github.io/charts
+      targetRevision: 1.8.2
+      helm:
+        values: |
+          serviceAccount:
+            create: true
+            name: my-backstage
+          backstage:
+            image:
+              registry: "quay.io"
+              repository: "ch007m/backstage-qshift-ocp"
+              tag: "latest"
+              pullPolicy: "Always"
+            extraAppConfig:
+              - filename: app-config.qshift.yaml
+                configMapRef: my-app-config
+            extraEnvVarsSecrets:
+              - my-backstage-secrets
+          postgresql:
+            enabled: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ApplyOutOfSyncOnly=true

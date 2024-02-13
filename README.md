@@ -84,25 +84,27 @@ First, log on to the ocp cluster and verify if the following operators have been
 - Red Hat OpenShift GitOps operator (>=1.11)
 - Red Hat OpenShift Pipelines (>= 1.13.1)
 
-Create the `app-config.qshift.yaml` file containing the appropriate password, tokens, urls, etc and create a ConfigMap packaging it.
+Create a project where we will install the qshift backstage application `oc new-project <NAMESPACE>`
 
-**Remark**: The baseURL within the app-config file should be the same as the ingress host as defined within the Helm values: `idp-backstage.apps.qshift.snowdrop.dev`
+Use the `manifest/templates/backstage_env_secret.tmpl` file to set the appropriate password, tokens, urls and create a secret as explained hereafter.
 
-Next, deploy it within the namespace where backstage will run.
+**NOTE**: As the tokens, password, tokens, etc to be defined should map the variables defined within the `manifest/helm/configmap/app-config.qshift.yaml`, please review the configMap file first !
 
+Create now the kubernetes secret:
 ```bash
-NAMESPACE=backstage
-kubectl create configmap my-app-config -n $NAMESPACE \
-  --from-file=app-config.qshift.yaml=app-config.qshift.yaml | kubectl apply -n $NAMESPACE -f -
-```
-Deploy backstage on the platform using this ArgoCD Application CR:
-```bash
-kubectl apply -f manifest/argocd.yaml
+cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
 ```
 
-**NOTE**: This project builds (with the help iof a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
+Deploy the q-shift backstage application:
+```bash
+cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
+kubectl apply -f argocd.yaml
+```
 
-Verify if backstage is alive using the URL: `https://idp-backstage.apps.qshift.snowdrop.dev`
+**NOTE**: This project builds (with the help of a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
+
+Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.apps.qshift.snowdrop.dev`
 
 ### Clean up
 

@@ -1,9 +1,6 @@
 # Intellij
 .idea/
 
-# Backstage
-app-config.qshift.yaml
-
 # macOS
 .DS_Store
 
@@ -47,11 +44,14 @@ dist-types
 # MkDocs build output
 site
 
-# Local configuration files
+# Local files
 *.local.yaml
+argocd.yaml
+app-config.qshift.yaml
 
 # Sensitive credentials
 *-credentials.yaml
+backstage_env_secret.env
 
 # vscode database functionality support files
 *.session.sql
