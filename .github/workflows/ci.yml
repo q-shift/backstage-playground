@@ -14,8 +14,8 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-      - name: Install jinja2
-        run: pip install jinja2
+      - name: Install Python requirements
+        run: pip install -r requirements.txt
       - name: Generate test template
         run: |
           pip freeze
@@ -35,8 +35,8 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-      - name: Install jinja2
-        run: pip install jinja2
+      - name: Install Python requirements
+        run: pip install -r requirements.txt
       - name: Generate test template
         run: |
           pip freeze
