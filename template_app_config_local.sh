@@ -50,7 +50,7 @@ show_usage () {
     echo -e "--verbosity <value>\t\tVerbosity level for the script output."
     echo ""
     echo "Template variables will be provided using the - prefix, e.g.:"
-    echo "  -BACKSTAGE_APP_BASE_URL localhost:3000"
+    echo "  -BACKSTAGE_BASE_URL localhost"
     echo ""
     exit 1
 }
