@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: backstage-backend-cluster-access
+  name: backstage-cluster-access
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -9,4 +9,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: my-backstage
-    namespace: backstage
+    namespace: {{ .Values.namespace }}

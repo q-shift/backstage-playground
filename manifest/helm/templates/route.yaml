@@ -3,7 +3,7 @@ apiVersion: route.openshift.io/v1
 metadata:
   name: idp
 spec:
-  host: idp-backstage.apps.qshift.snowdrop.dev
+  host: backstage-{{ .Values.namespace }}.apps.qshift.snowdrop.dev
   to:
     kind: Service
     name: helm-backstage

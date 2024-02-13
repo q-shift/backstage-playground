@@ -47,11 +47,13 @@ dist-types
 # MkDocs build output
 site
 
-# Local configuration files
+# Local files
 *.local.yaml
+argocd.yaml
 
 # Sensitive credentials
 *-credentials.yaml
+backstage_env_secret.env
 
 # vscode database functionality support files
 *.session.sql
