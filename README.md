@@ -72,7 +72,7 @@ Next git clone this project locally
 
 ### Run backstage locally
 
-Create your `app-config.qshift.yaml` file using the [app-config.qshift-example.yaml](app-config.qshift-example.yaml) file included within this project.
+Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file included within this project.
 Take care to provide the following password/tokens:
 
 | Type                         |                                                                                   How to get it                                                                                    | 
