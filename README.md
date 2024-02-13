@@ -115,11 +115,8 @@ Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.ap
 
 **Warning**: To let argocd to deploy resources in your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the argocd operator will rollout automatically the argocd server.
 ```bash
-kubectl edit argocd/openshift-gitops -n openshift-gitops
-...
-sourceNamespaces:
-  - <MY_NAMESPACE>,
-  - <ANOTHER_NAMESPACE> 
+kubectl get argocd/openshift-gitops -n openshift-gitops -o json \
+  | jq '.spec.sourceNamespaces += ["<MY_NAMESPACE>"]' | kubectl apply -f -
 ```
 
 ### Clean up
