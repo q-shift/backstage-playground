@@ -19,6 +19,8 @@ jobs:
       - name: Generate test template
         run: |
           pip freeze
+          Jinja2
+          jinja2
           ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
             -BACKSTAGE_AUTH_SECRET SOME_BS_AUTH_SECRET -GITHUB_PERSONAL_ACCESS_TOKEN SOME_GH_PAT \
             -ARGOCD_AUTH_TOKEN SOME_ARGOCD_AUTH_TOKEN -ARGOCD_ADMIN_PASSWORD SOME_ADMIN_PW -SERVICE_ACCOUNT_TOKEN SOME_SAT
@@ -40,8 +42,6 @@ jobs:
       - name: Generate test template
         run: |
           pip freeze
-          Jinja2
-          jinja2
           ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
             -BACKSTAGE_AUTH_SECRET SOME_BS_AUTH_SECRET -GITHUB_PERSONAL_ACCESS_TOKEN SOME_GH_PAT \
             -ARGOCD_AUTH_TOKEN SOME_ARGOCD_AUTH_TOKEN -ARGOCD_ADMIN_PASSWORD SOME_ADMIN_PW -SERVICE_ACCOUNT_TOKEN SOME_SAT
