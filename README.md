@@ -81,8 +81,9 @@ Next open backstage URL, select from the left menu `/create` and scaffold a new 
 
 First, log on to the ocp cluster and verify if the following operators have been installed: 
 
-- Red Hat OpenShift GitOps operator (>=1.11)
-- Red Hat OpenShift Pipelines (>= 1.13.1)
+- Red Hat OpenShift [GitOps](https://docs.openshift.com/gitops/1.11/understanding_openshift_gitops/about-redhat-openshift-gitops.html) (>=1.11)
+- Red Hat OpenShift [Pipelines](https://docs.openshift.com/pipelines/1.13/about/understanding-openshift-pipelines.html) (>= 1.13.1)
+- Red Hat OpenShift [Virtualization](https://docs.openshift.com/container-platform/4.14/virt/about_virt/about-virt.html) (>= 4.14.3))
 
 Create a project where we will install the qshift backstage application `oc new-project <NAMESPACE>`
 
