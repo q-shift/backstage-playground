@@ -111,7 +111,16 @@ your secret and next to rollout the backstage Deployment resource.
 
 **NOTE**: This project builds (with the help of a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
 
-Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.apps.qshift.snowdrop.dev`
+Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.apps.qshift.snowdrop.dev` and start to play with the template `Create Quarkus Application`
+
+**Warning**: To let argocd to deploy resources in your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the argocd operator will rollout automatically the argocd server.
+```bash
+kubectl edit argocd/openshift-gitops -n openshift-gitops
+...
+sourceNamespaces:
+  - <MY_NAMESPACE>,
+  - <ANOTHER_NAMESPACE> 
+```
 
 ### Clean up
 
