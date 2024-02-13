@@ -2,8 +2,9 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: idp
+  namespace: {{ .Values.namespace }}
 spec:
-  host: backstage-{{ .Values.namespace }}.apps.qshift.snowdrop.dev
+  host: "backstage-{{ .Values.namespace }}.apps.qshift.snowdrop.dev"
   to:
     kind: Service
     name: helm-backstage
