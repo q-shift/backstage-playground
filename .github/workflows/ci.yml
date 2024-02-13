@@ -1,20 +1,7 @@
-name: Build backstage app, image and push it
+name: Test
 
 on:
   push:
-    branches:
-      - main
-    tags-ignore:
-      - v*
-  pull_request:
-    branches:
-      - main
-
-env:
-  REGISTRY: quay.io
-  REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
-  BACKSTAGE_OCP_IMAGE_NAME: backstage-qshift-ocp
-  BACKSTAGE_IMAGE_NAME: backstage-qshift
 
 jobs:
   test-linux:
@@ -47,60 +34,3 @@ jobs:
         run: |
           diff app-config.local.yaml .github/test/app-config.test.yaml     
 
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-
-      - name: Setup local Turbo cache
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
-
-      - name: Install dependencies
-        run: yarn --prefer-offline --frozen-lockfile
-
-      - name: Build backstage
-        run: |
-          yarn tsc
-          yarn build:all
-
-      - name: Set github output
-        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: Build container image for ocp
-        run: |
-          yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
-
-      - name: Build container image (kubernetes)
-        run: |
-          yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
-
-      - name: Login to Quay.io Hub
-        uses: docker/login-action@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_ROBOT_USER }}
-          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
-
-      - name: Push the built image
-        run: |
-          IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}
-          
-          docker push $IMAGE_NAME:${{ env.SHA_SHORT }}
-          docker tag $IMAGE_NAME:${{ env.SHA_SHORT }} $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:latest
-          
-          OCP_IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}
-          
-          docker push $OCP_IMAGE_NAME:${{ env.SHA_SHORT }}
-          docker tag $OCP_IMAGE_NAME:${{ env.SHA_SHORT }} $OCP_IMAGE_NAME:latest
-          docker push $OCP_IMAGE_NAME:latest
