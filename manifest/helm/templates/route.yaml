@@ -7,7 +7,7 @@ spec:
   host: "backstage-{{ .Values.namespace }}.apps.qshift.snowdrop.dev"
   to:
     kind: Service
-    name: helm-backstage
+    name: qshift-backstage
     weight: 100
   port:
     targetPort: http-backend
