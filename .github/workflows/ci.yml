@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Generate test template
         run: |
           ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
@@ -25,7 +27,9 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Generate test template
         run: |
           ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
