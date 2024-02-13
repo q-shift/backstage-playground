@@ -101,6 +101,8 @@ Deploy the q-shift backstage application:
 cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
 kubectl apply -f argocd.yaml
 ```
+As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token to update
+your secret and next to rollout the backstage Deployment resource.
 
 **NOTE**: This project builds (with the help of a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
 
