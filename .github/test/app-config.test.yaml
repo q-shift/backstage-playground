@@ -1,0 +1,107 @@
+# Backstage override configuration for QShift
+
+
+
+
+organization:
+  name: QShift
+
+app:
+  title: QShift Backstage App
+  baseUrl: localhost:3000
+
+backend:
+  baseUrl: localhost:7007
+  listen:
+    port: 7007
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    # Used for enabling authentication, secret is shared by all backend plugins
+    # See https://backstage.io/docs/auth/service-to-service-auth for
+    # information on the format
+    keys:
+      - secret: SOME_BS_AUTH_SECRET
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers: {}
+
+proxy: 
+### Example for how to add a proxy endpoint for the frontend.
+### A typical reason to do this is to handle HTTPS and CORS for internal services.
+# endpoints:
+#   '/test':
+#     target: 'https://example.com'
+#     changeOrigin: true
+  endpoints:
+    '/argocd/api':
+      target: localhost:9999
+      changeOrigin: true
+      secure: false
+      headers:
+        Cookie:
+          $env: SOME_ARGOCD_AUTH_TOKEN
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: url
+      target: https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
+      rules:
+        - allow: [Template,Location,Component,System,Resource,User,Group]
+
+integrations: 
+  github:
+    - host: github.com
+      token: SOME_GH_PAT
+
+
+argocd:
+  username: admin
+  password: SOME_ADMIN_PW
+  baseUrl: localhost:9999
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: argocdQShift
+          url: localhost:9999
+
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: https://kubernetes.default.svc
+          name: ocp-qshift
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: SOME_SAT

@@ -1,0 +1,106 @@
+name: Build backstage app, image and push it
+
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - v*
+  pull_request:
+    branches:
+      - main
+
+env:
+  REGISTRY: quay.io
+  REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
+  BACKSTAGE_OCP_IMAGE_NAME: backstage-qshift-ocp
+  BACKSTAGE_IMAGE_NAME: backstage-qshift
+
+jobs:
+  test-linux:
+    name: Linux test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate test template
+        run: |
+          ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
+            -BACKSTAGE_AUTH_SECRET SOME_BS_AUTH_SECRET -GITHUB_PERSONAL_ACCESS_TOKEN SOME_GH_PAT \
+            -ARGOCD_AUTH_TOKEN SOME_ARGOCD_AUTH_TOKEN -ARGOCD_ADMIN_PASSWORD SOME_ADMIN_PW -SERVICE_ACCOUNT_TOKEN SOME_SAT
+      - name: Check with default
+        run: |
+          diff app-config.local.yaml .github/test/app-config.local.yaml
+
+  test-macos:
+    name: Linux MacOS
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate test template
+        run: |
+          ./template_app_config_local.sh --verbosity 9 --accept_defaults -ARGOCD_SERVER localhost:9999 \
+            -BACKSTAGE_AUTH_SECRET SOME_BS_AUTH_SECRET -GITHUB_PERSONAL_ACCESS_TOKEN SOME_GH_PAT \
+            -ARGOCD_AUTH_TOKEN SOME_ARGOCD_AUTH_TOKEN -ARGOCD_ADMIN_PASSWORD SOME_ADMIN_PW -SERVICE_ACCOUNT_TOKEN SOME_SAT
+      - name: Check with default
+        run: |
+          diff app-config.local.yaml .github/test/app-config.test.yaml     
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Setup local Turbo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+
+      - name: Install dependencies
+        run: yarn --prefer-offline --frozen-lockfile
+
+      - name: Build backstage
+        run: |
+          yarn tsc
+          yarn build:all
+
+      - name: Set github output
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build container image for ocp
+        run: |
+          yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+
+      - name: Build container image (kubernetes)
+        run: |
+          yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
+
+      - name: Login to Quay.io Hub
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT_USER }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - name: Push the built image
+        run: |
+          IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}
+          
+          docker push $IMAGE_NAME:${{ env.SHA_SHORT }}
+          docker tag $IMAGE_NAME:${{ env.SHA_SHORT }} $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:latest
+          
+          OCP_IMAGE_NAME=${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}
+          
+          docker push $OCP_IMAGE_NAME:${{ env.SHA_SHORT }}
+          docker tag $OCP_IMAGE_NAME:${{ env.SHA_SHORT }} $OCP_IMAGE_NAME:latest
+          docker push $OCP_IMAGE_NAME:latest
