@@ -134,6 +134,7 @@ The script prompts variables to the user upon execution,
 
 | Variable | Meaning |
 | --- | --- |
+| `--accept_defaults` | When defaults are proposed accept them without prompting for input. |
 | `--batch` | Execute in batch mode. Skips the parameter prompt. |
 | `--help` | Show the script help message. |
 | `--template_file` | Path to use your custom backstage app-config template file. |
@@ -182,7 +183,7 @@ template_app_config_local.sh <parameters> <template variables>
 
 Script optional parameters:
 
---batch				When defaults are proposed accept them without prompting for input.
+--v				When defaults are proposed accept them without prompting for input.
 --batch				Execute in batch mode. Skips the parameter prompt.
 --help				Show this message
 --template_file <value>		Path to use your custom backstage app-config template file.
