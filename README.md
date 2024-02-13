@@ -183,11 +183,11 @@ template_app_config_local.sh <parameters> <template variables>
 
 Script optional parameters:
 
---v				When defaults are proposed accept them without prompting for input.
---batch				Execute in batch mode. Skips the parameter prompt.
---help				Show this message
+--accept_defaults         When defaults are proposed accept them without prompting for input.
+--batch				            Execute in batch mode. Skips the parameter prompt.
+--help				            Show this message
 --template_file <value>		Path to use your custom backstage app-config template file.
---verbosity <value>		Verbosity level for the script output.
+--verbosity <value>		    Verbosity level for the script output.
 
 Template variables will be provided using the - prefix, e.g.:
 
