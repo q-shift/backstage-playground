@@ -86,7 +86,8 @@ First, log on to the ocp cluster and verify if the following operators have been
 
 Create a project where we will install the qshift backstage application `oc new-project <NAMESPACE>`
 
-Use the `manifest/templates/backstage_env_secret.tmpl` file to set the appropriate password, tokens, urls as explained hereafter.
+Use the `manifest/templates/backstage_env_secret.tmpl` file to set the appropriate password, tokens, urls and create a secret as explained hereafter.
+
 **NOTE**: As the tokens, password, tokens, etc to be defined should map the variables defined within the `manifest/helm/configmap/app-config.qshift.yaml`, please review the configMap file first !
 
 Create now the kubernetes secret:
