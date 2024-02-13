@@ -9,9 +9,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: $NAMESPACE
   sources:
-    - chart: qshift
-      repoURL: 'https://github.com/ch007m/backstage-playground'
-      targetRevision: improve-installation
+    - repoURL: 'https://github.com/ch007m/backstage-playground'
+      targetRevision: HEAD
       path: manifest/helm
       helm:
         values: |
