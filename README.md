@@ -1,3 +1,12 @@
+
+* [Backstage QShift Showcase](#backstage-qshift-showcase)
+  * [Prerequisites](#prerequisites)
+  * [Instructions](#instructions)
+    * [First steps](#first-steps)
+    * [Locally](#locally)
+    * [On OCP](#on-ocp)
+    * [Clean up](#clean-up)
+
 # Backstage QShift Showcase
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
