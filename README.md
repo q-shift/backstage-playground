@@ -89,7 +89,7 @@ Create a project where we will install the qshift backstage application `oc new-
 
 Use the `manifest/templates/backstage_env_secret.tmpl` file to set the appropriate password, tokens, urls and create a secret as explained hereafter.
 
-**NOTE**: As the env variables should map the parameters defined within the backstage `manifest/helm/configmap/app-config.qshift.yaml` file, please review the configMap file first !
+**Remark**: As the env variables should map the parameters defined within the backstage [configuration](https://backstage.io/docs/conf/writing) `manifest/helm/configmap/app-config.qshift.yaml` file, please review the configMap file first !
 
 Create now the env secret's file from the template and set the sensitive information:
 ```bash
@@ -108,9 +108,9 @@ cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.
 kubectl apply -f argocd.yaml
 ```
 As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token to update
-your secret and next to rollout the backstage Deployment resource.
+your secret and next rollout the backstage Deployment resource.
 
-**NOTE**: This project builds (with the help of a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
+**Note**: This project builds (with the help of a GitHub workflow) the backstage container image for openshift and pushes it on `quay.io/ch007m/backstage-qshift-ocp`
 
 Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.apps.qshift.snowdrop.dev` and start to play with the template `Create Quarkus Application`
 
@@ -122,16 +122,16 @@ kubectl get argocd/openshift-gitops -n openshift-gitops -o json \
 
 ### Clean up
 
-To delete the GitHub repository created like the ArgoCD resources on the QShift server, use the following commands
+To delete the GitHub repository created like the ArgoCD resources on the QShift server when you scaffold a project using the `Create a Quarkus Application` [template](https://github.com/q-shift/qshift-templates/blob/main/qshift/templates/quarkus-application/template.yaml), use the following commands
 ```bash
 app=my-quarkus-app
-gh repo delete github.com/ch007m/$app --yes
+gh repo delete github.com/<GIT_ORG>/$app --yes
 
 ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
 ARGOCD_PWD=<ARGOCD_PWD>
 ARGOCD_USER=admin
 argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOCD_PWD --grpc-web
 
-argocd app delete $app-bootstrap --grpc-web -y
-argocd app list --grpc-web
+argocd app delete <MY_NAMESPACE>/$app-bootstrap --grpc-web -y
+argocd app list --grpc-web -N <MY_NAMESPACE>
 ```
