@@ -190,6 +190,5 @@ Script optional parameters:
 --verbosity <value>		    Verbosity level for the script output.
 
 Template variables will be provided using the - prefix, e.g.:
-
-  -BACKSTAGE_APP_BASE_URL localhost:3000
+  -BACKSTAGE_BASE_URL localhost
 ```
