@@ -88,11 +88,16 @@ Create a project where we will install the qshift backstage application `oc new-
 
 Use the `manifest/templates/backstage_env_secret.tmpl` file to set the appropriate password, tokens, urls and create a secret as explained hereafter.
 
-**NOTE**: As the tokens, password, tokens, etc to be defined should map the variables defined within the `manifest/helm/configmap/app-config.qshift.yaml`, please review the configMap file first !
+**NOTE**: As the env variables should map the parameters defined within the backstage `manifest/helm/configmap/app-config.qshift.yaml` file, please review the configMap file first !
 
-Create now the kubernetes secret:
+Create now the env secret's file from the template and set the sensitive information:
 ```bash
 cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+```
+**Note**: The `manifest/templates/backstage_env_secret.tmpl` file contains tricks to get or set the sensitive information !
+
+Create from the file a kubernetes generic secret: 
+```bash
 kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
 ```
 
