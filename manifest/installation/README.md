@@ -1,6 +1,10 @@
 # Installation
 
-Commands to be used to deploy Qshift on a new OCP cluster
+Commands to be used to deploy Qshift on a new OCP cluster (e.g. 4.14.7)
+
+
+
+
 
 ## Virt
 
@@ -20,15 +24,14 @@ To install our customized fedora image, create a DataVolume
 kubectl -n openshift-virtualization-os-images apply -f quay-to-pvc-datavolume.yml
 ```
 
-To be fixed: `message: DataVolume.storage spec is missing accessMode and no storageClass to`
-! NFS storage is not created OOTB on ocp cluster running on resourcehub. So the storage class should be created as
-documented: https://redhat-appstudio.github.io/infra-deployments/hack/quickcluster/README.html
+**Note**: The following problem `message: DataVolume.storage spec is missing accessMode and no storageClass` only exists if you create a cluster on `https://resourcehub.redhat.com/` as the NFS provisioner is not created OOTB on the ocp cluster. So the storage stuffs should be created as
+documented here: https://redhat-appstudio.github.io/infra-deployments/hack/quickcluster/README.html
 ```bash
 
 ./setup-nfs-quickcluster.sh upi-0.newqshift.lab.upshift.rdu2.redhat.com
 ```
 
-Next you should patch it
+Next you should patch the `StorageProfile` to give Write access permission to the NFS storage
 ```bash
 kubectl patch --type merge -p '{"spec": {"claimPropertySets": [{"accessModes": ["ReadWriteOnce"]}]}}' StorageProfile managed-nfs-storage
 ```

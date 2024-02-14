@@ -9,13 +9,18 @@
 
 # Backstage QShift Showcase
 
-The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
-- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation)
-- [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
-- ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd)
-- [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)
-- [Topology plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)
-- Quarkus Console Plugin (WIP)
+The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift). It integrates the following plugins and backend systems:
+
+| Backstage                                                                                                                                                                                                                                                 | Backend system                  | 
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| [Core](https://backstage.io/plugins/)                                                                                                                                                                                                                                                      | GitHub                          |
+| [Kubernetes](https://backstage.io/docs/features/kubernetes/)                                                                                                                                                                                              | Openshift                       |
+| [Quarkus](https://github.com/q-shift/backstage-plugins)                                                                                                                                                                                                   | code.quarkus.io                 |
+| [Quarkus Console](https://github.com/q-shift/backstage-plugins?tab=readme-ov-file#quarkus-console)                                                                                                                                                        | Openshift                       |
+| ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) | Red Hat Openshift GitOps 1.11.1 |
+| [Tekton](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)                                                                                                                                                                         | Red Hat Openshift 1.13.1        |
+| [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | Red Hat Openshift Virt 4.14.7   |
+
 
 **Note**: It has been developed using backstage version: 1.21.0
 
