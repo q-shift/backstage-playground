@@ -7,7 +7,7 @@ spec:
   host: "backstage-{{ .Values.namespace }}.{{ .Values.route.domain }}"
   to:
     kind: Service
-    name: qshift-backstage
+    name: helm-backstage
     weight: 100
   port:
     targetPort: http-backend

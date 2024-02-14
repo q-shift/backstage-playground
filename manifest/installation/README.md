@@ -15,29 +15,22 @@ kubectl apply -f subscription-kubevirt-hyperconverged.yml
 kubectl apply -f hyperConverged.yml
 ```
 
-To install our customized fedora image, create a DataVolume
+To install the customized fedora image packaging podman and socat, create now a `DataVolume` CR and wait till the image will be imported
 ```bash
 kubectl -n openshift-virtualization-os-images apply -f quay-to-pvc-datavolume.yml
 ```
 
-**Note**: The following problem `message: DataVolume.storage spec is missing accessMode and no storageClass` only exists if you create a cluster on `https://resourcehub.redhat.com/` as the NFS provisioner is not created OOTB on the ocp cluster. So the storage stuffs should be created as
-documented here: https://redhat-appstudio.github.io/infra-deployments/hack/quickcluster/README.html
-```bash
-
-./setup-nfs-quickcluster.sh upi-0.newqshift.lab.upshift.rdu2.redhat.com
-```
-
-Next you should patch the `StorageProfile` to give Write access permission to the NFS storage
-```bash
-kubectl patch --type merge -p '{"spec": {"claimPropertySets": [{"accessModes": ["ReadWriteOnce"]}]}}' StorageProfile managed-nfs-storage
-```
-
-To create a VM in a namespace
+To create a VM in the namespace where you plan to demo
 ```bash
 oc project <MY_NAMESPACE>
 kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
-kubectl delete vm/quarkus-dev
 kubectl apply -f quarkus-dev-virtualmachine.yml
+```
+Verify if the VMI is well running
+```bash
+kubectl get vm -n <MY_NAMESPACE>
+NAMESPACE   NAME          AGE   STATUS    READY
+cmoullia    quarkus-dev   32s   Running   True
 ```
 
 ## GitOps
@@ -48,26 +41,28 @@ To subscribe to the operator and create the needed CR
 kubectl create ns openshift-gitops-operator
 kubectl apply -f subscription-gitops.yml
 ```
-To customize argocd, it is needed to delete the existing `ArgoCD` CR and to deploy the following (TODO: to be patched):
-Our modified CR includes different changes: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions`
+
+To use argocd with QShift, it is needed to delete the existing `ArgoCD` CR and to deploy our `Argo` CR.
+
+**Note**: Our CR includes different changes needed to work with QShift: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` (TO BE DOCUMENTED)
+
 ```bash
-kubectl delete argoproject/default -n openshift-gitops
+kubectl delete argocd/openshift-gitops -n openshift-gitops
+```
+Substitute within the `ArgoCD` CR the <NAMESPACE> with your
+```bash
+cat argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yml
 kubectl apply -f argocd.yml
 ```
 **TODO**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
 
-Patch the AppProject CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
+Patch the `AppProject` CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
 ```bash
 kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
 ```
 
-When we install a new application CR in a namespace which is not the default one, then the following error is returned
-```yaml
-serviceaccounts is forbidden: User "system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller"
-          cannot create resource "serviceaccounts" in API group "" in the namespace
-          "cmoullia"
-```
-To fix it, execute this command `oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller` OR apply the resource
+Finally, create a new ClusterRoleBinding to give the `Admin` role to the ServiceAccount `openshift-gitops-argocd-application-controller`. That will allow it to manage ArgoCD Application CR deployed in any namespace of the cluster
+
 ```bash
 cat << EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
@@ -82,7 +77,7 @@ subjects:
 - kind: ServiceAccount
   name: openshift-gitops-argocd-application-controller
   namespace: openshift-gitops
-EOF  
+EOF
 ```
 
 ## Tekton
@@ -156,4 +151,18 @@ k -n openshift-operators get subscription/openshift-pipelines-operator-rh -o jso
 cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
 yq -p json -o yaml $file-clean.json > $file.yml
 rm *.json
+```
+
+## Cluster creatded on resourcehub.redhat.com
+
+The following problem `message: DataVolume.storage spec is missing accessMode and no storageClass` only exists if you create a cluster on `https://resourcehub.redhat.com/` as the NFS provisioner is not created OOTB on the ocp cluster. So the storage stuffs should be created as
+documented here: https://redhat-appstudio.github.io/infra-deployments/hack/quickcluster/README.html
+```bash
+
+./setup-nfs-quickcluster.sh upi-0.newqshift.lab.upshift.rdu2.redhat.com
+```
+
+Next you should patch the `StorageProfile` to give Write access permission to the NFS storage
+```bash
+kubectl patch --type merge -p '{"spec": {"claimPropertySets": [{"accessModes": ["ReadWriteOnce"]}]}}' StorageProfile managed-nfs-storage
 ```
