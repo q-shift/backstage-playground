@@ -2,10 +2,6 @@
 
 Commands to be used to deploy Qshift on a new OCP cluster (e.g. 4.14.7)
 
-
-
-
-
 ## Virt
 
 https://github.com/q-shift/openshift-vm-playground?tab=readme-ov-file#instructions-to-create-a-vm-and-to-ssh-to-it
@@ -53,16 +49,29 @@ kubectl create ns openshift-gitops-operator
 kubectl apply -f subscription-gitops.yml
 ```
 To customize argocd, it is needed to delete the existing `ArgoCD` CR and to deploy the following (TODO: to be patched):
-Our modified CR include: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` (TODO: to document)
+Our modified CR includes different changes: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions`
 ```bash
 kubectl delete argoproject/default -n openshift-gitops
 kubectl apply -f argocd.yml
 ```
+**TODO**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
 
 Patch the AppProject CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
 ```bash
 kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
 ```
+
+When we install a new application CR in a namespace which is not the default one, then the following error is returned
+```yaml
+serviceaccounts is forbidden: User "system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller"
+          cannot create resource "serviceaccounts" in API group "" in the namespace
+          "cmoullia"'
+```
+To fix it, execute this command
+```bash
+oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
+```
+
 ## Tekton
 
 To subscribe to the operator and create the needed CR
@@ -72,29 +81,6 @@ kubectl apply -f subscription-pipelines.yml
 ```
 
 ## Next
-
-TODO
-
-```bash
-oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/managed-by: openshift-gitops
-    app.kubernetes.io/name: argocd-application-controller
-    app.kubernetes.io/part-of: argocd
-  name: openshift-gitops-openshift-gitops-argocd-application-controller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: openshift-gitops-openshift-gitops-argocd-application-controller
-subjects:
-- kind: ServiceAccount
-  name: openshift-gitops-argocd-application-controller
-  namespace: openshift-gitops
-```
 
 !! Managed by helm chart
 

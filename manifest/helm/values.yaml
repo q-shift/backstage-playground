@@ -1,2 +1,5 @@
 # Target namespace where qshift backstage will be installed
 namespace: changeme
+route:
+  # ocp cluster domain (example: apps.newqshift.lab.upshift.rdu2.redhat.com, apps.qshift.snowdrop.dev)
+  domain:

@@ -121,9 +121,11 @@ kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env
 
 Deploy the q-shift backstage application:
 ```bash
-cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
+cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
 kubectl apply -f argocd.yaml
 ```
+**Note**: The <OCP_CLUSTER_DOMAIN> corresponds to the Openshift domain (example: apps.newqshift.lab.upshift.rdu2.redhat.com, apps.qshift.snowdrop.dev)
+
 As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token to update
 your secret and next rollout the backstage Deployment resource.
 

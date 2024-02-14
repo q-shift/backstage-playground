@@ -109,9 +109,6 @@ spec:
         memory: 256Mi
   sourceNamespaces:
     - cmoullia
-    - qshift
-    - iocanel
-    - tqvanst
   resourceExclusions: |
     - apiGroups:
       - tekton.dev

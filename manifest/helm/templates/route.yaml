@@ -4,7 +4,7 @@ metadata:
   name: idp
   namespace: {{ .Values.namespace }}
 spec:
-  host: "backstage-{{ .Values.namespace }}.apps.qshift.snowdrop.dev"
+  host: "backstage-{{ .Values.namespace }}.{{ .Values.route.domain }}"
   to:
     kind: Service
     name: qshift-backstage
