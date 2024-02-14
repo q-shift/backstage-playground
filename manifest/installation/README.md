@@ -17,15 +17,30 @@ rm *.json
 ```
 
 To subscribe to the operator and create the needed CR
+**Note**: The version of the operator could be different according to the cluster version used but the platform will then bump the version from by example `startingCSV: kubevirt-hyperconverged-operator.v4.14.0` to `startingCSV: kubevirt-hyperconverged-operator.v4.14.3`
 
 ```bash
+kubectl create ns openshift-cnv
 kubectl apply -f subscription-kubevirt-hyperconverged.yml
 kubectl apply -f hyperConverged.yml
 ```
 
-To install our customized fedora image, create a Datavolume
+To install our customized fedora image, create a DataVolume
 ```bash
 kubectl -n openshift-virtualization-os-images apply -f quay-to-pvc-datavolume.yml
+```
+
+To be fixed: `message: DataVolume.storage spec is missing accessMode and no storageClass to`
+! NFS storage is not created OOTB on ocp cluster running on resourcehub. So the storage class should be created as
+documented: https://redhat-appstudio.github.io/infra-deployments/hack/quickcluster/README.html
+```bash
+
+./setup-nfs-quickcluster.sh upi-0.newqshift.lab.upshift.rdu2.redhat.com
+```
+
+Next you should patch it
+```bash
+kubectl patch --type merge -p '{"spec": {"claimPropertySets": [{"accessModes": ["ReadWriteOnce"]}]}}' StorageProfile managed-nfs-storage
 ```
 
 To create a VM in a namespace
@@ -48,14 +63,20 @@ rm *.json
 To subscribe to the operator and create the needed CR
 
 ```bash
+kubectl create ns openshift-gitops-operator
 kubectl apply -f subscription-gitops.yml
 ```
-To customize argocd:
+To customize argocd, it is needed to delete the existing `ArgoCD` CR and to deploy the following (TODO: to be patched):
+Our modified CR include: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` (TODO: to document)
 ```bash
+kubectl delete argoproject/default -n openshift-gitops
 kubectl apply -f argocd.yml
-kubectl apply -f argoproject.yml (TO BE VERIFIED)
 ```
 
+Patch the AppProject CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
+```bash
+kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
+```
 ## Tekton
 
 ```bash
