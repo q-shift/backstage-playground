@@ -44,11 +44,9 @@ First, log on to the ocp cluster and verify if the following operators have been
 - Red Hat OpenShift [Pipelines](https://docs.openshift.com/pipelines/1.13/about/understanding-openshift-pipelines.html) (>= 1.13.1)
 - Red Hat OpenShift [Virtualization](https://docs.openshift.com/container-platform/4.14/virt/about_virt/about-virt.html) (>= 4.14.3))
 
-Create 2 OpenShift projects:
-- <MY_NAMESPACE>. This project is used to install the qshift backstage application, argocd CR, etc
-- <MY_NAMESPACE>-build. This is where the Tekton pipeline will run the pipeline building the image
+Create an OpenShift project where you will demo: `oc new-project <MY_NAMESPACE>`
 
-Next create the following registry config.json file using your credentials.
+Next create the following registry config.json file using your Quay and Docker credentials.
 ```bash
 QUAY_CREDS=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
 DOCKER_CREDS=$(echo -n "<DOCKER_USER>:<DOCKER_PWD>" | base64)
@@ -67,10 +65,10 @@ cat <<EOF > config.json
 }
 EOF
 ```
-and deploy it within the namespace `<MY_NAMESPACE>-build`
+and deploy it within the namespace `<MY_NAMESPACE>`
 
 ```bash
-kubectl create secret generic dockerconfig-secret -n <MY_NAMESPACE>-build --from-file=config.json
+kubectl create secret generic dockerconfig-secret -n <MY_NAMESPACE> --from-file=config.json
 ```
 
 Next git clone this project locally
@@ -116,7 +114,7 @@ cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
 
 Create a kubernetes generic secret using the env file: 
 ```bash
-kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
+kubectl create secret generic my-backstage-secrets -n <MY_NAMESPACE> --from-env-file=backstage_env_secret.env
 ```
 
 Deploy the q-shift backstage application:

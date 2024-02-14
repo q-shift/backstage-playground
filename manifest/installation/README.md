@@ -65,9 +65,9 @@ When we install a new application CR in a namespace which is not the default one
 ```yaml
 serviceaccounts is forbidden: User "system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller"
           cannot create resource "serviceaccounts" in API group "" in the namespace
-          "cmoullia"'
+          "cmoullia"
 ```
-To fix it, execute this command `oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller` OR apply the respource
+To fix it, execute this command `oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller` OR apply the resource
 ```bash
 cat << EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
