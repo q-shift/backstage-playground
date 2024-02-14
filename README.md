@@ -88,7 +88,8 @@ The following section details the different commands to be used to deploy QShift
 https://github.com/q-shift/openshift-vm-playground?tab=readme-ov-file#instructions-to-create-a-vm-and-to-ssh-to-it
 
 To subscribe to the operator and create the needed CR
-**Note**: The version of the operator could be different according to the cluster version used but the platform will then bump the version from by example `startingCSV: kubevirt-hyperconverged-operator.v4.14.0` to `startingCSV: kubevirt-hyperconverged-operator.v4.14.3`
+
+**Note**: The version of the operator could be different according to the ocp cluster version used but the platform will in this case bump the version for you. Take care as this project could take time !
 
 ```bash
 cd manifest/installation/virt
@@ -125,26 +126,28 @@ kubectl create ns openshift-gitops-operator
 kubectl apply -f subscription-gitops.yml
 ```
 
-To use argocd with QShift, it is needed to delete the existing `ArgoCD` CR and to deploy our `Argo` CR.
+To use ArgoCD with QShift, it is needed to delete the existing `ArgoCD` CR and to deploy our `ArgoCD` CR.
 
-**Note**: Our CR includes different changes needed to work with QShift: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` (TO BE DOCUMENTED)
+**Note**: Our CR includes different changes needed to work with QShift: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` 
+
+**Todo**: The previous note should be documented to explain the changes needed !
 
 ```bash
 kubectl delete argocd/openshift-gitops -n openshift-gitops
 ```
-Substitute within the `ArgoCD` CR the <NAMESPACE> with your
+Substitute within the `ArgoCD` CR the <MY_NAMESPACE> to be used using this command
 ```bash
 cat argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yml
 kubectl apply -f argocd.yml
 ```
-**TODO**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
+**Todo**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
 
-Patch the `AppProject` CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
+Patch the `AppProject` CR to support to deploy the `Applications` CR in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
 ```bash
 kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
 ```
 
-Finally, create a new ClusterRoleBinding to give the `Admin` role to the ServiceAccount `openshift-gitops-argocd-application-controller`. That will allow it to manage ArgoCD Application CR deployed in any namespace of the cluster
+Finally, create a new ClusterRoleBinding to give the `Admin` role to the ServiceAccount `openshift-gitops-argocd-application-controller`. That will allow it to manage the `Applications` CR deployed in any namespace of the cluster.
 
 ```bash
 cat << EOF | kubectl apply -f -
@@ -165,7 +168,7 @@ EOF
 
 #### Tekton
 
-To subscribe to the operator and create the needed CR
+To subscribe to the operator, execute this command
 
 ```bash
 cd manifest/installation/tekton
@@ -174,9 +177,9 @@ kubectl apply -f subscription-pipelines.yml
 
 ### Use QShift on OCP
 
-The backstage application that you will deploy within your namespace is build with the help of a GitHub workflow and pushed here: `quay.io/ch007m/backstage-qshift-ocp`
+The backstage application image that you will deploy is build with the help of a GitHub workflow and pushed here: `quay.io/ch007m/backstage-qshift-ocp`
 
-Instead of using a local `app-config.yaml` file as we did within the previous section, we will configure for ocp the sensitive information using an env file able to override the app-config.yaml mounted as a volume from a ConfigMap.
+Instead of using a local `app-config.yaml` file as this is the case when you start backstage locally (`yarn dev`), we will use for ocp a configMap and a secret to stoere the sensitive information. This kubernetes secret, which contains k=v pairs, will be mounted as a volume within the backstage's pod and will override the `appo-config.yaml` file mounted also as a volume from a ConfigMap.
 
 **Trick**: The [backstage_env_secret.tmpl](manifest/templates/backstage_env_secret.tmpl) file contains what you need to get or set the sensitive information :-)
 
@@ -192,7 +195,7 @@ Create a kubernetes generic secret using the env file:
 kubectl create secret generic my-backstage-secrets -n <MY_NAMESPACE> --from-env-file=backstage_env_secret.env
 ```
 
-Deploy the q-shift backstage application:
+Deploy the q-shift backstage application with the help of ArgoCD:
 ```bash
 cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
 kubectl apply -f argocd.yaml
@@ -200,11 +203,11 @@ kubectl apply -f argocd.yaml
 **Note**: The <OCP_CLUSTER_DOMAIN> corresponds to the OpenShift domain (example: apps.newqshift.lab.upshift.rdu2.redhat.com, apps.qshift.snowdrop.dev)
 
 As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token to update
-your secret and next rollout the backstage Deployment resource.
+your secret and next to roll out the backstage Deployment resource.
 
-Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.apps.qshift.snowdrop.dev` and start to play with the template `Create Quarkus Application`
+Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<OCP_CLUSTER_DOMAIN>` and start to play with the template `Create Quarkus Application`
 
-**Warning**: To let argocd to deploy resources in your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the argocd operator will rollout automatically the argocd server.
+**Warning**: To let ArgoCD to deploy resources in your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the ArgoCD operator will rollout automatically the ArgoCD server.
 ```bash
 kubectl get argocd/openshift-gitops -n openshift-gitops -o json \
   | jq '.spec.sourceNamespaces += ["<MY_NAMESPACE>"]' | kubectl apply -f -
