@@ -1,6 +1,6 @@
 # Installation
 
-Commands to be used to deploy Qshift on a new OCP cluster (e.g. 4.14.7)
+Commands to be used to deploy Qshift on a new OCP cluster (e.g. 4.14.10)
 
 ## Virt
 
