@@ -67,9 +67,22 @@ serviceaccounts is forbidden: User "system:serviceaccount:openshift-gitops:opens
           cannot create resource "serviceaccounts" in API group "" in the namespace
           "cmoullia"'
 ```
-To fix it, execute this command
+To fix it, execute this command `oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller` OR apply the respource
 ```bash
-oc adm policy add-cluster-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
+cat << EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-controller-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops
+EOF  
 ```
 
 ## Tekton
