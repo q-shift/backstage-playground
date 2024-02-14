@@ -16,9 +16,9 @@
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift). It integrates the following plugins and backend systems:
 
-| Backstage                                                                                                                                                                                                                                                 | Backend system                  | 
+| Backstage plugin                                                                                                                                                                                                                                          | Backend system                  | 
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| [Core](https://backstage.io/plugins/)                                                                                                                                                                                                                                                      | GitHub                          |
+| [Core](https://backstage.io/plugins/)                                                                                                                                                                                                                     | GitHub                          |
 | [Kubernetes](https://backstage.io/docs/features/kubernetes/)                                                                                                                                                                                              | Openshift                       |
 | [Quarkus](https://github.com/q-shift/backstage-plugins)                                                                                                                                                                                                   | code.quarkus.io                 |
 | [Quarkus Console](https://github.com/q-shift/backstage-plugins?tab=readme-ov-file#quarkus-console)                                                                                                                                                        | Openshift                       |
@@ -27,7 +27,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 | [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | Red Hat Openshift Virt 4.14.7   |
 
 
-**Note**: It has been developed using backstage version: 1.21.0
+**Note**: The backstage application is based on the backstage's version: 1.21.0
 
 ## Prerequisites
 
