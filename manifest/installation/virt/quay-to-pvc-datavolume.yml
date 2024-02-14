@@ -1,0 +1,15 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: podman-remote
+  annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: 'true'
+spec:
+  source:
+    registry:
+      url: 'docker://quay.io/snowdrop/quarkus-dev-vm'
+  storage:
+    resources:
+      requests:
+        storage: 10Gi
+    volumeMode: Filesystem

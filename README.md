@@ -9,13 +9,18 @@
 
 # Backstage QShift Showcase
 
-The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift) and integrate the following plugins:
-- [Kubernetes plugin](https://backstage.io/docs/features/kubernetes/installation)
-- [Quarkus plugin](https://github.com/q-shift/backstage-plugins)
-- ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd)
-- [Tekton Plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)
-- [Topology plugin](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)
-- Quarkus Console Plugin (WIP)
+The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift). It integrates the following plugins and backend systems:
+
+| Backstage                                                                                                                                                                                                                                                 | Backend system                  | 
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| [Core](https://backstage.io/plugins/)                                                                                                                                                                                                                                                      | GitHub                          |
+| [Kubernetes](https://backstage.io/docs/features/kubernetes/)                                                                                                                                                                                              | Openshift                       |
+| [Quarkus](https://github.com/q-shift/backstage-plugins)                                                                                                                                                                                                   | code.quarkus.io                 |
+| [Quarkus Console](https://github.com/q-shift/backstage-plugins?tab=readme-ov-file#quarkus-console)                                                                                                                                                        | Openshift                       |
+| ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) | Red Hat Openshift GitOps 1.11.1 |
+| [Tekton](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)                                                                                                                                                                         | Red Hat Openshift 1.13.1        |
+| [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | Red Hat Openshift Virt 4.14.7   |
+
 
 **Note**: It has been developed using backstage version: 1.21.0
 
@@ -116,9 +121,11 @@ kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env
 
 Deploy the q-shift backstage application:
 ```bash
-cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yaml
+cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
 kubectl apply -f argocd.yaml
 ```
+**Note**: The <OCP_CLUSTER_DOMAIN> corresponds to the Openshift domain (example: apps.newqshift.lab.upshift.rdu2.redhat.com, apps.qshift.snowdrop.dev)
+
 As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token to update
 your secret and next rollout the backstage Deployment resource.
 
