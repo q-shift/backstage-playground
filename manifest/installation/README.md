@@ -1,20 +1,10 @@
-# Commands used to get the resources and/or to redeploy them on a new cluster
+# Installation
+
+Commands to be used to deploy Qshift on a new OCP cluster
 
 ## Virt
 
 https://github.com/q-shift/openshift-vm-playground?tab=readme-ov-file#instructions-to-create-a-vm-and-to-ssh-to-it
-
-```bash
-file=subscription-kubevirt-hyperconverged
-k -n openshift-cnv get subscription/kubevirt-hyperconverged -o json > $file.json
-cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
-yq -p json -o yaml $file-clean.json > $file.yml
-
-k get hyperConverged/kubevirt-hyperconverged -n openshift-cnv -o json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > hyperConverged.json
-
-yq -p json -o yaml hyperConverged.json > hyperConverged.yml
-rm *.json
-```
 
 To subscribe to the operator and create the needed CR
 **Note**: The version of the operator could be different according to the cluster version used but the platform will then bump the version from by example `startingCSV: kubevirt-hyperconverged-operator.v4.14.0` to `startingCSV: kubevirt-hyperconverged-operator.v4.14.3`
@@ -53,13 +43,6 @@ kubectl apply -f quarkus-dev-virtualmachine.yml
 
 ## GitOps
 
-```bash
-file=subscription-gitops
-k -n openshift-gitops-operator get subscription/openshift-gitops-operator -o json > $file.json
-cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
-yq -p json -o yaml $file-clean.json > $file.yml
-rm *.json
-```
 To subscribe to the operator and create the needed CR
 
 ```bash
@@ -79,13 +62,6 @@ kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNam
 ```
 ## Tekton
 
-```bash
-file=subscription-pipelines
-k -n openshift-operators get subscription/openshift-pipelines-operator-rh -o json > $file.json
-cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
-yq -p json -o yaml $file-clean.json > $file.yml
-rm *.json
-```
 To subscribe to the operator and create the needed CR
 
 ```bash
@@ -152,4 +128,30 @@ subjects:
 - kind: ServiceAccount
   name: pipeline
   namespace: qshift-test
+```
+
+## Collect resources
+
+```bash
+file=subscription-kubevirt-hyperconverged
+k -n openshift-cnv get subscription/kubevirt-hyperconverged -o json > $file.json
+cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
+yq -p json -o yaml $file-clean.json > $file.yml
+
+k get hyperConverged/kubevirt-hyperconverged -n openshift-cnv -o json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > hyperConverged.json
+
+yq -p json -o yaml hyperConverged.json > hyperConverged.yml
+rm *.json
+
+file=subscription-gitops
+k -n openshift-gitops-operator get subscription/openshift-gitops-operator -o json > $file.json
+cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
+yq -p json -o yaml $file-clean.json > $file.yml
+rm *.json
+
+file=subscription-pipelines
+k -n openshift-operators get subscription/openshift-pipelines-operator-rh -o json > $file.json
+cat $file.json | jq 'del(.metadata.resourceVersion,.metadata.uid,.metadata.selfLink,.metadata.creationTimestamp,.metadata.annotations,.metadata.generation,.metadata.ownerReferences,.status)' > $file-clean.json
+yq -p json -o yaml $file-clean.json > $file.yml
+rm *.json
 ```
