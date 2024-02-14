@@ -4,8 +4,13 @@
   * [Instructions](#instructions)
     * [First steps](#first-steps)
     * [Run backstage locally](#run-backstage-locally)
+    * [Install me](#install-me)
+      * [Kubevirt](#kubevirt)
+      * [GitOps](#gitops)
+      * [Tekton](#tekton)
     * [On OCP](#on-ocp)
     * [Clean up](#clean-up)
+
 
 # Backstage QShift Showcase
 
@@ -44,11 +49,11 @@ First, log on to the ocp cluster and verify if the following operators have been
 - Red Hat OpenShift [Pipelines](https://docs.openshift.com/pipelines/1.13/about/understanding-openshift-pipelines.html) (>= 1.13.1)
 - Red Hat OpenShift [Virtualization](https://docs.openshift.com/container-platform/4.14/virt/about_virt/about-virt.html) (>= 4.14.3))
 
-Create 2 OpenShift projects:
-- <MY_NAMESPACE>. This project is used to install the qshift backstage application, argocd CR, etc
-- <MY_NAMESPACE>-build. This is where the Tekton pipeline will run the pipeline building the image
+**Important**: Alternatively, you can follow the instructions of the section [Install me](#install-me) to install QShift on a new ocp cluster !
 
-Next create the following registry config.json file using your credentials.
+Create an OpenShift project where you will demo: `oc new-project <MY_NAMESPACE>`
+
+Next create the following registry config.json file using your Quay and Docker credentials.
 ```bash
 QUAY_CREDS=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
 DOCKER_CREDS=$(echo -n "<DOCKER_USER>:<DOCKER_PWD>" | base64)
@@ -67,10 +72,10 @@ cat <<EOF > config.json
 }
 EOF
 ```
-and deploy it within the namespace `<MY_NAMESPACE>-build`
+and deploy it within the namespace `<MY_NAMESPACE>`
 
 ```bash
-kubectl create secret generic dockerconfig-secret -n <MY_NAMESPACE>-build --from-file=config.json
+kubectl create secret generic dockerconfig-secret -n <MY_NAMESPACE> --from-file=config.json
 ```
 
 Next git clone this project locally
@@ -99,6 +104,99 @@ yarn start-backend --config ../../app-config.qshift.yaml
 
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
+### Install me
+
+The following section details the different commands to be used to deploy QShift on a new OCP cluster (e.g. 4.14.10)
+
+#### Kubevirt
+
+https://github.com/q-shift/openshift-vm-playground?tab=readme-ov-file#instructions-to-create-a-vm-and-to-ssh-to-it
+
+To subscribe to the operator and create the needed CR
+**Note**: The version of the operator could be different according to the cluster version used but the platform will then bump the version from by example `startingCSV: kubevirt-hyperconverged-operator.v4.14.0` to `startingCSV: kubevirt-hyperconverged-operator.v4.14.3`
+
+```bash
+cd manifest/installation/virt
+kubectl create ns openshift-cnv
+kubectl apply -f subscription-kubevirt-hyperconverged.yml
+kubectl apply -f hyperConverged.yml
+```
+
+To install the customized fedora image packaging podman and socat, create now a `DataVolume` CR and wait till the image will be imported
+```bash
+kubectl -n openshift-virtualization-os-images apply -f quay-to-pvc-datavolume.yml
+```
+
+To create a VM in the namespace where you plan to demo
+```bash
+oc project <MY_NAMESPACE>
+kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
+kubectl apply -f quarkus-dev-virtualmachine.yml
+```
+Verify if the VMI is well running
+```bash
+kubectl get vm -n <MY_NAMESPACE>
+NAMESPACE   NAME          AGE   STATUS    READY
+cmoullia    quarkus-dev   32s   Running   True
+```
+
+#### GitOps
+
+To subscribe to the operator and create the needed CR
+
+```bash
+cd manifest/installation/gitops
+kubectl create ns openshift-gitops-operator
+kubectl apply -f subscription-gitops.yml
+```
+
+To use argocd with QShift, it is needed to delete the existing `ArgoCD` CR and to deploy our `Argo` CR.
+
+**Note**: Our CR includes different changes needed to work with QShift: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions` (TO BE DOCUMENTED)
+
+```bash
+kubectl delete argocd/openshift-gitops -n openshift-gitops
+```
+Substitute within the `ArgoCD` CR the <NAMESPACE> with your
+```bash
+cat argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yml
+kubectl apply -f argocd.yml
+```
+**TODO**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
+
+Patch the `AppProject` CR to support Applications deployed in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
+```bash
+kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
+```
+
+Finally, create a new ClusterRoleBinding to give the `Admin` role to the ServiceAccount `openshift-gitops-argocd-application-controller`. That will allow it to manage ArgoCD Application CR deployed in any namespace of the cluster
+
+```bash
+cat << EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-controller-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops
+EOF
+```
+
+#### Tekton
+
+To subscribe to the operator and create the needed CR
+
+```bash
+cd manifest/installation/tekton
+kubectl apply -f subscription-pipelines.yml
+```
+
 ### On OCP
 
 The backstage application that you will deploy within your namespace is build with the help of a GitHub workflow and pushed here: `quay.io/ch007m/backstage-qshift-ocp`
@@ -116,7 +214,7 @@ cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
 
 Create a kubernetes generic secret using the env file: 
 ```bash
-kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
+kubectl create secret generic my-backstage-secrets -n <MY_NAMESPACE> --from-env-file=backstage_env_secret.env
 ```
 
 Deploy the q-shift backstage application:
