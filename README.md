@@ -6,11 +6,10 @@
       * [Kubevirt](#kubevirt)
       * [GitOps](#gitops)
       * [Tekton](#tekton)
-    * [First step](#first-step)
-    * [Use Backstage on OCP](#use-backstage-on-ocp)
+    * [First steps](#first-step)
+    * [Deploy and use Backstage on OCP](#deploy-and-use-backstage-on-ocp)
     * [Run backstage locally](#run-backstage-locally)
     * [Clean up](#clean-up)
-
 
 # Backstage QShift Showcase
 
@@ -38,7 +37,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 ## Instructions
 
-If you plan to install QShift on a new cluster, then check first the section `Install me`. Otherwise, you can go directly to `First step`
+**Important**: If you plan to provision a new ocp cluster with the backend systems: ArgoCD, Tekton, etc, then go to the section [Install me](#install-me), otherwise, you can go directly to the section: [First steps](#first-step)
 
 ### Install me
 
@@ -136,22 +135,27 @@ cd manifest/installation/tekton
 kubectl apply -f subscription-pipelines.yml
 ```
 
-### First step
+### First steps
 
-Before to play with QShift backstage, it is needed to perform some steps such as:
+Before to install and use our Backstage application, it is needed to perform some steps such as:
 - Create an OpenShift project 
 - Provide your registry credentials (quay.io, docker, etc) as a `config.json` file
-- Create a secret of type `kubernetes.io/service-account-token` to get a token that backstage will use to access the cluster and will never expire.
 
-TODO: Review how we introduce the commands to be executed
+The commands described hereafter will help you to set up what it is needed:
 
 - Start first by cloning this project locally
+  ```bash
+  git clone https://github.com/q-shift/backstage-playground.git
+  cd backstage-playground
+  ```
+- Log on to the ocp cluster `oc login --token=sha256 ...` which has been provisioned
+- Create an OpenShift project: 
+  ```bash
+  oc new-project <MY_NAMESPACE>
+  ```
+  **Important**: The commands documented hereafter assume that your use the project created: `oc project <MY_NAMESPACE>`
 
-- Log on to the ocp cluster which has been provisioned and create an OpenShift project that you will use to play: `oc new-project <MY_NAMESPACE>`
-
-  **Important**: The commands documented hereafter assume that your current kubernetes context matches the `<MY_NAMESPACE>` namespace. 
-
-- Next create the following registry `config.json` file using your Quay and Docker credentials as they are needed to build/push the image of the Quarkus container or to pull images from docker registry without the hassle of the `docker limit`.
+- Next create the following registry `config.json` file (or use yours). Provide the following registry: quay.io and docker as they are needed to build/push the image of the Quarkus container or to pull images from docker registry without the hassle of the `docker limit`.
   ```bash
   QUAY_CREDS=$(echo -n "<QUAY_USER>:<QUAY_TOKEN>" | base64)
   DOCKER_CREDS=$(echo -n "<DOCKER_USER>:<DOCKER_PWD>" | base64)
@@ -178,54 +182,44 @@ TODO: Review how we introduce the commands to be executed
   ```bash
   kubectl create secret generic dockerconfig-secret --from-file=config.json
   ```
-
-- Create now a Secret hosting the backstage's `service-account-token`:
-  ```bash
-  cat <<EOF | kubectl apply -f -
-  apiVersion: v1
-  kind: Secret
-  type: kubernetes.io/service-account-token
-  metadata:
-    name: backstage-token-secret
-    annotations:
-      kubernetes.io/service-account.name: "my-backstage"
-  EOF
-  ```
-  **Note**: We will use this secret to get the token needed to set the variable `SERVICE_ACCOUNT_TOKEN` using the [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl)
-
-### Use Backstage on OCP
-
-A Backstage application uses an app-config.yaml [configuration](https://backstage.io/docs/conf/writing) file to configure its front and backend application like the plugins accessing the backend systems.
-
-Instead of using a local config file, as this is the case when you start backstage locally (`yarn dev`), we will use for ocp a `configMap` and a `secret` to store the sensitive information. This kubernetes secret, which contains k=v pairs, will be mounted as a volume within the backstage's pod and will override the `appo-config.yaml` file mounted also as a volume from a ConfigMap.
-
-**Trick**: The [backstage_env_secret.tmpl](manifest/templates/backstage_env_secret.tmpl) file contains what you need to get or set the sensitive information :-)
-
-**Remark**: As the env variables should be substituted within the backstage config file, please review the [configmap.app-config.yaml](manifest%2Fhelm%2Ftemplates%2Fconfigmap.app-config.yaml) file first to understand the purpose of the different parameters !
-
-- Create now the env secret's file from the template and set the sensitive information:
-  ```bash
-  cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
-  ```
-
-- Create a kubernetes generic secret using the env file: 
-  ```bash
-  kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
-  ```
-
-To let ArgoCD to deploy resources in your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the ArgoCD operator will rollout automatically the ArgoCD server.
+- **Warning**: To let ArgoCD to handle the `Applications` CR within your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the ArgoCD operator will roll out automatically the ArgoCD server.
   ```bash
   kubectl get argocd/openshift-gitops -n openshift-gitops -o json \
     | jq '.spec.sourceNamespaces += ["<MY_NAMESPACE>"]' | kubectl apply -f -
   ```
+- And finally, create the service account `my-backstage`. 
+  ```bash
+  kubectl create sa my-backstage
+  ```
+  **Note**: This is needed to create the SA in order to get the secret generated and containing the token that we will use at the step `Deploy and use Backstage on OCP`
 
-- Deploy backstage using this command able to create an ArgoCD Application CR:
+We are now ready to deploy and use backstage within your project as documented at the following section.
+
+### Deploy and use Backstage on OCP
+
+A Backstage application uses an app-config.yaml [configuration](https://backstage.io/docs/conf/writing) file to configure its front and backend application like the plugins accessing the backend systems.
+
+As we cannot use a local config file as this is the case when you start backstage locally (`yarn dev`), then we will use for ocp a `configMap` and
+define the sensitive information in a kubernetes `secret`. 
+
+This kubernetes secret, which contains k=v pairs, will be mounted as a volume within the backstage's pod and will override the `appo-config.yaml` file mounted also as a volume from a ConfigMap.
+
+**Trick**: The [backstage_env_secret.tmpl](manifest/templates/backstage_env_secret.tmpl) file contains what you need to get or set the sensitive information :-)
+
+- Copy the template and save it: `backstage_env_secret.env`:
+  ```bash
+  cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+  ```
+- Edit the file `backstage_env_secret.env` and set the different values using the commands or information between `<command or trick>`  
+- Create the kubernetes secret using the env file: 
+  ```bash
+  kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
+  ```
+- To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the  argocd.yaml file and pass env variables to be substituted:
   ```bash
   cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
   kubectl apply -f argocd.yaml
   ```
-
-  **Note**: The <OCP_CLUSTER_DOMAIN> corresponds to the OpenShift domain (example: `apps.qshift.snowdrop.dev`, `apps.newqshift.lab.upshift.rdu2.redhat.com`)
 
 Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<OCP_CLUSTER_DOMAIN>` and start to play with the template `Create Quarkus Application`
 
