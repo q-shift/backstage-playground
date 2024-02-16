@@ -138,11 +138,15 @@ kubectl apply -f subscription-pipelines.yml
 
 ### First step
 
-Before to play with our QShift backstage, it is needed to perform some steps to be able to execute the scenario without issues !
+Before to play with QShift backstage, it is needed to perform some steps such as:
 
-- Git clone this project locally
+- Create an OpenShift project 
+- Provide your registry credentials (quay.io, docker, etc) as a `config.json` file
+- Create a secret of type `kubernetes.io/service-account-token` to get a token that backstage will use to access the cluster and will never expire.
 
-- First, log on to the ocp cluster which has been provisioned and create an OpenShift project that you will use to play: `oc new-project <MY_NAMESPACE>`
+- Start first by cloning this project locally
+
+- Log on to the ocp cluster which has been provisioned and create an OpenShift project that you will use to play: `oc new-project <MY_NAMESPACE>`
 
   **Important**: The commands documented hereafter assume that your current kubernetes context matches the `<MY_NAMESPACE>` namespace. 
 
@@ -173,6 +177,20 @@ Before to play with our QShift backstage, it is needed to perform some steps to 
   ```bash
   kubectl create secret generic dockerconfig-secret --from-file=config.json
   ```
+
+- Create now a Secret hosting the backstage's `service-account-token`:
+  ```bash
+  cat <<EOF | kubectl apply -f -
+  apiVersion: v1
+  kind: Secret
+  type: kubernetes.io/service-account-token
+  metadata:
+    name: backstage-token-secret
+    annotations:
+      kubernetes.io/service-account.name: "my-backstage"
+  EOF
+  ```
+  **Note**: We will use this secret to get the token needed to set the variable `SERVICE_ACCOUNT_TOKEN` using the [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl)
 
 ### Use Backstage on OCP
 
@@ -208,9 +226,9 @@ To let ArgoCD to deploy resources in your namespace, it is needed to patch the r
 
   **Note**: The <OCP_CLUSTER_DOMAIN> corresponds to the OpenShift domain (example: `apps.qshift.snowdrop.dev`, `apps.newqshift.lab.upshift.rdu2.redhat.com`)
 
-**Important**: As the Secret's token needed by the backstage kubernetes plugin will be generated post backstage deployment, then you will have to grab the token: `kubectl get secret backstage-token-secret -o go-template='{{.data.token | base64decode}}'` to update your secret and next to roll out the backstage Deployment resource.
-
 Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<OCP_CLUSTER_DOMAIN>` and start to play with the template `Create Quarkus Application`
+
+![scaffold-templates-page.png](docs%2Fscaffold-templates-page.png)
 
 ### Run backstage locally
 
