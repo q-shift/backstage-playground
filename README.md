@@ -139,10 +139,11 @@ kubectl apply -f subscription-pipelines.yml
 ### First step
 
 Before to play with QShift backstage, it is needed to perform some steps such as:
-
 - Create an OpenShift project 
 - Provide your registry credentials (quay.io, docker, etc) as a `config.json` file
 - Create a secret of type `kubernetes.io/service-account-token` to get a token that backstage will use to access the cluster and will never expire.
+
+TODO: Review how we introduce the commands to be executed
 
 - Start first by cloning this project locally
 
