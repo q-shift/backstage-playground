@@ -66,7 +66,7 @@ import {
     TektonCI,
 } from '@janus-idp/backstage-plugin-tekton';
 import {
-    QuarkusComponentPodsTable,
+    QuarkusApplicationInfo,
 } from "@qshift/plugin-quarkus-console";
 import { TopologyPage } from '@janus-idp/backstage-plugin-topology';
 
@@ -190,7 +190,7 @@ const serviceEntityPage = (
     </EntityLayout.Route>
     
     <EntityLayout.Route path="/quarkus" title="Quarkus">
-      <QuarkusComponentPodsTable />
+      <QuarkusApplicationInfo />
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/cd" title="CD">
