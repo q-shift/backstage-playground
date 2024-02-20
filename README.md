@@ -230,6 +230,10 @@ Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<O
 
 ![scaffold-templates-page.png](docs%2Fscaffold-templates-page.png)
 
+Quarkus console
+
+![quarkus-console-1.png](docs%2Fquarkus-console-1.png)
+
 ### Run backstage locally
 
 Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file included within this project.
