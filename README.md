@@ -1,15 +1,16 @@
 
 * [Backstage QShift Showcase](#backstage-qshift-showcase)
   * [Prerequisites](#prerequisites)
-  * [Instructions](#instructions)
-    * [Install me](#install-me)
-      * [Kubevirt](#kubevirt)
-      * [GitOps](#gitops)
-      * [Tekton](#tekton)
-    * [First steps](#first-step)
+  * [Provision an ocp cluster](#provision-an-ocp-cluster)
+    * [Kubevirt](#kubevirt)
+    * [GitOps](#gitops)
+    * [Tekton](#tekton)
+  * [Backstage instructions](#backstage-instructions)
+    * [First steps](#first-steps)
     * [Deploy and use Backstage on OCP](#deploy-and-use-backstage-on-ocp)
     * [Run backstage locally](#run-backstage-locally)
     * [Clean up](#clean-up)
+
 
 # Backstage QShift Showcase
 
@@ -37,16 +38,9 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 **Important**: If you need to provision an OpenShift cluster with the required backend systems: ArgoCD, Tekton, etc, then go to the section [Install me](#install-me)
 
-## Instructions
+## Provision an ocp cluster
 
-This project allows to play with QShift using either **Backstage**:
-- Running [locally](#run-backstage-locally) or 
-- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster 
-
-
-### Install me
-
-The following section details the different commands to be used to deploy QShift on a new OCP cluster (e.g. 4.14.10)
+The following section details the different commands to be used to deploy the backend systems needed by QShift on a new OCP cluster (e.g. 4.14.10)
 
 #### Kubevirt
 
@@ -139,6 +133,13 @@ To subscribe to the operator, execute this command
 cd manifest/installation/tekton
 kubectl apply -f subscription-pipelines.yml
 ```
+
+## Backstage instructions
+
+This section explains how to use Backstage:
+- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster
+- Running [locally](#run-backstage-locally) or 
+
 
 ### First steps
 
