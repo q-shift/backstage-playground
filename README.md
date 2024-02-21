@@ -36,7 +36,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
 
-**Important**: If you need to provision an OpenShift cluster with the required backend systems: ArgoCD, Tekton, etc, then go to the section [Install me](#install-me)
+**Important**: If you need to provision an OpenShift cluster with the required backend systems: ArgoCD, Tekton, etc, then go to the next section [Provision an ocp cluster](#provision-an-ocp-cluster), otherwise move to [Backstage instructions](#backstage-instructions)
 
 ## Provision an ocp cluster
 
