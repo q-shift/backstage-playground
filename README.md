@@ -236,19 +236,21 @@ Quarkus console
 
 ### Run backstage locally
 
-Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file included within this project.
-Take care to provide the following password/tokens:
+Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
+url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) likle this
 
-| Type                         |                                                                                   How to get it                                                                                    | 
-|------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| GitHub Personal Access Token |                                   See [backstage doc](https://backstage.io/docs/getting-started/configuration/#setting-up-a-github-integration)                                    |
-| Argo CD Cluster password     |                                `kubectl -n openshift-gitops get secret/openshift-gitops-cluster -ojson \| jq '.data."admin.password" \| @base64d'`                                 | 
-| Argo CD Auth token           | `curl -sk -X POST -H "Content-Type: application/json" -d '{"username": "'${ARGOCD_USER}'","password": "'${ARGOCD_PWD}'"}' "https://$ARGOCD_SERVER/api/v1/session" \| jq -r .token` |
-| Backstage's kubernetes Token |                                     `kubectl -n backstage get secret my-backstage-token-xxx -o go-template='{{.data.token \| base64decode}}'`                                      |
+```bash
+cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+
+# Edit the backstage_env_secret.env and set the different url/password/tokens !!
+
+export $(grep -v '^#' backstage_env_secret.env | xargs)
+envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
+```
 
 **Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
 
-Next run the following commands:
+Next run the following commands to start the front and backend:
 
 ```sh
 yarn install
