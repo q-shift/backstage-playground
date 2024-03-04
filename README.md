@@ -11,7 +11,6 @@
     * [Run backstage locally](#run-backstage-locally)
     * [Clean up](#clean-up)
 
-
 # Backstage QShift Showcase
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift). It is composed of the following plugins and integrated with different backend systems:
@@ -60,19 +59,6 @@ kubectl apply -f hyperConverged.yml
 To install the customized fedora image packaging podman and socat, create now a `DataVolume` CR and wait till the image will be imported
 ```bash
 kubectl -n openshift-virtualization-os-images apply -f quay-to-pvc-datavolume.yml
-```
-
-To create a VM in the namespace where you plan to demo
-```bash
-oc project <MY_NAMESPACE>
-kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
-kubectl apply -f quarkus-dev-virtualmachine.yml
-```
-Verify if the VMI is well running
-```bash
-kubectl get vm -n <MY_NAMESPACE>
-NAMESPACE   NAME          AGE   STATUS    READY
-cmoullia    quarkus-dev   32s   Running   True
 ```
 
 #### GitOps
@@ -198,6 +184,19 @@ The commands described hereafter will help you to set up what it is needed:
   kubectl create sa my-backstage
   ```
   **Note**: This is needed to create the SA in order to get the secret generated and containing the token that we will use at the step `Deploy and use Backstage on OCP`
+
+- Next, it is needed to create a VM using the following commands:
+  ```bash
+  oc project <MY_NAMESPACE>
+  kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
+  kubectl apply -f quarkus-dev-virtualmachine.yml
+  ```
+- You can verify if the VMI is well running if you check its status:
+  ```bash
+  kubectl get vm -n <MY_NAMESPACE>
+  NAMESPACE       NAME          AGE   STATUS    READY
+  <MY_NAMESPACE>  quarkus-dev   32s   Running   True
+  ```
 
 We are now ready to deploy and use backstage within your project as documented at the following section.
 
