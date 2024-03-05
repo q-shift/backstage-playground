@@ -9,7 +9,8 @@
     * [First steps](#first-steps)
     * [Deploy and use Backstage on OCP](#deploy-and-use-backstage-on-ocp)
     * [Run backstage locally](#run-backstage-locally)
-    * [Clean up](#clean-up)
+  * [Curl backstage](#curl-backstage)
+  * [Clean up](#clean-up)
 
 # Backstage QShift Showcase
 
@@ -260,13 +261,63 @@ yarn start-backend --config ../../app-config.qshift.yaml
 
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
-### Clean up
+## Curl backstage
 
-To delete the GitHub repository created like the ArgoCD resources on the QShift server when you scaffold a project using the `Create a Quarkus Application` [template](https://github.com/q-shift/qshift-templates/blob/main/qshift/templates/quarkus-application/template.yaml), use the following commands
+If you would like to automate the process to scaffold a project without the need to use the UI, then create a JSON file containing the parameters to be passed
+
 ```bash
-app=my-quarkus-app
-gh repo delete github.com/<GIT_ORG>/$app --yes
+cat <<EOF > req.json
+{
+  "templateRef": "template:default/quarkus-application",
+  "values": {
+    "component_id": "my-quarkus-app",
+    "native": false,
+    "owner": "user:default/guest",
+    "groupId": "io.quarkus",
+    "artifactId": "my-quarkus-app",
+    "version": "1.0.0-SNAPSHOT",
+    "java_package_name": "io.quarkus.demo",
+    "description": "A cool quarkus app",
+    "javaVersion": "17",
+    "buildTool": "MAVEN",
+    "database": "quarkus-jdbc-postgresql",
+    "healthEndpoint": true,
+    "metricsEndpoint": true,
+    "infoEndpoint": true,
+    "extensions": [
+      "io.quarkus:quarkus-resteasy-reactive",
+      "io.quarkus:quarkus-resteasy-reactive-jackson",
+      "io.quarkus:quarkus-hibernate-orm-rest-data-panache"
+    ],
+    "repo": {
+      "host": "github.com",
+      "org": "ch007m"
+    },
+    "namespace": "cmoullia",
+    "imageRepository": "quay.io",
+    "virtualMachineName": "quarkus-dev",
+    "virtualMachineNamespace": "cmoullia",
+    "imageUrl": "quay.io/ch007m/my-quarkus-app"
+  }
+}
+EOF
+```
 
+and next issue a POST request
+
+```bash
+URL=http://localhost:7007
+curl $URL/api/scaffolder/v2/tasks \
+  -H 'Content-Type: application/json' \
+  -d @req.json
+```
+
+## Clean up
+
+To delete the different artefacts created, review the following commands:
+
+- ArgoCD
+```bash
 ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
 ARGOCD_PWD=<ARGOCD_PWD>
 ARGOCD_USER=admin
@@ -275,3 +326,17 @@ argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOC
 argocd app delete <MY_NAMESPACE>/$app-bootstrap --grpc-web -y
 argocd app list --grpc-web -N <MY_NAMESPACE>
 ```
+
+- GitHub repository
+```bash
+app=my-quarkus-app
+gh repo delete github.com/<GIT_ORG>/$app --yes
+```
+
+- Backstage location/component
+```bash
+URL=http://localhost:7007
+ID=$(curl -s $URL/api/catalog/locations | jq -r '.[] | .data.id')
+curl -X 'DELETE' $URL/api/catalog/locations/$ID
+```
+**Note**: If you created x backstage components, then iterate through the list of the ID returned as response !
