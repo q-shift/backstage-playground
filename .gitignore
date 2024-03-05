@@ -51,7 +51,7 @@ app-config.qshift.yaml
 
 # Sensitive credentials
 *-credentials.yaml
-backstage_env_secret.env
+*.env
 
 # vscode database functionality support files
 *.session.sql
