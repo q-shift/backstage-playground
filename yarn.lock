@@ -6591,10 +6591,10 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
-"@qshift/plugin-quarkus-backend@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.23.tgz#c6df13e6c9983691b6439fc11040349f44747ceb"
-  integrity sha512-7sMfHiFkfkFjWa0j0Uc/6bEfL/rPoJKkZAY4+kfgCWsrsPttkLcvRSY0Cy/NWTIx6kbf8zaXUzdTfR4j4OK91A==
+"@qshift/plugin-quarkus-backend@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.24.tgz#c820e11d2ba535d8ec88adb80df8f79bbc9143b5"
+  integrity sha512-Vl1UIbgf0+DwF7fYV6PMdj5mbB1vpM4MXCf7Fzis+ErkgB0tNo0YuRoA3S5li40dUYE5BFWRp5oqC1rVbc4Img==
   dependencies:
     "@backstage/backend-common" "^0.20.0"
     "@backstage/config" "^1.1.1"
@@ -6610,10 +6610,10 @@
     winston "^3.2.1"
     yn "^4.0.0"
 
-"@qshift/plugin-quarkus-console@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-console/-/plugin-quarkus-console-0.1.23.tgz#120802192c326fe6969889274f2de138d4c5757c"
-  integrity sha512-HNDmduQdvZHPL0LqtwlycJPH/78onQS7uga5+EcVMH1zCwzbaCrIOhMyC9GB3XPfEIsTdQItXQiA3ErjWELX4Q==
+"@qshift/plugin-quarkus-console@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-console/-/plugin-quarkus-console-0.1.24.tgz#4c21a3a3e76532a8d147283e76899c4ce3cdddbe"
+  integrity sha512-uD04TwoTHhDb8l0eS+ntUtxFhSsgRQZ4Tef+iA8nr2MtmES/ZiCwh27+TZuHsYlcunC+3yTvXShWazNNfNJPWw==
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.8.1"
@@ -6630,10 +6630,10 @@
     react-use "^17.2.4"
     styled-components "^6.1.8"
 
-"@qshift/plugin-quarkus@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.23.tgz#85f1d096a921e3457d8906566d798b2d776890b9"
-  integrity sha512-V2BJgmrRlFol2IOnHlQEeHT9GHfernsZcI483JupenbLtei09b89UQTT+crMuMsSPkW/84RK6u3jsN/EM6akVw==
+"@qshift/plugin-quarkus@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.24.tgz#466820995231dd5be0f45c870ff84bd84c429f7d"
+  integrity sha512-5w+OC3mchNe1vGWu5NVdWaDtnvTP3gz2vRNyjmg7ohjiQCSyuog8VbPdxO2uv1BE9BX/ydIIFutb3n9m1b77qQ==
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.8.1"
@@ -6647,6 +6647,7 @@
     "@material-ui/lab" "^4.0.0-alpha.61"
     "@rjsf/utils" "^5.15.1"
     axios "^1.6.5"
+    react-dom "^17.0.2"
     react-use "^17.2.4"
     styled-components "^6.1.8"
 
@@ -10249,8 +10250,8 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@janus-idp/backstage-plugin-topology" "^1.18.2"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
-    "@qshift/plugin-quarkus" "^0.1.23"
-    "@qshift/plugin-quarkus-console" "^0.1.23"
+    "@qshift/plugin-quarkus" "^0.1.24"
+    "@qshift/plugin-quarkus-console" "^0.1.24"
     "@roadiehq/backstage-plugin-argo-cd" "2.4.1"
     history "^5.0.0"
     react "^17.0.2"
