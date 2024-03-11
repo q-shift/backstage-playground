@@ -7066,6 +7066,7 @@
     "@rjsf/utils" "^5.15.1"
     "@types/react" "^17.0.0 || ^18.0.0"
     axios "^1.6.5"
+    react-dom "^17.0.2"
     react-use "^17.2.4"
     styled-components "^6.1.8"
 
@@ -10814,8 +10815,13 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@janus-idp/backstage-plugin-topology" "^1.18.2"
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
+<<<<<<< HEAD
     "@qshift/plugin-quarkus" "^0.1.27"
     "@qshift/plugin-quarkus-console" "^0.1.27"
+=======
+    "@qshift/plugin-quarkus" "^0.1.24"
+    "@qshift/plugin-quarkus-console" "^0.1.24"
+>>>>>>> b97d51b (Bump versions of the plugins too within the yarn.lock file)
     "@roadiehq/backstage-plugin-argo-cd" "2.4.1"
     history "^5.0.0"
     react "^18.0.2"
