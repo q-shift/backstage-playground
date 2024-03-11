@@ -7008,10 +7008,17 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
+<<<<<<< HEAD
 "@qshift/plugin-quarkus-backend@^0.1.27":
   version "0.1.27"
   resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.27.tgz#9b2c63e94535939735abe0bc4d8b6d33f0315057"
   integrity sha512-dEqpHJMoZAsCuND1umCBEPZy29rrcRauu+IsjY5uskpPHvs9T9FQrnBRLorfuTlbbm3BbinG6H/+doHxBr9p1A==
+=======
+"@qshift/plugin-quarkus-backend@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-backend/-/plugin-quarkus-backend-0.1.24.tgz#c820e11d2ba535d8ec88adb80df8f79bbc9143b5"
+  integrity sha512-Vl1UIbgf0+DwF7fYV6PMdj5mbB1vpM4MXCf7Fzis+ErkgB0tNo0YuRoA3S5li40dUYE5BFWRp5oqC1rVbc4Img==
+>>>>>>> d352796 (Bump versions of the plugins too within the yarn.lock file)
   dependencies:
     "@backstage/backend-common" "^0.21.3"
     "@backstage/config" "^1.1.1"
@@ -7027,10 +7034,17 @@
     winston "^3.2.1"
     yn "^4.0.0"
 
+<<<<<<< HEAD
 "@qshift/plugin-quarkus-console@^0.1.27":
   version "0.1.27"
   resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-console/-/plugin-quarkus-console-0.1.27.tgz#0bf889d80be0dff71d2cffbe328c974c242a0407"
   integrity sha512-6v8CUnUH1OpEvzK+XH+GRTov7fpcZ7xUWtvfd8HXDhDkLUgtMBsExdkLlQHvRV2M4YCK2fYfeXFzGQLWGWLHoQ==
+=======
+"@qshift/plugin-quarkus-console@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus-console/-/plugin-quarkus-console-0.1.24.tgz#4c21a3a3e76532a8d147283e76899c4ce3cdddbe"
+  integrity sha512-uD04TwoTHhDb8l0eS+ntUtxFhSsgRQZ4Tef+iA8nr2MtmES/ZiCwh27+TZuHsYlcunC+3yTvXShWazNNfNJPWw==
+>>>>>>> d352796 (Bump versions of the plugins too within the yarn.lock file)
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.9.0"
@@ -7048,10 +7062,17 @@
     react-use "^17.2.4"
     styled-components "^6.1.8"
 
+<<<<<<< HEAD
 "@qshift/plugin-quarkus@^0.1.27":
   version "0.1.27"
   resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.27.tgz#dc1ae39e71b465b9ecf80bf25cbae6282108bb88"
   integrity sha512-ehoF2N8Jbk8LvJsE8To4QgrGhQ5fLYj5l1X22N6FpUw/X2pp1EuvZ4NEVCFWeKVrex1DbupT5JL7IkDl3h4lQw==
+=======
+"@qshift/plugin-quarkus@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@qshift/plugin-quarkus/-/plugin-quarkus-0.1.24.tgz#466820995231dd5be0f45c870ff84bd84c429f7d"
+  integrity sha512-5w+OC3mchNe1vGWu5NVdWaDtnvTP3gz2vRNyjmg7ohjiQCSyuog8VbPdxO2uv1BE9BX/ydIIFutb3n9m1b77qQ==
+>>>>>>> d352796 (Bump versions of the plugins too within the yarn.lock file)
   dependencies:
     "@backstage/core-components" "^0.13.9"
     "@backstage/core-plugin-api" "^1.9.0"
@@ -10816,12 +10837,17 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     "@material-ui/core" "^4.12.2"
     "@material-ui/icons" "^4.9.1"
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@qshift/plugin-quarkus" "^0.1.27"
     "@qshift/plugin-quarkus-console" "^0.1.27"
 =======
     "@qshift/plugin-quarkus" "^0.1.24"
     "@qshift/plugin-quarkus-console" "^0.1.24"
 >>>>>>> b97d51b (Bump versions of the plugins too within the yarn.lock file)
+=======
+    "@qshift/plugin-quarkus" "^0.1.24"
+    "@qshift/plugin-quarkus-console" "^0.1.24"
+>>>>>>> d352796 (Bump versions of the plugins too within the yarn.lock file)
     "@roadiehq/backstage-plugin-argo-cd" "2.4.1"
     history "^5.0.0"
     react "^18.0.2"
