@@ -259,6 +259,15 @@ yarn start --config ../../app-config.qshift.yaml
 yarn start-backend --config ../../app-config.qshift.yaml
 ```
 
+Alternatively, you can start both the front and backend using the following command:
+
+```sh
+yarn install
+yarn dev
+```
+
+This command will start concurrently the front and backend using the `app-config.qshift.yaml` file.
+
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
 ## Curl backstage
