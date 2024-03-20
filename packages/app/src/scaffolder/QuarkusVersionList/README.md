@@ -16,33 +16,39 @@ spec:
 
   parameters:
     - title: Provide information for the Quarkus Application
-      required:
-        - component_id
-        - owner
       properties:
-        component_id:
-          title: Name
-          type: string
-          description: Unique name of the application
-          default: my-quarkus-app
-          ui:field: EntityNamePicker
-
         QuarkusVersionList:
           title: Quarkus version
           type: array
           description: The list of the quarkus version
           ui:field: QuarkusVersionList
+
+  steps:
+  - id: register
+    name: Registering the Catalog Info Component
+    action: catalog:register
+    input:
+      repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+      catalogInfoPath: /catalog-info.yaml
 ```
-- Add it to your app-config.local.yaml file
+- Update your `all.yaml` file
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: quarkus-demo
+  description: "A collection of the Backstage resources: org, user, templates for the Quarkus demo"
+spec:
+  targets:
+    - ./org.yaml
+    - ./entities.yaml
+    - ./dummy/template.yaml
+```
+- Add it to your `app-config.local.yaml` file
 ```yaml
   locations:
-    # Quarkus template, org, entity
     - type: file
-      target: ../../temp/templates//org.yaml
-    - type: file
-      target: ../../temp/templates//entities.yaml
-    - type: file
-      target: ../../temp/templates/dummy/template.yaml
+      target: ../../temp/templates/all.yaml
       rules:
         - allow: [Template,Location,Component,System,Resource,User,Group]
 ```
