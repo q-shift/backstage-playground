@@ -23,31 +23,33 @@ import {FieldExtensionComponentProps} from "@backstage/plugin-scaffolder-react";
   }
  */
 export interface Version {
-  key: string;
-  quarkusCoreVersion: string;
-  platformVersion: string;
-  lts: boolean;
-  recommended: boolean;
-  javaCompatibility: javaCompatibility[];
-  status: string;
+    key: string;
+    quarkusCoreVersion: string;
+    platformVersion: string;
+    lts: boolean;
+    recommended: boolean;
+    javaCompatibility: javaCompatibility[];
+    status: string;
 }
 
 export interface javaCompatibility {
-  recommended: boolean;
-  versions: string[];
+    recommended: boolean;
+    versions: string[];
 }
 
 function userLabel(v: Version) {
-  const key = v.key.split(":")
-  if (v.recommended) {
-    return `${key[1]} (RECOMMENDED)`;
-  } else if (v.status !== "FINAL") {
-    return `${key[1]} (${v.status})`;
-  } else {
-    return key[1];
-  }
+    const key = v.key.split(":")
+    if (v.recommended) {
+        return `${key[1]} (RECOMMENDED)`;
+    } else if (v.status !== "FINAL") {
+        return `${key[1]} (${v.status})`;
+    } else {
+        return key[1];
+    }
 }
 
+// TODO: Review the logic of this code against this backstage similar example to see if we can improve it:
+// https://github.com/backstage/backstage/blob/master/plugins/scaffolder/src/components/fields/EntityTagsPicker/EntityTagsPicker.tsx
 export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) => {
     const {
         onChange,
@@ -61,32 +63,36 @@ export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) 
     const [quarkusVersion, setQuarkusVersion] = useState<Version[]>([]);
     const [defaultQuarkusVersion, setDefaultQuarkusVersion] = useState<Version>();
 
-  const codeQuarkusUrl = 'https://code.quarkus.io';
-  const apiStreamsUrl = `${codeQuarkusUrl}/api/streams`
+    const codeQuarkusUrl = 'https://code.quarkus.io';
+    const apiStreamsUrl = `${codeQuarkusUrl}/api/streams`
 
-  const fetchData = async () => {
-    const response = await fetch(apiStreamsUrl);
-    const newData = await response.json();
-    setQuarkusVersion(newData)
-  }
+    const fetchData = async () => {
+        const response = await fetch(apiStreamsUrl);
+        const newData = await response.json();
+        setQuarkusVersion(newData)
+    }
 
-  useEffect(() => {
-    fetchData()
-  }, []);
+    useEffect(() => {
+        fetchData()
+    }, []);
 
-  useEffect(() => {
-    quarkusVersion.forEach(v => {
-      if (v.recommended) {
-        setDefaultQuarkusVersion({...v})
-      }
-    });
-  }, [quarkusVersion]);
+    useEffect(() => {
+        quarkusVersion.forEach(v => {
+            if (v.recommended) {
+                setDefaultQuarkusVersion({...v})
+                // @ts-ignore: TS2345: Argument of type 'string[]' is not assignable to parameter of type 'string'.
+                onChange([v.key]);
+            }
+        });
+    }, [quarkusVersion]);
 
-/*    function onSelectVersion(_,v) {
-        console.log(`Version selected: ${v.key}`)
-        // ! :-) version displayed within the review screen
-        onChange([v.key]);
-    }*/
+    function onSelectVersion(_: React.ChangeEvent<{}>, v: Version | null) {
+        console.log(`Version selected: ${v && v.key}`)
+        if (v) {
+            // @ts-ignore: TS2345: Argument of type 'string[]' is not assignable to parameter of type 'string'.
+            onChange([v.key]);
+        }
+    }
 
     if (defaultQuarkusVersion) {
         return (
@@ -101,13 +107,7 @@ export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) 
                     getOptionSelected={(option, value) => option.key === value.key}
                     getOptionLabel={(quarkusVersion) => userLabel(quarkusVersion)}
                     defaultValue={defaultQuarkusVersion}
-                    // onChange={onSelectVersion}
-                    onChange={(_,v) => {
-                        console.log(`Version selected: ${v.key}`)
-                        if (v) {
-                            onChange([v.key]);
-                        }
-                    }}
+                    onChange={onSelectVersion}
                     renderInput={(params) => (
                         <TextField
                             {...params}
@@ -115,14 +115,13 @@ export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) 
                             label="Select a quarkus version (QuarkusVersionList)"
                             required={required}
                             placeholder={placeholder}
-                            value={formData ?? ''}
                         />
                     )}
                 />
             </FormControl>)
     }
 
-  return (<div>Waiting to get the default Quarkus version ...</div>)
+    return (<div>Waiting to get the default Quarkus version ...</div>)
 }
 
 export default QuarkusVersionList;
