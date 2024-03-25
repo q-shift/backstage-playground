@@ -1,9 +1,9 @@
-import React from 'react';
-import {useEffect, useState} from "react";
-import {Autocomplete} from "@material-ui/lab";
-import {TextField} from "@material-ui/core";
+import React from "react";
 import FormControl from "@material-ui/core/FormControl";
 import {FieldExtensionComponentProps} from "@backstage/plugin-scaffolder-react";
+import {Progress, Select, SelectItem} from "@backstage/core-components";
+import useAsync from 'react-use/esm/useAsync';
+// import useEffectOnce from 'react-use/lib/useEffectOnce';
 
 /* Example returned by code.quarkus.io/api/streams
 {
@@ -56,72 +56,43 @@ export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) 
         rawErrors,
         required,
         formData,
-        idSchema,
-        placeholder,
     } = props;
 
-    const [quarkusVersion, setQuarkusVersion] = useState<Version[]>([]);
-    const [defaultQuarkusVersion, setDefaultQuarkusVersion] = useState<Version>();
-
     const codeQuarkusUrl = 'https://code.quarkus.io';
-    const apiStreamsUrl = `${codeQuarkusUrl}/api/streams`
+    const apiStreamsUrl = `${codeQuarkusUrl}/api/streams`;
 
-    const fetchData = async () => {
+    const {loading, value} = useAsync(async () => {
         const response = await fetch(apiStreamsUrl);
         const newData = await response.json();
-        setQuarkusVersion(newData)
-    }
+        formData !== undefined ? formData : onChange(newData[0].key)
+        return newData;
+    });
 
-    useEffect(() => {
-        fetchData()
-    }, []);
+    const versionItems: SelectItem[] = value
+        ? value?.map((i: Version) => ({label: userLabel(i), value: i.key}))
+        : [{label: 'Loading...', value: 'loading'}];
 
-    useEffect(() => {
-        quarkusVersion.forEach(v => {
-            if (v.recommended) {
-                setDefaultQuarkusVersion({...v})
-                // @ts-ignore: TS2345: Argument of type 'string[]' is not assignable to parameter of type 'string'.
-                onChange([v.key]);
-            }
-        });
-    }, [quarkusVersion]);
-
-    function onSelectVersion(_: React.ChangeEvent<{}>, v: Version | null) {
-        console.log(`Version selected: ${v && v.key}`)
-        if (v) {
-            // @ts-ignore: TS2345: Argument of type 'string[]' is not assignable to parameter of type 'string'.
-            onChange([v.key]);
-        }
-    }
-
-    if (defaultQuarkusVersion) {
+    if (loading) {
+        return <Progress/>;
+    } else {
         return (
-            <FormControl
-                margin="normal"
-                required={required}
-                error={rawErrors?.length > 0 && !formData}
-            >
-                <Autocomplete
-                    id="quarkus-versions"
-                    options={quarkusVersion}
-                    getOptionSelected={(option, value) => option.key === value.key}
-                    getOptionLabel={(quarkusVersion) => userLabel(quarkusVersion)}
-                    defaultValue={defaultQuarkusVersion}
-                    onChange={onSelectVersion}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            id={idSchema?.$id}
-                            label="Select a quarkus version (QuarkusVersionList)"
-                            required={required}
-                            placeholder={placeholder}
-                        />
-                    )}
-                />
-            </FormControl>)
+            <div>
+                <FormControl
+                    margin="normal"
+                    required={required}
+                    error={rawErrors?.length > 0 && !formData}
+                >
+                    <Select
+                        native
+                        label="Quarkus versions"
+                        onChange={s => {
+                            onChange(String(Array.isArray(s) ? s[0] : s))
+                        }}
+                        selected={formData}
+                        items={versionItems}
+                    />
+                </FormControl>
+            </div>)
     }
-
-    return (<div>Waiting to get the default Quarkus version ...</div>)
 }
-
 export default QuarkusVersionList;
