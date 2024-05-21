@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn --prefer-offline --frozen-lockfile
+          yarn --immutable-cache
 
       - name: Build backstage
         run: |
@@ -96,7 +96,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn --prefer-offline --frozen-lockfile
+          yarn --immutable-cache
 
       - name: Build backstage
         run: |
