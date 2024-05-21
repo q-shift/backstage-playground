@@ -1,0 +1,10 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "tsc": {
+      "outputs": ["../../dist-types/plugins/quarkus/**"],
+      "dependsOn": ["^tsc"]
+    },
+    "test": {}
+  }
+}
