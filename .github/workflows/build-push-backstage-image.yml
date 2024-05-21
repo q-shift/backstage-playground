@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn --immutable-cache
+          yarn --immutable
 
       - name: Build backstage
         run: |
@@ -96,7 +96,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn --immutable-cache
+          yarn --immutable
 
       - name: Build backstage
         run: |
