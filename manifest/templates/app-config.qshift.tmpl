@@ -56,6 +56,10 @@ catalog:
       target: ${TEMPLATE_URL} # default could be : https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
       rules:
         - allow: [Template,Location,Component,System,Resource,User,Group]
+    - type: file
+      target: ../../locations/root.yaml
+      rules:
+        - allow: [ Component, System, API, Resource, Location, Group, User, Template ]
 
 integrations:
   github:
