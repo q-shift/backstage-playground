@@ -26,16 +26,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
 
-      - name: Enable Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@stable --activate
+      - run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
       - name: Setup local Turbo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
@@ -80,16 +80,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
 
-      - name: Enable Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@stable --activate
+      - run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
       - name: Setup local Turbo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
