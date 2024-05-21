@@ -35,6 +35,7 @@ jobs:
       - name: Enable Corepack
         run: |
           corepack enable
+          corepack prepare yarn@stable --activate
 
       - name: Setup local Turbo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
@@ -88,6 +89,7 @@ jobs:
       - name: Enable Corepack
         run: |
           corepack enable
+          corepack prepare yarn@stable --activate
 
       - name: Setup local Turbo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
