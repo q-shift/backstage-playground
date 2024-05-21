@@ -26,6 +26,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,7 +41,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          corepack enable
           yarn --prefer-offline --frozen-lockfile
 
       - name: Build backstage
@@ -76,6 +79,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: |
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -87,7 +94,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          corepack enable
           yarn --prefer-offline --frozen-lockfile
 
       - name: Build backstage
