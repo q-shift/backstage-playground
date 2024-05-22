@@ -1,0 +1,129 @@
+---
+openapi: 3.0.3
+info:
+  title: TODOS API
+  description: Manage your todo list
+  termsOfService: This is for demo purpose only
+  contact:
+    name: TODOS API Support
+    url: http://todos.com/contact
+    email: techsupport@todos.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Auto generated value
+- url: http://0.0.0.0:8080
+  description: Auto generated value
+tags:
+- name: Todo Resource
+  description: All Todo Operations
+paths:
+  /api:
+    get:
+      tags:
+      - Todo Resource
+      description: Get all the todos
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+    post:
+      tags:
+      - Todo Resource
+      description: Create a new todo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Todo"
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+      - Todo Resource
+      description: Remove all completed todos
+      responses:
+        "200":
+          description: OK
+  /api/{id}:
+    get:
+      tags:
+      - Todo Resource
+      description: Get a specific todo by id
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+    delete:
+      tags:
+      - Todo Resource
+      description: Delete a specific todo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+      - Todo Resource
+      description: Update an exiting todo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Todo"
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    Todo:
+      required:
+      - title
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        title:
+          pattern: \S
+          type: string
+        completed:
+          type: boolean
+        order:
+          format: int32
+          type: integer
+        url:
+          type: string
+          example: https://github.com/quarkusio/todo-demo-app

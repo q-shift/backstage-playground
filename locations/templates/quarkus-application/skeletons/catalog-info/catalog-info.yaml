@@ -57,3 +57,22 @@ spec:
   partOf:
     - ${{ values.partOf }}
   {%- endif %}
+---
+kind: API
+metadata:
+  name: ${{ values.component_id }}
+  {%- if values.title %}
+  title: ${{ values.title }}
+  {%- endif %}
+  {%- if values.description %}
+  description: ${{ values.description }}
+  {%- endif %}
+spec:
+  type: openapi
+  {%- if values.lifecycle %}
+  lifecycle: ${{ values.lifecycle }}
+  {%- else %}
+  lifecycle: production
+  {%- endif %}
+  owner: ${{ values.owner }}
+  definition: openapi.yaml
