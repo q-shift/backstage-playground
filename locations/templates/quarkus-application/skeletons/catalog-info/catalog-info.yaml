@@ -58,6 +58,7 @@ spec:
     - ${{ values.partOf }}
   {%- endif %}
 ---
+apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: ${{ values.component_id }}
