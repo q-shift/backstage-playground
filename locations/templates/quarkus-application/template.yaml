@@ -110,14 +110,12 @@ spec:
         database:
           title: Select a database (optional)
           type: string
-          default: none
+          default: quarkus-jdbc-postgresql
           enum:
-            - none
             - quarkus-jdbc-postgresql
             - quarkus-jdbc-mysql
             - quarkus-jdbc-h2
           enumNames:
-            - '-'
             - 'PostgreSQL'
             - 'MySQL'
             - 'H2'
@@ -144,14 +142,19 @@ spec:
           type: array
           description: The list of alternative extensions
           ui:field: QuarkusExtensionList
+          default:
+            - quarkus-rest-jackson
+            - quarkus-smallrye-openapi
+            - quarkus-hibernate-orm-rest-data-panache
+            - quarkus-hibernate-validator
           ui:options:
             # codeQuarkusUrl: https://code.quarkus.io
             filter:
               extensions:
-                - io.quarkus:quarkus-rest-jackson
-                - io.quarkus:quarkus-smallrye-openapi
-                - io.quarkus:quarkus-smallrye-graphql
-                - io.quarkus:quarkus-hibernate-orm-rest-data-panache
+                - quarkus-rest-jackson
+                - quarkus-smallrye-openapi
+                - quarkus-smallrye-graphql
+                - quarkus-hibernate-orm-rest-data-panache
 
         additionalProperties:
           title: Additional Properties
@@ -177,7 +180,7 @@ spec:
               title: Repo Org Owner
               type: string
               description: Your SCM organization/group
-              default: ch007m
+              default: iocanel
               enum:
                 - ch007m
                 - iocanel
@@ -193,7 +196,7 @@ spec:
           title: Namespace
           type: string
           description: The openshift/kubernetes namespace for deploying resources
-          default: qshift
+          default: iocanel
 
         imageRepository:
            title: Select a registry
@@ -210,6 +213,7 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
+          default: quay.io/ikanello/my-quarkus-app
 
         virtualMachineName:
           title: Virtual Machine Name
@@ -243,13 +247,37 @@ spec:
           additionalProperties: ${{ parameters.additionalProperties }}
           starterCode: true
 
-    - id: hibernate-orm-rest-dataTemplate
-      name: Fetching additional files ...
-      if: ${{ 'io.quarkus:quarkus-hibernate-orm-rest-data-panache' in parameters.extensions }}
+    - id: mavenDependenciesAdd
+      name: Adding required maven dependencies
+      action: maven:dependencies:add
+      input:
+        values:
+          dependencies:
+            - groupId: io.quarkus
+              artifactId: quarkus-rest-jackson
+            - groupId: io.quarkus
+              artifactId: quarkus-smallrye-openapi
+            - groupId: io.quarkus
+              artifactId: quarkus-hibernate-orm-rest-data-panache
+            - groupId: io.quarkus
+              artifactId: quarkus-hibernate-validator
+            - groupId: io.quarkiverse.web-bundler
+              artifactId: quarkus-web-bundler
+              version: 1.4.0
+            - groupId: 'org.mvnpm.at.mvnpm'
+              artifactId: 'vaadin-webcomponents'
+              version: '24.3.10'
+              scope: 'provided'
+
+    - id: todoAppFiles
+      name: Fetching todo app files ...
       action: fetch:template
       input:
-        url: skeletons/quarkus-orm-rest/
+        url: skeletons/quarkus-todo-app/
         replace: true
+        copyWithoutTemplating: [
+          src/main/resources/web/index.html
+        ]
         values:
           java_package_name: ${{ parameters.java_package_name }}
           java_package_path: ${{ parameters.java_package_name | replace(".", "/") }}
