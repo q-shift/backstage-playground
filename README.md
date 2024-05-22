@@ -25,8 +25,9 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 | ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) | OpenShift GitOps 1.11.1                          |
 | [Tekton](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)                                                                                                                                                                         | OpenShift Pipelines 1.13.1                       |
 | [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | OpenShift 4.14                                   |
+| [DevTools](https://github.com/backstage/backstage/blob/master/plugins/devtools/README.md)                                                                                                                                                                 |                                                  |
 
-**Note**: This backstage application is based on the backstage's version: 1.24.x
+**Note**: This backstage application is based on the backstage's version: 1.27.x
 
 ## Prerequisites
 

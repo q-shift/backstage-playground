@@ -26,6 +26,7 @@ import {
 } from '@backstage/core-components';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
+import BuildIcon from '@material-ui/icons/Build';
 
 const useSidebarLogoStyles = makeStyles({
   root: {
@@ -68,10 +69,6 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         <SidebarItem icon={HomeIcon} to="catalog" text="Home" />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
-        {/* Quarkus applications - NOT USED
-        <SidebarItem icon={QuarkusIcon} to="quarkus" text="Quarkus" />
-        */}
-
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />
         {/* End global nav */}
         <SidebarDivider />
@@ -87,6 +84,7 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         to="/settings"
       >
         <SidebarSettings />
+        <SidebarItem icon={BuildIcon} to="devtools" text="DevTools" />
       </SidebarGroup>
     </Sidebar>
     {children}
