@@ -129,7 +129,6 @@ export const createQuarkusApp = () => {
                 extensions: allExtensions,
                 noCode: noCode
             };
-            console.log('Post Data:', JSON.stringify(postData));
 
             const appDirName = ctx.input.values.artifactId ? ctx.input.values.artifactId : 'code-with-quarkus';
             const headers = {
@@ -138,53 +137,40 @@ export const createQuarkusApp = () => {
                 'Access-Control-Allow-Methods': '*',
             };
 
-            await axios
-                .post(apiUrl, postData, {responseType: 'arraybuffer', headers})
-                .then((response) => {
-                    if (response.status === 200 && response.headers['content-type'] === 'application/zip') {
-                        const zipData = response.data;
-                        const targetPath = ctx.input.values.targetPath ?? './';
-                        const outputDir = resolveSafeChildPath(ctx.workspacePath, targetPath);
-                        ctx.createTemporaryDirectory().then((tempDir) => {
+           const response =  await axios.post(apiUrl, postData, {responseType: 'arraybuffer', headers});
+           if (response.status === 200 && response.headers['content-type'] === 'application/zip') {
+               const zipData = response.data;
+               const targetPath = ctx.input.values.targetPath ?? './';
+               const outputDir = resolveSafeChildPath(ctx.workspacePath, targetPath);
+               const zipFilePath = path.join(outputDir, 'downloaded.zip');
+               await fs.writeFile(zipFilePath, zipData);
 
-                            const zipFilePath = path.join(tempDir, 'downloaded.zip');
-                            fs.writeFileSync(zipFilePath, zipData);
+               const data = await fs.readFile(zipFilePath);
+               const zip = new JSZip();
+               const contents = await zip.loadAsync(data);
+               for (let filename in contents.files) {
+                   const zipFile = zip.file(filename);
+                   if (zipFile) {
+                      const content = await zipFile.async('nodebuffer');
+                      // if filename starts with code-with-quarkus directory remove it
+                      if (filename.startsWith(appDirName)) {
+                          filename = filename.replace(appDirName + '/', '');
+                      }
+                      const dest = path.join(outputDir, filename);
+                      // Create directories if needed
+                      await fs.mkdirp(path.dirname(dest));
+                      await fs.writeFile(dest, content);
+                   }
+               }
 
-                            fs.readFile(zipFilePath, function (err, data) {
-                                if (!err) {
-                                    const zip = new JSZip();
-                                    zip.loadAsync(data).then(function (contents) {
-                                        Object.keys(contents.files).forEach(function (filename) {
-                                            const zipFile = zip.file(filename);
-                                            if (zipFile) {
-                                                zipFile.async('nodebuffer').then(function (content) {
-                                                    // if filename starts with code-with-quarkus directory remove it
-                                                    if (filename.startsWith(appDirName)) {
-                                                        filename = filename.replace(appDirName + '/', '');
-                                                    }
-                                                    const dest = path.join(outputDir, filename);
-                                                    // Create directories if needed
-                                                    fs.promises.mkdir(path.dirname(dest), {recursive: true}).then(() => {
-                                                        fs.writeFileSync(dest, content);
-                                                    })
-                                                });
-                                            }
-                                        });
-                                    });
-                                }
-                            });
-                        });
-                        // If present, append additional properties to src/main/resources/application.properties
-                        if (ctx.input.values.additionalProperties) {
-                            const propertiesPath = path.join(outputDir, 'src/main/resources/application.properties');
-                            const propertiesContent = fs.readFileSync(propertiesPath, 'utf8');
-                            const updatedPropertiesContent = `${propertiesContent}\n${ctx.input.values.additionalProperties}`;
-                            fs.writeFileSync(propertiesPath, `${updatedPropertiesContent}`);
-                        }
-                    }
-                }).catch((error) => {
-                    console.error('Error making HTTP POST request:', error);
-                });
+               // If present, append additional properties to src/main/resources/application.properties
+               if (ctx.input.values.additionalProperties) {
+                   const propertiesPath = path.join(outputDir, 'src/main/resources/application.properties');
+                   const propertiesContent = fs.readFileSync(propertiesPath, 'utf8');
+                   const updatedPropertiesContent = `${propertiesContent}\n${ctx.input.values.additionalProperties}`;
+                   await fs.writeFile(propertiesPath, `${updatedPropertiesContent}`);
+               }
+           }
         },
     });
 };

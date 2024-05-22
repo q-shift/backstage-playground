@@ -4,6 +4,7 @@ import type { PluginEnvironment } from '../types';
 import { ScmIntegrations } from '@backstage/integration';
 import { createBuiltinActions, createRouter } from '@backstage/plugin-scaffolder-backend';
 import { createQuarkusApp, cloneQuarkusQuickstart } from '@qshift/plugin-quarkus-backend';
+import { mavenDependenciesAdd } from '@qshift/plugin-maven-backend';
 import { createArgoCdResources } from '@roadiehq/scaffolder-backend-argocd'
 
 export default async function createPlugin(
@@ -25,7 +26,8 @@ export default async function createPlugin(
     createArgoCdResources( env.config, env.logger ),
     ...builtInActions,
     createQuarkusApp(),
-    cloneQuarkusQuickstart()
+    cloneQuarkusQuickstart(),
+    mavenDependenciesAdd()
   ];
 
   return await createRouter({
