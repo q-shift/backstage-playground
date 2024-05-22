@@ -26,6 +26,7 @@ import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
+import { DevToolsPage } from '@backstage/plugin-devtools';
 
 import {
     AlertDisplay,
@@ -42,7 +43,6 @@ import {
     QuarkusQuickstartPickerField,
     QuarkusVersionListField
 } from '@qshift/plugin-quarkus';
-import {QuarkusConsolePage} from "@qshift/plugin-quarkus-console";
 
 const app = createApp({
   apis,
@@ -114,9 +114,9 @@ const routes = (
     <Route path="/search" element={<SearchPage />}>
       {searchPage}
     </Route>
-    <Route path="/quarkus" element={<QuarkusConsolePage />}/>
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+    <Route path="/devtools" element={<DevToolsPage />} />
   </FlatRoutes>
 );
 

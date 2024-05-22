@@ -32,6 +32,7 @@
     "@backstage/plugin-catalog-backend-module-backstage-openapi": "^0.2.1",
     "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.1.16",
     "@backstage/plugin-catalog-backend-module-unprocessed": "^0.4.5",
+    "@backstage/plugin-devtools-backend": "^0.3.4",
     "@backstage/plugin-kubernetes-backend": "^0.17.1",
     "@backstage/plugin-notifications-backend": "^0.2.1",
     "@backstage/plugin-permission-backend": "^0.5.42",
