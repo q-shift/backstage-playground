@@ -47,6 +47,7 @@
     "@backstage/plugin-search-backend-module-techdocs": "^0.1.23",
     "@backstage/plugin-search-backend-node": "^1.2.23",
     "@backstage/plugin-techdocs-backend": "^1.10.5",
+    "@qshift/plugin-api-backend": "workspace:^",
     "@qshift/plugin-maven-backend": "workspace:^",
     "@qshift/plugin-quarkus-backend": "workspace:^",
     "@roadiehq/backstage-plugin-argo-cd-backend": "^3.0.2",
