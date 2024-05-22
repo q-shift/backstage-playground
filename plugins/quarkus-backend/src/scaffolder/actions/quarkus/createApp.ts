@@ -162,6 +162,8 @@ export const createQuarkusApp = () => {
                       await fs.writeFile(dest, content);
                    }
                }
+               // Remove the downloaded zip file
+               await fs.rm(zipFilePath);
 
                // If present, append additional properties to src/main/resources/application.properties
                if (ctx.input.values.additionalProperties) {
