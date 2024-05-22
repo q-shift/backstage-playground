@@ -31,13 +31,15 @@ backend.add(import('./plugins/argocd-actions/index'))
 // Qshift
 backend.add(import('./plugins/qshift-actions/index'))
 
+// Devtools
+backend.add(import('@backstage/plugin-devtools-backend'));
+
 // TODO: Section to be reviewed to add/remove plugins
 // //backend.add(import('@backstage/plugin-signals-backend'));
 // backend.add(import('@backstage/plugin-catalog-backend-module-backstage-openapi'));
 // backend.add(import('@backstage/plugin-search-backend-module-explore/alpha'));
 // backend.add(import('@backstage/plugin-permission-backend/alpha'));
 
-// TODO: To be added in a separate PR: backend.add(import('@backstage/plugin-devtools-backend'));
 // TODO: Add the github auth provider as janus-idp is using it
 
 backend.start()
