@@ -1,1 +1,1 @@
-export { mavenDependencyAdd } from './dependencyAdd';
+export { mavenDependenciesAdd } from './dependenciesAdd';
