@@ -57,11 +57,12 @@ spec:
   partOf:
     - ${{ values.partOf }}
   {%- endif %}
+  providesApis: [${{ values.component_id }}-api]
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: ${{ values.component_id }}
+  name: ${{ values.component_id }}-api
   {%- if values.title %}
   title: ${{ values.title }}
   {%- endif %}
@@ -76,4 +77,5 @@ spec:
   lifecycle: production
   {%- endif %}
   owner: ${{ values.owner }}
-  definition: openapi.yaml
+  definition: 
+    $text: openapi.yaml
