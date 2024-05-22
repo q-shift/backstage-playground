@@ -7,3 +7,4 @@ spec:
   targets:
     - ./quarkus-application/template.yaml
     - ./quarkus-quickstart/template.yaml
+    - ./quarkus-rest-client/template.yaml
