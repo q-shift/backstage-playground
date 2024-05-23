@@ -1,0 +1,37 @@
+package ${model.packageName};
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import dev.langchain4j.agent.tool.Tool;
+
+#set ($apiName = ${model.name})
+#set ($className = $apiName.replaceAll("Api$", "Service"))
+@ApplicationScoped
+public class $className {
+
+  @Inject
+  @RestClient
+  ${apiName} api;
+
+#foreach ($method in ${model.getMethods()})
+#set ($description = "")
+ @Tool("""
+#foreach ($comment in ${method.getComments()})
+ $comment 
+#end
+ """)
+ public ${method.getReturnType()}  ${method.getSignature()} {
+#set($args = "")
+#foreach ($property in ${method.getArguments()})
+#set($args = ${args} + ", " + ${property.getName()})
+#end
+#if (${args.length()} != 0)
+#set($args = ${args.substring(2)})
+#end
+    return api.${method.name}(${args});
+ }
+#end
+
+}

@@ -1,0 +1,26 @@
+#set ($packageName  = "")
+#foreach ($entry in ${model.entrySet()})
+#set ($packageName  = $entry.getValue().getPackageName())
+#end
+package ${packageName};
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+import io.quarkiverse.langchain4j.RegisterAiService;
+
+#set ($tools = "")
+#foreach ($entry in ${model.entrySet()})
+#set ($toolClassName = $entry.getkey().replaceAll("Api$", "Service"))
+#set($tools = ${tools} + ", " + $entry.getKey().replaceAll("Api$", "Service") + ".class")
+#end
+
+#if (${tools.length()} != 0)
+#set($tools = ${tools.substring(2)})
+#end
+
+@RegisterAiService(tools = ${tools})
+@SystemMessage("You are a chatbot.")
+public interface ChatBot {
+
+  @UserMessage("Answer the {question}. Use any tool you may need to provide the best possible answer.")
+  public String chat(String question);
+}

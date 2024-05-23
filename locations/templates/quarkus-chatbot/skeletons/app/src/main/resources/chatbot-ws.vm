@@ -1,0 +1,30 @@
+#set ($packageName  = "")
+#foreach ($entry in ${model.entrySet()})
+#set ($packageName  = $entry.getValue().getPackageName())
+#end
+package ${packageName};
+
+import io.quarkus.websockets.next.OnOpen;
+import io.quarkus.websockets.next.OnTextMessage;
+import io.quarkus.websockets.next.WebSocket;
+
+@WebSocket(path = "/chatbot")
+public class ChatBotWebSocket {
+
+    private final ChatBot bot;
+
+    public ChatBotWebSocket(ChatBot bot) {
+        this.bot = bot;
+    }
+
+    @OnOpen
+    public String onOpen() {
+        return "Hello, I'm Bob, how can I help you?";
+    }
+
+    @OnTextMessage
+    public String onMessage(String message) {
+        return bot.chat(message);
+    }
+
+}
