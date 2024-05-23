@@ -30,7 +30,6 @@ spec:
           title: Quarkus version
           type: string
           description: The list of the quarkus supported/recommended
-          default: 3.8
           ui:field: QuarkusVersionList
         apiRef:
           title: API
@@ -41,6 +40,15 @@ spec:
             catalogFilter:
               kind:
                 - API
+        apiProvider:
+          title: API Provider
+          type: string
+          description: The software component that provides the API
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind:
+                - Component
         owner:
           title: Owner
           type: string
@@ -262,11 +270,13 @@ spec:
         url: ./skeletons/catalog-info/
         values:
           apiRef: ${{ parameters.apiRef }}
+          apiProvider: ${{ parameters.apiProvider }}
           component_id: ${{ parameters.component_id }}
           clusterDomainName: apps.qshift.snowdrop.dev #TODO: Find a way to configure it
           orgName: ${{ parameters.repo.org }}
           repoName: ${{ parameters.repo.name }}
           owner: ${{ parameters.owner }}
+          dependsOn: ${{ parameters.apiProvider }}
           system: ${{ parameters.system }}
           applicationType: service
           description: ${{ parameters.description }}
