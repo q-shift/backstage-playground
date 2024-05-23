@@ -1,7 +1,7 @@
 ﻿kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: project-pvc-test
+  name: ${{ values.component_id }}-project-pvc-test
   namespace: {{ .Values.app.namespace }}
 spec:
   accessModes:

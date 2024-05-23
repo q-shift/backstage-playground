@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: quarkus-build-test-push
+  name: ${{ values.component_id }}-build-test-push
   namespace: {{ .Values.app.namespace }}
   labels:
     {{- include "backstage.labels" . | nindent 4 }}
@@ -121,7 +121,7 @@ spec:
             - -Dquarkus.container-image.build=false
       workspaces:
         - name: maven-settings
-          workspace: maven-settings
+          workspace: ${{ values.component_id }}-maven-settings
         - name: project-dir
           workspace: project-dir
         - name: maven-m2-repo
