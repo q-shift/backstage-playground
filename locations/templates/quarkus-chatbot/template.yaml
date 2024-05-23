@@ -285,6 +285,8 @@ spec:
               artifactId: quarkus-rest-client-jackson
             - groupId: io.quarkus
               artifactId: quarkus-websockets-next
+            - groupId: io.quarkus
+              artifactId: quarkus-kubernetes-config
             - groupId: io.quarkiverse.openapi.generator
               artifactId: quarkus-openapi-generator
               version: 2.4.2
