@@ -26,13 +26,13 @@ spec:
   workspaces:
     - name: project-dir
       persistentVolumeClaim:
-        claimName: project-pvc-test
+        claimName: ${{ values.component_id }}-project-pvc-test
     - name: maven-m2-repo
       persistentVolumeClaim:
         claimName: m2-repo-pvc-test
     - name: maven-settings
       configMap:
-        name: maven-settings-test
+        name: ${{ values.component_id }}-maven-settings-test
     - name: dockerconfig-ws
       secret:
         secretName: dockerconfig-secret

@@ -264,6 +264,7 @@ spec:
           src/main/resources/META-INF/resources/index.html,
         ]
         values:
+          component_id: ${{ parameters.component_id }}
           apiProvider: ${{ parameters.apiProvider | replace("component:default/", "") }}
           java_package_name: ${{ parameters.java_package_name }}
           java_package_path: ${{ parameters.java_package_name | replace(".", "/") }}
@@ -285,8 +286,6 @@ spec:
               artifactId: quarkus-rest-client-jackson
             - groupId: io.quarkus
               artifactId: quarkus-websockets-next
-            - groupId: io.quarkus
-              artifactId: quarkus-kubernetes-config
             - groupId: io.quarkiverse.openapi.generator
               artifactId: quarkus-openapi-generator
               version: 2.4.2

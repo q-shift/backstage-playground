@@ -1,11 +1,14 @@
 import {LitElement} from 'lit';
 
 export class DemoChat extends LitElement {
-    
-    connectedCallback() {
-        const chatBot = document.getElementsByTagName("chat-bot")[0];
 
-        const socket = new WebSocket("ws://" + window.location.host + "/chatbot");
+   connectedCallback() {
+    const chatBot = document.getElementsByTagName("chat-bot")[0];
+    let socket;
+    let secure = true;
+
+    function connect() {
+        socket = new WebSocket((secure ? "wss://" : "ws://") + window.location.host + "/chatbot");
         socket.onmessage = function (event) {
             chatBot.sendMessage(event.data, {
                 right: false,
@@ -25,6 +28,16 @@ export class DemoChat extends LitElement {
             }
         });
     }
+    // Try to connect
+    connect();
+    // If the connection is not open after a certain timeout, try to connect insecurely
+    setTimeout(function() {
+        if (socket.readyState !== WebSocket.OPEN) {
+            secure = false;
+            connect();
+        }
+    }, 5000); // 5 seconds timeout
+  }
 }
 
 customElements.define('demo-chat', DemoChat);

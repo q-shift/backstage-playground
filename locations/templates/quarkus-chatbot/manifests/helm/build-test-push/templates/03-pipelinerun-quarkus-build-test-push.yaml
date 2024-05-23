@@ -10,7 +10,7 @@ metadata:
     argocd.argoproj.io/hook: Sync
 spec:
   pipelineRef:
-    name: quarkus-build-test-push
+    name: {{ .Values.app.name }}-build-test-push
   params:
     - name: dockerfile
       value: {{ include "dockerfile.path" . }}
@@ -27,13 +27,13 @@ spec:
   workspaces:
     - name: project-dir
       persistentVolumeClaim:
-        claimName: project-pvc
+        claimName: ${{ values.component_id }}-project-pvc
     - name: maven-m2-repo
       persistentVolumeClaim:
-        claimName: m2-repo-pvc
+        claimName: ${{ values.component_id }}-m2-repo-pvc
     - name: maven-settings
       configMap:
-        name: maven-settings
+        name: ${{ values.component_id }}-maven-settings
     - name: dockerconfig-ws
       secret:
         secretName: dockerconfig-secret
