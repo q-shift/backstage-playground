@@ -16,7 +16,7 @@ spec:
   path: {{ .path }}
   {{- end }}
   port:
-    targetPort: {{ $.Values.service.port }}
+    targetPort: {{ $.Values.route.targetPort }}
   to:
     kind: Service
     name: {{ include "quarkus-template.name" $ }}
