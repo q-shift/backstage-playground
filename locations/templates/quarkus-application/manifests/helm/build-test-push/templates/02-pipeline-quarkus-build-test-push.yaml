@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: quarkus-build-test-push
+  name: {{ .Values.app.namespace }}-build-test-push
   namespace: {{ .Values.app.namespace }}
   labels:
     {{- include "backstage.labels" . | nindent 4 }}

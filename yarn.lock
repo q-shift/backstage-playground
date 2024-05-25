@@ -9465,6 +9465,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@qshift/plugin-api-backend@workspace:^, @qshift/plugin-api-backend@workspace:plugins/api-backend":
+  version: 0.0.0-use.local
+  resolution: "@qshift/plugin-api-backend@workspace:plugins/api-backend"
+  dependencies:
+    "@backstage/backend-common": "npm:^0.22.0"
+    "@backstage/backend-defaults": "npm:^0.2.18"
+    "@backstage/backend-plugin-api": "npm:^0.6.18"
+    "@backstage/cli": "npm:^0.26.5"
+    "@backstage/config": "npm:^1.2.0"
+    "@backstage/plugin-auth-backend": "npm:^0.22.5"
+    "@backstage/plugin-auth-backend-module-guest-provider": "npm:^0.1.4"
+    "@types/express": "npm:*"
+    "@types/supertest": "npm:^2.0.12"
+    express: "npm:^4.17.1"
+    express-promise-router: "npm:^4.1.0"
+    msw: "npm:^1.0.0"
+    node-fetch: "npm:^2.6.7"
+    supertest: "npm:^6.2.4"
+    winston: "npm:^3.2.1"
+    yn: "npm:^4.0.0"
+  languageName: unknown
+  linkType: soft
+
 "@qshift/plugin-maven-backend@workspace:^, @qshift/plugin-maven-backend@workspace:plugins/maven-backend":
   version: 0.0.0-use.local
   resolution: "@qshift/plugin-maven-backend@workspace:plugins/maven-backend"
@@ -15824,6 +15847,7 @@ __metadata:
     "@backstage/plugin-search-backend-module-techdocs": "npm:^0.1.23"
     "@backstage/plugin-search-backend-node": "npm:^1.2.23"
     "@backstage/plugin-techdocs-backend": "npm:^1.10.5"
+    "@qshift/plugin-api-backend": "workspace:^"
     "@qshift/plugin-maven-backend": "workspace:^"
     "@qshift/plugin-quarkus-backend": "workspace:^"
     "@roadiehq/backstage-plugin-argo-cd-backend": "npm:^3.0.2"

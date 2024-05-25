@@ -1,7 +1,7 @@
 ﻿kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: m2-repo-pvc-test
+  name: ${{ values.component_id }}-m2-repo-pvc-test
   namespace: {{ .Values.app.namespace }}
 spec:
   accessModes:

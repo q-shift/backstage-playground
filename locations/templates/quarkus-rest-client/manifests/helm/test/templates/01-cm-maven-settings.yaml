@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: maven-settings-test
+  name: ${{ values.component_id }}-maven-settings-test
   namespace: {{ .Values.app.namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "0"

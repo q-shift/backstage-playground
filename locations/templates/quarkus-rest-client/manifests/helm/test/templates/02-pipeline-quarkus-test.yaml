@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: quarkus-test
+  name: ${{ values.component_id }}-test
   namespace: {{ .Values.app.namespace }}
   labels:
     {{- include "backstage.labels" . | nindent 4 }}

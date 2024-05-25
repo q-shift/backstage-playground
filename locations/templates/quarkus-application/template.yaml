@@ -269,11 +269,11 @@ spec:
               version: '24.3.10'
               scope: 'provided'
 
-    - id: todoAppFiles
-      name: Fetching todo app files ...
+    - id: appFiles
+      name: Fetching app files ...
       action: fetch:template
       input:
-        url: skeletons/quarkus-todo-app/
+        url: skeletons/app/
         replace: true
         copyWithoutTemplating: [
           src/main/resources/web/index.html
