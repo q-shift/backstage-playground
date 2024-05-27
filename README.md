@@ -32,7 +32,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 ## Prerequisites
 
 - [nvm](https://github.com/nvm-sh/nvm)
-- [Node.js](https://nodejs.org/en) (18 or 20)
+- [Node.js](https://nodejs.org/en) (18 or 20.x but not 22 as it fails on macOS as node-gyp fails to build: isolated-vm)
 - [Yarn](https://yarnpkg.com/migration/guide). It is mandatory to migrate from yarn 1.x to 4.x and to enable `corepack enable` !
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
