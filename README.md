@@ -31,9 +31,9 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 ## Prerequisites
 
+- [nvm](https://github.com/nvm-sh/nvm)
 - [Node.js](https://nodejs.org/en) (18 or 20)
-- [nvm](https://github.com/nvm-sh/nvm), npm and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) installed
-- Read this blog post: https://medium.com/@chrisschneider/build-a-developer-portal-with-backstage-on-openshift-d2a97aca91ee
+- [Yarn](https://yarnpkg.com/migration/guide). It is mandatory to migrate from yarn 1.x to 4.x and to enable `corepack enable` !
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
 
