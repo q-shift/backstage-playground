@@ -1,6 +1,6 @@
 ## Scaffold template fields
 
-This plugin proposes different UI fields to be used part of a template scaffolded by backstage:
+This plugin proposes different UI fields to be used part of a template scaffolded by backstage as parameters:
 
 | Name                                                        | Description                                                                                                                     |
 |-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
