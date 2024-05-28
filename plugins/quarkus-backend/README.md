@@ -1,6 +1,6 @@
 ## Quarkus actions
 
-This plugin proposes 2 actions able to:
+This plugin provides the following list of backstage action(s) to be used in a template:
 
 | Action                     | Description                                                                                                                                                |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
