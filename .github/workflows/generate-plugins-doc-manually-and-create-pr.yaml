@@ -12,6 +12,9 @@ permissions:
   
 jobs:
   generateDocsPR:
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
 
     steps:
