@@ -43,7 +43,9 @@ COPY --chown=1001:0 .yarnrc.yml ./
 COPY --chown=1001:0 yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
-RUN yarn workspaces focus -A --production
+RUN --mount=type=cache,target=/home/node/.yarn/berry/cache,sharing=locked,uid=1001,gid=0 \
+    --mount=type=cache,target=/home/node/.yarn/berry/index,sharing=locked,uid=1001,gid=0 \
+    yarn workspaces focus -A --production
 
 COPY --chown=1001:0 packages/backend/dist/bundle.tar.gz app-config*.yaml ./
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz

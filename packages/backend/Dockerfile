@@ -35,7 +35,7 @@ RUN pip3 install mkdocs-techdocs-core==1.1.7
 # If this occurs, then ensure BuildKit is enabled (`DOCKER_BUILDKIT=1`) so the app dir is correctly created as `node`.
 WORKDIR /app
 RUN chown node:node /app
-# RUN chown node:node -R /home/node/.yarn/berry && chmod 644 -R /home/node/.yarn/berry
+
 USER node
 
 # This switches many Node.js dependencies to production mode.
@@ -51,8 +51,9 @@ COPY --chown=node:node .yarnrc.yml ./
 COPY --chown=node:node yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
-# TODO: Check how to fix the permissions here and if we need such a mount: --mount=type=cache,target=/home/node/.yarn/berry/cache,sharing=locked,uid=1000,gid=1000 \
-RUN yarn workspaces focus -A --production
+RUN --mount=type=cache,target=/home/node/.yarn/berry/cache,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/node/.yarn/berry/index,sharing=locked,uid=1000,gid=1000 \
+    yarn workspaces focus -A --production
 
 # Then copy the rest of the backend bundle, along with any other files we might want.
 COPY --chown=node:node packages/backend/dist/bundle.tar.gz app-config*.yaml ./
