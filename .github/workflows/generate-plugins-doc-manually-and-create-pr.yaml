@@ -1,6 +1,6 @@
 name: Generate the plugins doc and create a pr
-#  This flow aggregates the README.md file of each plugin into the plugins/README.md parent file
-#  using m4 tool and the template: README.m4.template.md
+# This flow aggregates the README.md file of each plugin into the plugins/README.md parent file
+# using m4 tool and the template: README.m4.template.md
 # The PROJECT.md file is used to introduce the qshift plugins, detail the prerequisites
 
 on:
