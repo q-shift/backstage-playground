@@ -3,11 +3,9 @@ name: Update the plugins documentation on PR merge
 # and if some files changed are README.md
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
+  pull_request_target:
+    branches: ['main']
+    types: ['closed']
 
 permissions:
   contents: write
