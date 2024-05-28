@@ -57,7 +57,7 @@ and open the Quarkus view using the software catalog.
 
 ## Scaffold template fields
 
-This plugin proposes different UI fields to be used part of a template scaffolded by backstage:
+This plugin proposes different UI fields to be used part of a template scaffolded by backstage as parameters:
 
 | Name                                                        | Description                                                                                                                     |
 |-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
@@ -413,7 +413,7 @@ Example of action:
 
 # api
 
-This plugin provides 1 action able to:
+This plugin provides the following list of backstage action(s) to be used in template:
 
 | Action       | Description                                           |
 |--------------|-------------------------------------------------------|
@@ -487,7 +487,7 @@ The definition of the selected API can then be save to the project workspace, us
 
 ## Maven actions
 
-This plugin proposes 1 action able to:
+This plugin provides the following list of backstage action(s) to be used in template:
 
 | Action                     | Description                                                                                                                                                |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
