@@ -411,7 +411,7 @@ Example of action:
           starterCode: true
 ```
 
-# api
+## Api actions
 
 This plugin provides the following list of backstage action(s) to be used in a template:
 
