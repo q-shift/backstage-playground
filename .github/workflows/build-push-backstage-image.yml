@@ -6,9 +6,8 @@ on:
       - main
     tags-ignore:
       - v*
-  pull_request:
-    branches:
-      - main
+  pull_request_target:
+    branches: ['main']
 
 env:
   REGISTRY: quay.io
