@@ -1,6 +1,6 @@
 # api
 
-This plugin provides 1 action able to:
+This plugin provides the following list of backstage action(s) to be used in template:
 
 | Action       | Description                                           |
 |--------------|-------------------------------------------------------|
