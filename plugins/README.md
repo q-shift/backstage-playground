@@ -278,7 +278,7 @@ Quarkus Version list - Recommended (field):
 
 ## Quarkus actions
 
-This plugin proposes 2 actions able to:
+This plugin provides the following list of backstage action(s) to be used in a template:
 
 | Action                     | Description                                                                                                                                                |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -413,7 +413,7 @@ Example of action:
 
 # api
 
-This plugin provides the following list of backstage action(s) to be used in template:
+This plugin provides the following list of backstage action(s) to be used in a template:
 
 | Action       | Description                                           |
 |--------------|-------------------------------------------------------|
@@ -487,7 +487,7 @@ The definition of the selected API can then be save to the project workspace, us
 
 ## Maven actions
 
-This plugin provides the following list of backstage action(s) to be used in template:
+This plugin provides the following list of backstage action(s) to be used in a template:
 
 | Action                     | Description                                                                                                                                                |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
