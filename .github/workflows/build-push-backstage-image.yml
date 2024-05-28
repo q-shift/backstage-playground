@@ -56,7 +56,7 @@ jobs:
           yarn build-ocp-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_OCP_IMAGE_NAME }}:${{ env.SHA_SHORT }}
 
       - name: Login to Quay.io Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_ROBOT_USER }}
@@ -110,7 +110,7 @@ jobs:
           yarn build-image -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.BACKSTAGE_IMAGE_NAME }}:${{ env.SHA_SHORT }}
 
       - name: Login to Quay.io Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_ROBOT_USER }}
