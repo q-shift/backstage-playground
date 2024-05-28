@@ -1,0 +1,69 @@
+name: Update the plugins documentation on PR merge
+# This flow rebuild the plugins README.md file when a PR is merged
+# and if some files changed are README.md
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  
+jobs:
+  generateDocs:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: plugins/**/**.md
+
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
+
+      - name: Check if contains README.md
+        id: pr_contains_readme
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        continue-on-error: true
+        run: |
+          set +e
+          echo ${ALL_CHANGED_FILES} | grep -c README.md
+          echo "grep_result=$(echo ${ALL_CHANGED_FILES} | grep -c README.md)" >> $GITHUB_OUTPUT
+
+      - name: Generate main README.md from template
+        if: steps.pr_contains_readme.outputs.grep_result > 0
+        run: |
+          echo "Generate a new README.md merging content from plugins README"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          
+          cd plugins
+          m4 README.m4.template.md > README.md
+          set +e
+          git add README.md
+          git commit -m "Generated plugins/README.md file from template"
+          git push
+
+      - name: Don't generate main README.md
+        if: steps.pr_contains_readme.outputs.grep_result == 0
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          echo "Don't generate README.md"
+
