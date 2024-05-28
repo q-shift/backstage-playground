@@ -1,6 +1,6 @@
 ## Maven actions
 
-This plugin provides the following list of backstage action(s) to be used in template:
+This plugin provides the following list of backstage action(s) to be used in a template:
 
 | Action                     | Description                                                                                                                                                |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
