@@ -31,6 +31,7 @@ backend:
     - secret: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
 
 auth:
+  environment: development
   # see https://backstage.io/docs/auth/ to learn about auth providers
   providers:
     guest: {}
