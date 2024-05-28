@@ -30,15 +30,6 @@ WORKDIR /app
 RUN chown 1001:0 /app
 USER 1001
 
-# TODO: To be reviewed how to use it and if we need it: --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0
-# RUN yarn install --network-timeout 300000
-# COPY --chown=1001:0 . .
-
-# TODO: To be reviewed how to use it and if we need it: --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0
-# RUN yarn install && yarn tsc && \
-#    yarn --cwd packages/backend build
-# RUN COPY --chown=1001:0 . .
-
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV production
 
