@@ -29,7 +29,9 @@ backend.add(import('./plugins/argocd-backend/index'))
 backend.add(import('./plugins/argocd-actions/index'))
 
 // Qshift
-backend.add(import('./plugins/qshift-actions/index'))
+backend.add(import('@qshift/plugin-quarkus-backend'))
+backend.add(import('@qshift/plugin-maven-backend'))
+backend.add(import('@qshift/plugin-api-backend'))
 
 // Devtools
 backend.add(import('@backstage/plugin-devtools-backend'));
