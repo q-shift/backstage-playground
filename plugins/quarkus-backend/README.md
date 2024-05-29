@@ -7,15 +7,29 @@ This plugin provides the following list of backstage action(s) to be used in a t
 | `quarkus:app:create`       | Create a Quarkus using the website `code.quarkus.io` able to generate a zip file of a Quarkus project and extensions selected (using extension list field) |
 | `quarkus:quickstart:clone` | Clone a Quarkus "Quickstart" repository.                                                                                                                   |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-quarkus-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### quickstart:clone
 
-To use the Quarkus action able to clone a quarkus quickstart from this [repository](https://github.com/quarkusio/quarkus-quickstarts), then edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `cloneQuarkusQuickstart`.
+To use this action able to clone a quarkus quickstart from this [repository](https://github.com/quarkusio/quarkus-quickstarts), then add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` using the old backend system to register the action: `cloneQuarkusQuickstart`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -38,7 +52,7 @@ import { cloneQuarkusQuickstart } from '@internal/plugin-quarkus-backend';
     actions,
 ```
 
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input               | Description                                   | Type          | Required |
 |---------------------|-----------------------------------------------|---------------|----------|
@@ -69,7 +83,20 @@ Example of action:
 
 ### app:create
 
-To use the Quarkus action able to create a quarkus application using `code.quarkus.io`, then edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `createQuarkusApp`.
+To use this action able to create a quarkus application using `code.quarkus.io`, then add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `createQuarkusApp`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -91,7 +118,7 @@ import { createQuarkusApp } from '@internal/plugin-quarkus-backend';
   return await createRouter({
     actions,
 ```
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input                | Description                                                      | Type    | Required |
 |----------------------|------------------------------------------------------------------|---------|----------|
