@@ -184,6 +184,9 @@ spec:
               default: iocanel
               enum:
                 - iocanel
+                - ch007m
+                - aureamunoz
+                - tqvarnst
 
     - title: Provide Cloud information
       required:
