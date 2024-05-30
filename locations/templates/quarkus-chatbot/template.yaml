@@ -155,7 +155,6 @@ spec:
                 - io.quarkus:quarkus-rest-jackson
                 - io.quarkus:quarkus-smallrye-openapi
                 - io.quarkus:quarkus-smallrye-graphql
-                - io.quarkus:quarkus-hibernate-orm-rest-data-panache
 
         additionalProperties:
           title: Additional Properties
@@ -245,7 +244,7 @@ spec:
           healthEndpoint: ${{ parameters.healthEndpoint }}
           metricsEndpoint: ${{ parameters.metricsEndpoint }}
           additionalProperties: ${{ parameters.additionalProperties }}
-          starterCode: true
+          starterCode: false
 
     - id: saveApi
       name: Save the API
@@ -272,9 +271,6 @@ spec:
           java_package_name: ${{ parameters.java_package_name }}
           java_package_path: ${{ parameters.java_package_name | replace(".", "/") }}
           extensions: ${{ parameters.extensions }}
-          database: ${{ parameters.database }}
-          database_username: postgres
-          database_name: ${{ parameters.component_id}}-db
 
 
     - id: mavenDependenciesAdd
