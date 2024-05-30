@@ -1,13 +1,14 @@
 # Backstage override configuration for QShift
+
 organization:
   name: QShift
 
 app:
   title: QShift Backstage App
-  baseUrl: ${BASE_URL} # Please include the port when using localhost !!
+  baseUrl: ${APP_BASE_URL}
 
 backend:
-  baseUrl: ${BASE_URL} # Please include the port when using localhost !!
+  baseUrl: ${BACKEND_BASE_URL}
   listen:
     port: 7007
   csp:
@@ -15,7 +16,7 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: ${BASE_URL} # Please include the port when using localhost !!
+    origin: ${APP_BASE_URL} # Please include the port when using localhost !!
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
@@ -27,8 +28,11 @@ backend:
     # Used for enabling authentication, secret is shared by all backend plugins
     # See https://backstage.io/docs/auth/service-to-service-auth for
     # information on the format
-    keys:
-    - secret: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
+    externalAccess:
+      - type: static
+        options:
+          token: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
+          subject: curl-requests
 
 auth:
   environment: development
@@ -53,13 +57,17 @@ catalog:
   import:
     entityFilename: catalog-info.yaml
   rules:
-    - allow: [ Component, System, API, Resource, Location ]
+    - allow: [API,Component,User,Group,Location,Resource,System,Template]
   locations:
     # Quarkus template, org, entity
     - type: url
-      target: ${TEMPLATE_URL} # default could be : https://github.com/ch007m/my-backstage-templates/blob/main/qshift/all.yaml
+      target: ${TEMPLATE_URL} # default could be : https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
       rules:
-        - allow: [Template,Location,Component,System,Resource,User,Group]
+        - allow: [API,Component,User,Group,Location,Resource,System,Template]
+    #- type: file
+    #  target: ../../locations/root.yaml
+    #  rules:
+    #    - allow: [API,Component,User,Group,Location,Resource,System,Template]
 
 integrations:
   github:

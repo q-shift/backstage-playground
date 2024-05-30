@@ -125,9 +125,8 @@ kubectl apply -f subscription-pipelines.yml
 ## Backstage instructions
 
 This section explains how to use Backstage:
-- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster
-- Running [locally](#run-backstage-locally) or 
-
+- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster or
+- Running [locally](#run-backstage-locally)
 
 ### First steps
 
@@ -172,7 +171,6 @@ The commands described hereafter will help you to set up what it is needed:
   **Important**: The Git Org to define here should be the same as the one you will use when you scaffold a Quarkus application.
 
 - Deploy it using this command:
-
   ```bash
   kubectl create secret generic dockerconfig-secret --from-file=config.json
   ```
@@ -191,7 +189,7 @@ The commands described hereafter will help you to set up what it is needed:
   ```bash
   oc project <MY_NAMESPACE>
   kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
-  kubectl apply -f quarkus-dev-virtualmachine.yml
+  kubectl apply -f manifest/installation/virt/quarkus-dev-virtualmachine.yml
   ```
 - You can verify if the VMI is well running if you check its status:
   ```bash
@@ -217,12 +215,15 @@ This kubernetes secret, which contains k=v pairs, will be mounted as a volume wi
   ```bash
   cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
   ```
-- Edit the file `backstage_env_secret.env` and set the different values using the commands or information between `<command or trick>`  
+- Edit the file `backstage_env_secret.env` and set the different values using the information provided
 - Create the kubernetes secret using the env file: 
   ```bash
   kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
   ```
-- To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the  argocd.yaml file and pass env variables to be substituted:
+- **Note**: The ConfigMap packaging the `app-config.qshift.yaml` file is deployed using our helm chart (see ./manifest/helm/configmap folder) and uses the template: `./templates/[app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl)` !
+
+
+- To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the argocd.yaml file and pass env variables to be substituted:
   ```bash
   cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
   kubectl apply -f argocd.yaml
@@ -238,8 +239,8 @@ Quarkus console
 
 ### Run backstage locally
 
-Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
-url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) likle this
+Create your `app-config.local.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
+url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) like this
 
 ```bash
 cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
@@ -252,12 +253,11 @@ envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
 
 **Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
 
-Next run the following commands to start the front and backend:
+Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
 
 ```sh
 yarn install
-yarn start --config ../../app-config.qshift.yaml
-yarn start-backend --config ../../app-config.qshift.yaml
+yarn dev
 ```
 
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`

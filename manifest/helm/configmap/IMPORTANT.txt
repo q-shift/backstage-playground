@@ -1,0 +1,6 @@
+The backstage application config file is created using a GitHub workflow
+automatically from the template
+
+./manifest/templates/app-config.qshift.tmpl > ./helm/configmap/app-config.qshift.yaml
+
+DON'T CHANGE THE FILE GENERATED IN THIS FOLDER PLEASE !!
