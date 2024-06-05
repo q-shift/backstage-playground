@@ -9,17 +9,17 @@ spec:
     server: https://kubernetes.default.svc
     namespace: $NAMESPACE
   sources:
-    - repoURL: 'https://github.com/ch007m/backstage-playground'
+    - repoURL: 'https://github.com/q-shift/backstage-playground'
       targetRevision: HEAD
       path: manifest/helm
       helm:
         values: |
           namespace: $NAMESPACE
           route:
-            domain: $DOMAIN
+            domain: apps.$DOMAIN
     - chart: backstage
       repoURL: https://backstage.github.io/charts
-      targetRevision: 1.8.2
+      targetRevision: 1.9.3
       helm:
         values: |
           serviceAccount:

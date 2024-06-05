@@ -125,9 +125,8 @@ kubectl apply -f subscription-pipelines.yml
 ## Backstage instructions
 
 This section explains how to use Backstage:
-- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster
-- Running [locally](#run-backstage-locally) or 
-
+- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster or
+- Running [locally](#run-backstage-locally)
 
 ### First steps
 
@@ -169,10 +168,9 @@ The commands described hereafter will help you to set up what it is needed:
   EOF
   ```
 
-  **Important**: The Git Org to define here should be the same as the one you will use when you scaffold a Quarkus application.
+  **Important**: The Org to define here for the container images registry should be the same as the one you will use when you scaffold a Quarkus application and build an image.
 
 - Deploy it using this command:
-
   ```bash
   kubectl create secret generic dockerconfig-secret --from-file=config.json
   ```
@@ -191,7 +189,7 @@ The commands described hereafter will help you to set up what it is needed:
   ```bash
   oc project <MY_NAMESPACE>
   kubectl create secret generic quarkus-dev-ssh-key --from-file=key=$HOME/.ssh/id_rsa.pub
-  kubectl apply -f quarkus-dev-virtualmachine.yml
+  kubectl apply -f manifest/installation/virt/quarkus-dev-virtualmachine.yml
   ```
 - You can verify if the VMI is well running if you check its status:
   ```bash
@@ -217,29 +215,29 @@ This kubernetes secret, which contains k=v pairs, will be mounted as a volume wi
   ```bash
   cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
   ```
-- Edit the file `backstage_env_secret.env` and set the different values using the commands or information between `<command or trick>`  
+- Edit the file `backstage_env_secret.env` and set the different values using the information provided
 - Create the kubernetes secret using the env file: 
   ```bash
   kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
   ```
-- To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the  argocd.yaml file and pass env variables to be substituted:
+- **Note**: The ConfigMap packaging the `app-config.qshift.yaml` file is deployed using our helm chart (see ./manifest/helm/configmap folder) and uses the template: `./templates/[app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl)` !
+
+
+- To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the argocd.yaml file and pass env variables to be substituted:
   ```bash
   cat manifest/templates/argocd.tmpl | NAMESPACE=<MY_NAMESPACE> DOMAIN=<OCP_CLUSTER_DOMAIN> envsubst > argocd.yaml
   kubectl apply -f argocd.yaml
   ```
 
-Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<OCP_CLUSTER_DOMAIN>` and start to play with the template `Create Quarkus Application`
-
-![scaffold-templates-page.png](docs%2Fscaffold-templates-page.png)
-
-Quarkus console
-
-![quarkus-console-1.png](docs%2Fquarkus-console-1.png)
+Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<OCP_CLUSTER_DOMAIN>` and start to play with the templates:
+- Create a Quarkus TODO Application
+- Create a Quarkus Chatbot that consumes an API
+- Create a Quarkus Application from Quickstarts
 
 ### Run backstage locally
 
-Create your `app-config.qshift.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
-url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) likle this
+Create your `app-config.local.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
+url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) like this
 
 ```bash
 cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
@@ -252,28 +250,46 @@ envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
 
 **Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
 
-Next run the following commands to start the front and backend:
+Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
 
 ```sh
 yarn install
-yarn start --config ../../app-config.qshift.yaml
-yarn start-backend --config ../../app-config.qshift.yaml
+yarn dev
 ```
 
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
-## Curl backstage
+## Automate a scenario
 
-If you would like to automate the process to scaffold a project without the need to use the UI, then create a JSON file containing the parameters to be passed
+### Prerequisites
+
+- [GitHub client](https://cli.github.com/) (optional)
+- [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
+
+### Instructions
+
+If you would like to automate the process to scaffold a project on an OpenShift Cluster provisioned with ArgoCD, Tekton, etc and without the need to use the UI, then follow the instructions described hereafter: 
+
+- Set the `TOKEN` env var to authenticate the curl requests issued against backstage
+  ```bash
+  export TOKEN="<BACKSTAGE_AUTH_SECRET>"
+  # The "BACKSTAGE_AUTH_SECRET" corresponds to the token declared within the app-config.local.yaml file
+  #  auth:
+  #    externalAccess:
+  #    - type: static
+  #      options:
+  #       token: <BACKSTAGE_AUTH_SECRET>
+  ```
+- Create a JSON file containing the parameters of the project (= template) that you would like to create and replace the `<XXXX>` with your own data:
 
 ```bash
 cat <<EOF > req.json
 {
   "templateRef": "template:default/quarkus-application",
   "values": {
-    "component_id": "my-quarkus-app",
+    "component_id": "<YOUR_QUARKUS_APP>",
     "native": false,
-    "owner": "user:default/guest",
+    "owner": "user:guest",
     "groupId": "io.quarkus",
     "artifactId": "my-quarkus-app",
     "version": "1.0.0-SNAPSHOT",
@@ -286,58 +302,67 @@ cat <<EOF > req.json
     "metricsEndpoint": true,
     "infoEndpoint": true,
     "extensions": [
-      "io.quarkus:quarkus-resteasy-reactive",
-      "io.quarkus:quarkus-resteasy-reactive-jackson",
-      "io.quarkus:quarkus-hibernate-orm-rest-data-panache"
+      "io.quarkus:quarkus-rest-jackson",
+      "io.quarkus:quarkus-smallrye-openapi",
+      "io.quarkus:quarkus-hibernate-orm-rest-data-panache",
+      "io.quarkus:quarkus-hibernate-validator"
     ],
     "repo": {
       "host": "github.com",
-      "org": "ch007m"
+      "org": "<YOUR_GITHUB_ORG>" 
     },
-    "namespace": "cmoullia",
+    "namespace": "<YOUR_OCP_NAMESPACE>",
     "imageRepository": "quay.io",
     "virtualMachineName": "quarkus-dev",
-    "virtualMachineNamespace": "cmoullia",
-    "imageUrl": "quay.io/ch007m/my-quarkus-app"
+    "virtualMachineNamespace": "<THE_OCP_NAMESPACE_WHERE_PODMAN_VM_IS_RUNNING>",
+    "imageUrl": "quay.io/<YOUR_QUAY_ORG>/<QUAY_REPOSITORY>"
   }
 }
 EOF
 ```
 
-and next issue a POST request
+- Issue a POST request
 
 ```bash
 URL=http://localhost:7007
 curl $URL/api/scaffolder/v2/tasks \
+  -X POST \
   -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $TOKEN" \
   -d @req.json
 ```
 
-## Clean up
-
-To delete the different artefacts created, review the following commands:
+To delete the different resources created (cluster, github), execute the following commands:
 
 - ArgoCD
 ```bash
 ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
-ARGOCD_PWD=<ARGOCD_PWD>
 ARGOCD_USER=admin
+ARGOCD_PWD=<ARGOCD_PWD>
+
 argocd login --insecure $ARGOCD_SERVER --username $ARGOCD_USER --password $ARGOCD_PWD --grpc-web
 
-argocd app delete <MY_NAMESPACE>/$app-bootstrap --grpc-web -y
-argocd app list --grpc-web -N <MY_NAMESPACE>
+argocd app delete openshift-gitops/<YOUR_QUARKUS_APP>-bootstrap -y
+# Wait a few moment till all the resources have been deleted
+argocd proj delete <YOUR_QUARKUS_APP>
+```
+- Database
+If a database like Postgresql has been deployed for the Quarkus application created, then delete the PVC as the Helm Postgresql helm don't remove by default
+```bash
+kubectl delete -n <NAMESPACE> pvc -lapp.kubernetes.io/instance=<YOUR_QUARKUS_APP>-db
 ```
 
 - GitHub repository
 ```bash
-app=my-quarkus-app
-gh repo delete github.com/<GIT_ORG>/$app --yes
+gh repo delete github.com/<GIT_ORG>/<YOUR_QUARKUS_APP> --yes
 ```
 
 - Backstage location/component
+
+According to the name of `<YOUR_QUARKUS_APP>` created, then pickup one word from the application's name: `todo`, `chatboot` and use it as keyword to search hereafter:
 ```bash
+KEY_TO_SEARCH="todo"
 URL=http://localhost:7007
-ID=$(curl -s $URL/api/catalog/locations | jq -r '.[] | .data.id')
-curl -X 'DELETE' $URL/api/catalog/locations/$ID
+ID=$(curl -s -H "Authorization: Bearer $TOKEN" $URL:7007/api/catalog/locations | jq -r --arg appToSearch "$KEY_TO_SEARCH" '.[] | select(.data.target | contains($appToSearch)) | .data.id')
+curl -X 'DELETE' -H "Authorization: Bearer $TOKEN" $URL/api/catalog/locations/$ID
 ```
-**Note**: If you created x backstage components, then iterate through the list of the ID returned as response !
