@@ -4,13 +4,14 @@ import {
 } from '@backstage/backend-plugin-api';
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
 import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
-import { createQuarkusApp, cloneQuarkusQuickstart } from '@qshift/plugin-quarkus-backend';
-import { mavenDependenciesAdd } from '@qshift/plugin-maven-backend';
 import { createSaveApiAction } from '@qshift/plugin-api-backend';
 
-
-export const scaffolderBackendModuleQShift = createBackendModule({
-    moduleId: 'scaffolder-backend-module-qshift',
+/**
+ * @public
+ * The Api Module for the Scaffolder Backend
+ */
+export const apiModule = createBackendModule({
+    moduleId: 'api',
     pluginId: 'scaffolder',
     register(env) {
         env.registerInit({
@@ -21,9 +22,6 @@ export const scaffolderBackendModuleQShift = createBackendModule({
             },
             async init({ scaffolder, reader, catalog }) {
                 scaffolder.addActions(
-                    createQuarkusApp(),
-                    cloneQuarkusQuickstart(),
-                    mavenDependenciesAdd(),
                     createSaveApiAction({reader, catalog}),
                 );
             },

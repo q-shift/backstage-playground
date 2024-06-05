@@ -25,11 +25,13 @@ backend.add(import('@backstage/plugin-kubernetes-backend/alpha'));
 backend.add(import('@backstage/plugin-permission-backend-module-allow-all-policy'));
 
 // Argocd
-backend.add(import('./plugins/argocd-backend/index'))
-backend.add(import('./plugins/argocd-actions/index'))
+backend.add(import('./modules/argocd-backend/index'))
+backend.add(import('./modules/argocd-actions/index'))
 
 // Qshift
-backend.add(import('./plugins/qshift-actions/index'))
+backend.add(import('@qshift/plugin-quarkus-backend'))
+backend.add(import('@qshift/plugin-maven-backend'))
+backend.add(import('@qshift/plugin-api-backend'))
 
 // Devtools
 backend.add(import('@backstage/plugin-devtools-backend'));

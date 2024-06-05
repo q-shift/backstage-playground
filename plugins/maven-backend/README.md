@@ -6,15 +6,29 @@ This plugin provides the following list of backstage action(s) to be used in a t
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `maven:dependencies:add`   | Add one or more maven dependencies to a pom in your project                                                                                                |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-maven-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### maven:dependencies:add
 
-To use this action able to add one 
+To use this action able to add maven dependencies to a POM xml file, add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'))
+...
+backend.start()
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` using the old backend system to register the action: `mavenDependenciesAdd`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -37,7 +51,7 @@ import { mavenDependenciesAdd } from '@internal/plugin-maven-backend';
     actions,
 ```
 
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input                | Description                             | Type               | Required |
 |--------------------- |-----------------------------------------|--------------------|----------|

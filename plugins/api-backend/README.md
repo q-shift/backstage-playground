@@ -6,44 +6,37 @@ This plugin provides the following list of backstage action(s) to be used in a t
 |--------------|-------------------------------------------------------|
 | `api:save`   | Save an API from the catalog to the project workspace |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-maven-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### api:save
 
-To use the plugin you need to add the following module to your backend:
+To use the plugin you need to add the following module to the new backend system like this
 
 ```typescript
-import {
-    coreServices,
-    createBackendModule,
-} from '@backstage/backend-plugin-api';
-import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
-import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
-import { createSaveApiAction } from '@qshift/plugin-api-backend';
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
 
-export const scaffolderBackendModuleQShift = createBackendModule({
-    moduleId: 'scaffolder-backend-module-qshift',
-    pluginId: 'scaffolder',
-    register(env) {
-        env.registerInit({
-            deps: {
-                scaffolder: scaffolderActionsExtensionPoint,
-                reader: coreServices.urlReader,
-                catalog: catalogServiceRef,
-            },
-            async init({ scaffolder, reader, catalog }) {
-                scaffolder.addActions(
-                    createSaveApiAction({reader, catalog}),
-                );
-            },
-        });
-    },
-});
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
 
+The following table details the fields that you can use to customize this action:
+
+| Input        | Description                              | Type   | Required |
+|--------------|------------------------------------------|--------|----------|
+| apiEntityRef | The reference of the Api Entity          | string | Yes      |
+| targetPath   | Path where the API file should be stored | string | Yes      |
+
+
+Example of template including the EntityPicker field parameter:
 ```yaml
 properties:
   apiRef:
@@ -58,8 +51,9 @@ properties:
         spec.type: grpc
 ```
 
-The example above only lists APIs of type `grpc`, but any type can be used, or even no type at all. In the later case all APIs, regardless of their kind will be listed.
-The definition of the selected API can then be save to the project workspace, using the `fetch:api` action.
+**Remark**: The apiRef example above only lists the APIs of type `grpc`, but any type can be used, or even no type at all. In the later case all APIs, regardless of their kind will be listed.
+
+The definition of the selected API can then be saved to the project workspace using the `save:api` action.
 
 ```yaml
 - id: saveApi
