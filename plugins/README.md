@@ -285,15 +285,29 @@ This plugin provides the following list of backstage action(s) to be used in a t
 | `quarkus:app:create`       | Create a Quarkus using the website `code.quarkus.io` able to generate a zip file of a Quarkus project and extensions selected (using extension list field) |
 | `quarkus:quickstart:clone` | Clone a Quarkus "Quickstart" repository.                                                                                                                   |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-quarkus-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### quickstart:clone
 
-To use the Quarkus action able to clone a quarkus quickstart from this [repository](https://github.com/quarkusio/quarkus-quickstarts), then edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `cloneQuarkusQuickstart`.
+To use this action able to clone a quarkus quickstart from this [repository](https://github.com/quarkusio/quarkus-quickstarts), then add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` using the old backend system to register the action: `cloneQuarkusQuickstart`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -316,7 +330,7 @@ import { cloneQuarkusQuickstart } from '@internal/plugin-quarkus-backend';
     actions,
 ```
 
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input               | Description                                   | Type          | Required |
 |---------------------|-----------------------------------------------|---------------|----------|
@@ -347,7 +361,20 @@ Example of action:
 
 ### app:create
 
-To use the Quarkus action able to create a quarkus application using `code.quarkus.io`, then edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `createQuarkusApp`.
+To use this action able to create a quarkus application using `code.quarkus.io`, then add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` to register the action: `createQuarkusApp`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -369,7 +396,7 @@ import { createQuarkusApp } from '@internal/plugin-quarkus-backend';
   return await createRouter({
     actions,
 ```
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input                | Description                                                      | Type    | Required |
 |----------------------|------------------------------------------------------------------|---------|----------|
@@ -419,44 +446,37 @@ This plugin provides the following list of backstage action(s) to be used in a t
 |--------------|-------------------------------------------------------|
 | `api:save`   | Save an API from the catalog to the project workspace |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-maven-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### api:save
 
-To use the plugin you need to add the following module to your backend:
+To use the plugin you need to add the following module to the new backend system like this
 
 ```typescript
-import {
-    coreServices,
-    createBackendModule,
-} from '@backstage/backend-plugin-api';
-import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
-import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
-import { createSaveApiAction } from '@qshift/plugin-api-backend';
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
 
-export const scaffolderBackendModuleQShift = createBackendModule({
-    moduleId: 'scaffolder-backend-module-qshift',
-    pluginId: 'scaffolder',
-    register(env) {
-        env.registerInit({
-            deps: {
-                scaffolder: scaffolderActionsExtensionPoint,
-                reader: coreServices.urlReader,
-                catalog: catalogServiceRef,
-            },
-            async init({ scaffolder, reader, catalog }) {
-                scaffolder.addActions(
-                    createSaveApiAction({reader, catalog}),
-                );
-            },
-        });
-    },
-});
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'));
+...
+backend.start();
+```
 
+The following table details the fields that you can use to customize this action:
+
+| Input        | Description                              | Type   | Required |
+|--------------|------------------------------------------|--------|----------|
+| apiEntityRef | The reference of the Api Entity          | string | Yes      |
+| targetPath   | Path where the API file should be stored | string | Yes      |
+
+
+Example of template including the EntityPicker field parameter:
 ```yaml
 properties:
   apiRef:
@@ -471,8 +491,9 @@ properties:
         spec.type: grpc
 ```
 
-The example above only lists APIs of type `grpc`, but any type can be used, or even no type at all. In the later case all APIs, regardless of their kind will be listed.
-The definition of the selected API can then be save to the project workspace, using the `fetch:api` action.
+**Remark**: The apiRef example above only lists the APIs of type `grpc`, but any type can be used, or even no type at all. In the later case all APIs, regardless of their kind will be listed.
+
+The definition of the selected API can then be saved to the project workspace using the `save:api` action.
 
 ```yaml
 - id: saveApi
@@ -493,15 +514,29 @@ This plugin provides the following list of backstage action(s) to be used in a t
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `maven:dependencies:add`   | Add one or more maven dependencies to a pom in your project                                                                                                |
 
-To use this plugin, import the following packages under the following path:
+To use this plugin, add the following packages to the backstage backend:
 ```bash
 yarn add --cwd packages/backend "@qshift/plugin-maven-backend"
 yarn add --cwd packages/backend "@backstage/integration"
 ```
+Next, follow the instructions documented for each `action`
 
 ### maven:dependencies:add
 
-To use this action able to add one 
+To use this action able to add maven dependencies to a POM xml file, add it to the new backend system like this
+
+```typescript
+// packages/backend/src/index.ts
+import { createBackend } from '@backstage/backend-defaults';
+
+const backend = createBackend();
+...
+backend.add(import('@qshift/plugin-quarkus-backend'))
+...
+backend.start()
+```
+
+or edit the file `packages/backend/src/plugins/scaffolder.ts` using the old backend system to register the action: `mavenDependenciesAdd`.
 
 Here is a snippet example of code changed
 ```typescript
@@ -524,7 +559,7 @@ import { mavenDependenciesAdd } from '@internal/plugin-maven-backend';
     actions,
 ```
 
-The following table details the fields that you can use to use this action:
+The following table details the fields that you can use to customize this action:
 
 | Input                | Description                             | Type               | Required |
 |--------------------- |-----------------------------------------|--------------------|----------|
