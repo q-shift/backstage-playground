@@ -168,7 +168,7 @@ The commands described hereafter will help you to set up what it is needed:
   EOF
   ```
 
-  **Important**: The Git Org to define here should be the same as the one you will use when you scaffold a Quarkus application.
+  **Important**: The Org to define here for the container images registry should be the same as the one you will use when you scaffold a Quarkus application and build an image.
 
 - Deploy it using this command:
   ```bash
