@@ -1,12 +1,13 @@
-# To build the backstage image, simply run this command and pass the needed parameters
-# yarn build-ocp-image -t quay.io/ch007m/backstage-qshift-ocp --platform linux/amd64
+# This dockerfile builds an image including the packages/app & backend for OpenShift.
+# The files created and pushed within the image are owned by the user: 1001
+# Before building this image, be sure to have run the following commands in the repo root:
 #
-# As yarn cache dir command returns /opt/app-root/src/.cache/yarn/v6,
-# this is why the mounted volume is declared as such
-# RUN --mount=type=cache,target=/opt/app-root/src/.cache/yarn/v6,uid=1001,gid=0
+# yarn install
+# yarn tsc
+# yarn build:backend
 #
+# Once the commands have been run, you can build the image using `yarn build-ocp-image -t quay.io/<ORG>/backstage:latest`
 
-# Stage 1 - Copy backstage's files and needed linux packages
 FROM registry.access.redhat.com/ubi9/nodejs-18
 USER 0
 RUN dnf install -y python3 zlib zlib-devel brotli brotli-devel make gcc-c++ gzip git sqlite-devel && dnf clean all

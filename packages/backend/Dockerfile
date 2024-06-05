@@ -1,5 +1,4 @@
-# This dockerfile builds an image for the backend package.
-# It should be executed with the root of the repo as docker context.
+# This dockerfile builds an image including the packages/app & backend.
 #
 # Before building this image, be sure to have run the following commands in the repo root:
 #
@@ -7,7 +6,7 @@
 # yarn tsc
 # yarn build:backend
 #
-# Once the commands have been run, you can build the image using `yarn build-image`
+# Once the commands have been run, you can build the image using `yarn build-image -t quay.io/<ORG>/backstage:latest`
 
 FROM node:18-bookworm-slim
 
