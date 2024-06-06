@@ -119,8 +119,11 @@ export const createQuarkusApp = () => {
             if (! ctx.input.values.starterCode) {
                 noCode = "true";
             }
+
+            const streamkey = buildStreamKeyFromVersion(ctx.input.values.quarkusVersion);
+
             const postData = {
-                streamKey: ctx.input.values.quarkusVersion ? ctx.input.values.quarkusVersion : 'io.quarkus.platform:3.9',
+                streamKey: streamkey,
                 groupId: ctx.input.values.groupId ? ctx.input.values.groupId : 'org.acme',
                 artifactId: ctx.input.values.artifactId ? ctx.input.values.artifactId : 'code-with-quarkus',
                 version: ctx.input.values.version ? ctx.input.values.version : '1.0.0-SNAPSHOT',
@@ -175,4 +178,17 @@ export const createQuarkusApp = () => {
            }
         },
     });
+    function buildStreamKeyFromVersion(
+        quarkusVersion: string,
+    ): string {
+        if (!quarkusVersion) {
+            throw new Error(`Quarkus version to be processed cannot be empty`);
+        }
+        let quarkusVersionDigits = quarkusVersion.split(".")
+        if (quarkusVersionDigits.length < 3) {
+            throw new Error(`The version is not formatted as: X.Y.Z\<version\>`);
+        } else {
+            return "io.quarkus.platform:"+quarkusVersionDigits[0]+"."+quarkusVersionDigits[1];
+        }
+    }
 };

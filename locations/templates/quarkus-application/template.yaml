@@ -260,7 +260,7 @@ spec:
             - iocanel
 
   steps:
-    - id: template
+    - id: quarkus-app-create
       name: Generating the Source Code Component
       action: quarkus:app:create
       input:
@@ -364,6 +364,8 @@ spec:
           git_branch: main
           image_url: ${{ parameters.imageUrl }}
           appNamespace: ${{ parameters.namespace }}
+          version: ${{ parameters.version }}
+          quarkusVersion: ${{ parameters.quarkusVersion}}
           virtualMachineName: ${{ parameters.virtualMachineName }}
           virtualMachineNamespace: ${{ parameters.virtualMachineNamespace }}
           native: ${{ parameters.native }}
