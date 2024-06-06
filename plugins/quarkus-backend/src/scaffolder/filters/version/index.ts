@@ -1,0 +1,1 @@
+export { extractVersionFromKey } from './version';

@@ -1,8 +1,12 @@
 import {
     createBackendModule,
 } from '@backstage/backend-plugin-api';
-import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
+import {
+    scaffolderActionsExtensionPoint,
+    scaffolderTemplatingExtensionPoint
+} from '@backstage/plugin-scaffolder-node/alpha';
 import { createQuarkusApp, cloneQuarkusQuickstart } from '@qshift/plugin-quarkus-backend';
+import { extractVersionFromKey } from '@qshift/plugin-quarkus-backend';
 
 /**
  * @public
@@ -14,12 +18,17 @@ export const quarkusModule = createBackendModule({
     register(env) {
         env.registerInit({
             deps: {
-                scaffolder: scaffolderActionsExtensionPoint,
+                scaffolderAction: scaffolderActionsExtensionPoint,
+                scaffolderFilter: scaffolderTemplatingExtensionPoint,
             },
-            async init({ scaffolder}) {
-                scaffolder.addActions(
+            async init({ scaffolderAction, scaffolderFilter}) {
+                scaffolderAction.addActions(
                     createQuarkusApp(),
                     cloneQuarkusQuickstart(),
+                );
+                scaffolderFilter.addTemplateFilters({
+                     extractVersionFromKey: (streamKey) => extractVersionFromKey(streamKey as string),
+                  },
                 );
             },
         });
