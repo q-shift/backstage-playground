@@ -1,4 +1,4 @@
-import { SecureTemplater } from './SecureTemplater';
+import { SecureTemplater } from '../util/SecureTemplater';
 import {extractVersionFromKey} from "./version";
 
 describe('QuarkusStreamKey', () => {
