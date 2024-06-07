@@ -5,7 +5,6 @@ import { ScaffolderRJSFFieldProps as FieldProps } from '@backstage/plugin-scaffo
 import { CatalogApi, catalogApiRef } from '@backstage/plugin-catalog-react';
 import { Entity } from '@backstage/catalog-model';
 import { act } from "@testing-library/react";
-import { screen } from '@testing-library/react';
 
 describe('<QuarkusVersionList />', () => {
     let entities: Entity[];
