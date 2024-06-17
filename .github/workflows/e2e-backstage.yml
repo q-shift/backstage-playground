@@ -35,8 +35,6 @@ env:
 jobs:
   setup-idp:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,7 +62,7 @@ jobs:
 
       - name: Create an IDP cluster and install the packages
         run: |
-          PACKAGES_DIR=.github/resources/idp/packages
+          PACKAGES_DIR=manifest/idp/packages
           idpbuilder create \
             -p $PACKAGES_DIR/tekton \
             -p $PACKAGES_DIR/backstage \
@@ -133,7 +131,7 @@ jobs:
       - name: Install our Fedora podman image
         run: |
           kubectl create ns vm-images
-          kubectl apply -n vm-images -f https://raw.githubusercontent.com/ch007m/test-github-action/main/.github/resources/quay-to-pvc-datavolume.yml
+          kubectl apply -n vm-images -f manifest/installation/virt/quay-to-pvc-datavolume.yml
           kubectl wait datavolume -n vm-images podman-remote --for condition=Ready=True --timeout=360s
 
       - name: Create ssh key, secret and VM
@@ -231,7 +229,7 @@ jobs:
           EOF
           
           export $(grep -v '^#' backstage_env_secret.env | xargs)
-          envsubst < .github/resources/app-config.qshift.tmpl > backstage-playground/app-config.local.yaml
+          envsubst < manifest/templates/app-config.qshift.tmpl > backstage-playground/app-config.local.yaml
           
           cat backstage-playground/app-config.local.yaml
 
@@ -279,11 +277,12 @@ jobs:
 
       - name : Scaffold a project
         run: |
+          DATA_TEST_PATH=.github/test-data
            curl -s 'http://localhost:7007/api/scaffolder/v2/tasks' \
            -X POST \
            -H 'Content-Type: application/json' \
            -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
-           -d @.github/resources/qshift/quarkus-app.json
+           -d @${DATA_TEST_PATH}/quarkus-app-3.11-db.json
 
       - name: Check backstage components
         run: |

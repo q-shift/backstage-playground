@@ -1,0 +1,36 @@
+{
+  "templateRef": "template:default/quarkus-application",
+  "values": {
+    "component_id": "my-quarkus-app-job",
+    "owner": "user:guest",
+    "native": false,
+    "quarkusVersion": "io.quarkus.platform:3.11",
+    "groupId": "io.quarkus",
+    "artifactId": "my-quarkus-app",
+    "version": "1.0.0-SNAPSHOT",
+    "java_package_name": "io.quarkus.demo",
+    "description": "A cool quarkus app",
+    "javaVersion": "17",
+    "buildTool": "MAVEN",
+    "database": "quarkus-jdbc-postgresql",
+    "healthEndpoint": true,
+    "metricsEndpoint": true,
+    "infoEndpoint": true,
+    "extensions": [
+      "io.quarkus:quarkus-rest-jackson",
+      "io.quarkus:quarkus-smallrye-openapi",
+      "io.quarkus:quarkus-hibernate-orm-rest-data-panache",
+      "io.quarkus:quarkus-hibernate-validator"
+    ],
+    "repo": {
+      "host": "github.com",
+      "org": "ch007m"
+    },
+    "namespace": "dummy",
+    "imageRepository": "quay.io",
+    "virtualMachineName": "quarkus-dev",
+    "virtualMachineNamespace": "dummy",
+    "imageUrl": "quay.io/ch007m/my-quarkus-app"
+  },
+  "secrets": {}
+}
