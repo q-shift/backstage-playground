@@ -15,6 +15,8 @@ permissions:
   pull-requests: write
 
 env:
+  NODE_VERSION: 20.x
+
   IDPBUILDER_VERSION: v0.5.0
 
   TEKTON_VERSION: v0.60.1
@@ -191,15 +193,9 @@ jobs:
           kubectl rollout restart -n argocd deployment argocd-server
           kubectl rollout restart -n argocd statefulset argocd-application-controller          
 
-      - name: Checkout QShift backstage playground
-        uses: actions/checkout@v4
-        with:
-          repository: q-shift/backstage-playground
-          path: backstage-playground
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: ${NODE_VERSION}
 
       - run: corepack enable
 
