@@ -8,6 +8,10 @@ on:
   pull_request_target:
     branches: [ 'main' ]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 env:
   IDPBUILDER_VERSION: v0.5.0
 
