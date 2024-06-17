@@ -5,9 +5,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
   pull_request_target:
     branches: [ 'main' ]
-    types: [opened, edited]
+    # types: [opened, edited]
 
 permissions:
   contents: write
