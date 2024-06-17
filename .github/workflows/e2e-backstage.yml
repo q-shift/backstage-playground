@@ -33,7 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: ${{ github.event_name == 'push' && contains( github.event.head_commit.message, 'qshift') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -137,19 +136,20 @@ jobs:
         run: |
           ssh-keygen -N "" -f id_rsa
           kubectl create secret generic quarkus-dev-ssh-key -n ${KUBE_NAMESPACE} --from-file=key=id_rsa.pub
-      
-          kubectl apply -f https://raw.githubusercontent.com/ch007m/test-github-action/main/.github/resources/quarkus-dev-vm.yml -n ${KUBE_NAMESPACE}
+          
+          MANIFEST_PATH=./manifest/installation/virt
+          kustomize build ${MANIFEST_PATH} | kubectl apply -n ${KUBE_NAMESPACE} -f -
           kubectl wait --for=condition=Ready vm/quarkus-dev -n ${KUBE_NAMESPACE} --timeout=360s
 
       - name: Set idp env variables
         run: |
-          #GITEA_URL=$(kubectl get ingress/my-gitea -n gitea -ojson | jq -r '.spec.rules[0].host')
-          #GITEA_USERNAME=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.username')
-          #GITEA_PASSWORD=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.password')
-          #
-          #echo "GITEA_URL=$GITEA_URL" >> "$GITHUB_ENV"          
-          #echo "GITEA_USERNAME=$GITEA_USERNAME" >> "$GITHUB_ENV"  
-          #echo "GITEA_PASSWORD=$GITEA_PASSWORD" >> "$GITHUB_ENV"
+          GITEA_URL=$(kubectl get ingress/my-gitea -n gitea -ojson | jq -r '.spec.rules[0].host')
+          GITEA_USERNAME=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.username')
+          GITEA_PASSWORD=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.password')
+          
+          echo "GITEA_URL=$GITEA_URL" >> "$GITHUB_ENV"          
+          echo "GITEA_USERNAME=$GITEA_USERNAME" >> "$GITHUB_ENV"  
+          echo "GITEA_PASSWORD=$GITEA_PASSWORD" >> "$GITHUB_ENV"
           
           ARGO_USERNAME=$(idpbuilder get secrets -p argocd -ojson | jq -r '.[].data.username')
           ARGO_PASSWORD=$(idpbuilder get secrets -p argocd -ojson | jq -r '.[].data.password')
