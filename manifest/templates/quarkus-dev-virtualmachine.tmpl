@@ -1,0 +1,72 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: quarkus-dev
+  labels:
+    app: quarkus-dev
+spec:
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        name: quarkus-dev-disk
+      spec:
+        pvc:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 11Gi
+        source:
+          pvc:
+            namespace: {{ VM_IMAGES_NAMESPACE }}
+            name: podman-remote
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: quarkus-dev
+        kubevirt.io/size: small
+    spec:
+      accessCredentials:
+        - sshPublicKey:
+            propagationMethod:
+              configDrive: {}
+            source:
+              secret:
+                secretName: quarkus-dev-ssh-key
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+          interfaces:
+            - masquerade: {}
+              model: virtio
+              name: default
+          networkInterfaceMultiqueue: true
+          rng: {}
+        resources:
+          requests:
+            memory: 2Gi
+      networks:
+        - name: default
+          pod: {}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - cloudInitConfigDrive:
+            userData: |-
+              #cloud-config
+              hostname: quarkus-dev
+          name: cloudinitdisk
+        - dataVolume:
+            name: quarkus-dev-disk
+          name: rootdisk

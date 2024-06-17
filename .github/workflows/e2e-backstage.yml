@@ -1,0 +1,422 @@
+name: Install-run-backstage-golden-path
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches: [ 'main' ]
+
+env:
+  IDPBUILDER_VERSION: v0.5.0
+
+  TEKTON_VERSION: v0.60.1
+  TEKTON_CLIENT_VERSION: 0.37.0
+
+  # From idpbuilder project
+  ARGOCD_VERSION: 2.10.7
+  GITEA_VERSION: 1.22
+
+  KUBEVIRT_VERSION: v1.2.1
+  KUBEVIRT_CDI_VERSION: v1.59.0
+
+  # The git repo name is also the name of the project's parameter of the template
+  REPO_NAME: my-quarkus-app-job
+  REPO_ORG: ch007m
+  QUAY_ORG: ch007m
+
+  KUBE_NAMESPACE: dummy
+
+jobs:
+  setup-idp:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: ${{ github.event_name == 'push' && contains( github.event.head_commit.message, 'qshift') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install idpbuilder
+        run: |
+          version=${IDPBUILDER_VERSION}
+          curl -L -o ./idpbuilder.tar.gz "https://github.com/cnoe-io/idpbuilder/releases/download/${version}/idpbuilder-$(uname | awk '{print tolower($0)}')-$(uname -m | sed 's/x86_64/amd64/').tar.gz"
+          tar xzf idpbuilder.tar.gz
+          sudo mv ./idpbuilder /usr/local/bin/          
+
+          idpbuilder version
+
+      - name: Install Argocd client
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Install tekton client
+        run: |
+          curl -sSL "https://github.com/tektoncd/cli/releases/download/v{$TEKTON_CLIENT_VERSION}/tkn_${TEKTON_CLIENT_VERSION}_Linux_x86_64.tar.gz" -o tkn.tar.gz
+          sudo tar xvzf tkn.tar.gz -C /usr/local/bin/ tkn
+          tkn version
+
+      - name: Create an IDP cluster and install the packages
+        run: |
+          PACKAGES_DIR=.github/resources/idp/packages
+          idpbuilder create \
+            -p $PACKAGES_DIR/tekton \
+            -p $PACKAGES_DIR/backstage \
+            -c argocd:$PACKAGES_DIR/argocd/cm.yaml
+
+      - name: Create the namespace where applications, resources should be deployed
+        run: |
+          kubectl create ns ${KUBE_NAMESPACE}
+
+      - name: Create the secret containing the creds to write an image on Quay
+        run: |
+          QUAY_CREDS=$(echo -n "${{ secrets.QUAY_USERNAME }}:${{ secrets.QUAY_ROBOT_TOKEN }}" | base64 -w 0)
+          
+          cat <<EOF > config.json
+          {
+            "auths": {
+              "quay.io/${QUAY_ORG}": {
+                "auth": "$QUAY_CREDS"
+              }
+            }
+          }
+          EOF
+          kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
+
+      - name: Install Kubevirt
+        run: |
+          function is_nested_virt_enabled() {
+            kvm_nested="unknown"
+            if [ -f "/sys/module/kvm_intel/parameters/nested" ]; then
+              kvm_nested=$( cat /sys/module/kvm_intel/parameters/nested )
+            elif [ -f "/sys/module/kvm_amd/parameters/nested" ]; then
+              kvm_nested=$( cat /sys/module/kvm_amd/parameters/nested )
+            fi
+            [ "$kvm_nested" == "1" ] || [ "$kvm_nested" == "Y" ] || [ "$kvm_nested" == "y" ]
+          }
+      
+          echo "Deploying KubeVirt"
+          kubectl apply -f "https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml"
+          kubectl apply -f "https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml"
+      
+          echo "Configuring Kubevirt to use emulation if needed"
+          if ! is_nested_virt_enabled; then
+            kubectl -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"configuration":{"developerConfiguration":{"useEmulation":true}}}}'
+          fi
+      
+          echo "Deploying KubeVirt containerized-data-importer"
+          kubectl apply -f "https://github.com/kubevirt/containerized-data-importer/releases/download/${KUBEVIRT_CDI_VERSION}/cdi-operator.yaml"
+          kubectl apply -f "https://github.com/kubevirt/containerized-data-importer/releases/download/${KUBEVIRT_CDI_VERSION}/cdi-cr.yaml"
+      
+          echo "Waiting for KubeVirt to be ready"
+          kubectl wait --for=condition=Available kubevirt kubevirt --namespace=kubevirt --timeout=5m
+
+      - name: Give more RBAC to Virt resources and RW for PVC
+        run: |
+          echo "Patch the StorageProfile to use the storageclass standard and give ReadWrite access"
+          kubectl get StorageProfile
+          kubectl patch --type merge -p '{"spec": {"claimPropertySets": [{"accessModes": ["ReadWriteOnce"], "volumeMode": "Filesystem"}]}}' StorageProfile standard
+
+          kubectl create clusterrolebinding pod-kubevirt-viewer --clusterrole=kubevirt.io:view --serviceaccount=${KUBE_NAMESPACE}:default
+          kubectl create clusterrolebinding cdi-kubevirt-viewer --clusterrole=cdi.kubevirt.io:view --serviceaccount=${KUBE_NAMESPACE}:default
+          kubectl create clusterrolebinding quarkus-dev --clusterrole=admin --serviceaccount=${KUBE_NAMESPACE}:default
+          
+          # Give RBAC to the SA argocd-server of the namespace argocd to access Applications running in another namespaces
+          kubectl create clusterrolebinding argocd-server-applications --clusterrole=argocd-applicationset-controller --serviceaccount=argocd:argocd-server
+
+      - name: Install our Fedora podman image
+        run: |
+          kubectl create ns vm-images
+          kubectl apply -n vm-images -f https://raw.githubusercontent.com/ch007m/test-github-action/main/.github/resources/quay-to-pvc-datavolume.yml
+          kubectl wait datavolume -n vm-images podman-remote --for condition=Ready=True --timeout=360s
+
+      - name: Create ssh key, secret and VM
+        run: |
+          ssh-keygen -N "" -f id_rsa
+          kubectl create secret generic quarkus-dev-ssh-key -n ${KUBE_NAMESPACE} --from-file=key=id_rsa.pub
+      
+          kubectl apply -f https://raw.githubusercontent.com/ch007m/test-github-action/main/.github/resources/quarkus-dev-vm.yml -n ${KUBE_NAMESPACE}
+          kubectl wait --for=condition=Ready vm/quarkus-dev -n ${KUBE_NAMESPACE} --timeout=360s
+
+      - name: Set idp env variables
+        run: |
+          #GITEA_URL=$(kubectl get ingress/my-gitea -n gitea -ojson | jq -r '.spec.rules[0].host')
+          #GITEA_USERNAME=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.username')
+          #GITEA_PASSWORD=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.password')
+          #
+          #echo "GITEA_URL=$GITEA_URL" >> "$GITHUB_ENV"          
+          #echo "GITEA_USERNAME=$GITEA_USERNAME" >> "$GITHUB_ENV"  
+          #echo "GITEA_PASSWORD=$GITEA_PASSWORD" >> "$GITHUB_ENV"
+          
+          ARGO_USERNAME=$(idpbuilder get secrets -p argocd -ojson | jq -r '.[].data.username')
+          ARGO_PASSWORD=$(idpbuilder get secrets -p argocd -ojson | jq -r '.[].data.password')
+          ARGO_SERVER_HOST=$(kubectl get ingress/argocd-server-ingress -n argocd -ojson | jq -r '.spec.rules[0].host')
+          ARGO_SERVER_PORT=8443
+          ARGO_SERVER_URL="https://$ARGO_SERVER_HOST:$ARGO_SERVER_PORT"
+          echo "ARGO_PASSWORD=$ARGO_PASSWORD" >> "$GITHUB_ENV"
+          echo "ARGO_SERVER_HOST=$ARGO_SERVER_HOST" >> "$GITHUB_ENV"
+          echo "ARGO_SERVER_PORT=$ARGO_SERVER_PORT" >> "$GITHUB_ENV"
+          echo "ARGO_SERVER=$ARGO_SERVER_URL" >> "$GITHUB_ENV"
+          echo "ARGO_USERNAME=$ARGO_USERNAME" >> "$GITHUB_ENV"
+          
+          SERVICE_ACCOUNT_TOKEN=$(kubectl get secret backstage-secret -n backstage -o json | jq -r '.data.token' | base64 -d)
+          echo "SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN" >> "$GITHUB_ENV"
+          
+          BACKSTAGE_AUTH_SECRET=$(node -p 'require("crypto").randomBytes(24).toString("base64")')
+          echo "BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET" >> "$GITHUB_ENV"
+          
+          echo "Get node IP and port to access it"
+          CLUSTER_IP=$(docker inspect localdev-control-plane | jq -r '.[].NetworkSettings.Ports."6443/tcp"[0].HostIp')
+          CLUSTER_PORT=$(docker inspect localdev-control-plane | jq -r '.[].NetworkSettings.Ports."6443/tcp"[0].HostPort')
+          API_URL="https://$CLUSTER_IP:$CLUSTER_PORT"
+          echo "API_URL=$API_URL" >> "$GITHUB_ENV"
+
+      - name: Logon anc configure ArgoCD server
+        run: |
+          argocd --insecure login $ARGO_SERVER_HOST:$ARGO_SERVER_PORT --username $ARGO_USERNAME --password $ARGO_PASSWORD
+          
+          echo "Allow argocd to handle applications in all the namespaces" 
+          argocd proj add-source-namespace default '*'
+
+      - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
+        run: |
+          echo "Rollout Argocd to take into consideration the new namespace created ..."
+          kubectl rollout restart -n argocd deployment argocd-server
+          kubectl rollout restart -n argocd statefulset argocd-application-controller          
+
+      - name: Checkout QShift backstage playground
+        uses: actions/checkout@v4
+        with:
+          repository: q-shift/backstage-playground
+          path: backstage-playground
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - run: corepack enable
+
+      - name: Install & build QShift
+        working-directory: backstage-playground
+        run: |
+          yarn --immutable
+          yarn tsc
+          yarn build:all
+
+      - name: Configure app-config.local.yaml file
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.BACKSTAGE_GITHUB_TOKEN }}
+        run: |
+          cat <<EOF > backstage_env_secret.env
+          APP_BASE_URL=http://localhost:3000
+          BACKEND_BASE_URL=http://localhost:7007
+          BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET
+          TEMPLATE_URL=https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
+          ARGOCD_SERVER=$ARGO_SERVER
+          ARGOCD_ADMIN_USER=$ARGO_USERNAME
+          ARGOCD_ADMIN_PASSWORD=$ARGO_PASSWORD
+          GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN
+          #GITEA_URL=$GITEA_URL
+          #GITEA_USERNAME=$GITEA_USERNAME
+          #GITEA_PASSWORD='$GITEA_PASSWORD'
+          KUBERNETES_API_URL=$API_URL
+          SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN
+          EOF
+          
+          export $(grep -v '^#' backstage_env_secret.env | xargs)
+          envsubst < .github/resources/app-config.qshift.tmpl > backstage-playground/app-config.local.yaml
+          
+          cat backstage-playground/app-config.local.yaml
+
+      - name: Start backstage
+        # https://github.com/JarvusInnovations/background-action
+        uses: JarvusInnovations/background-action@v1
+        with:
+          run: |
+            export NODE_OPTIONS=--no-node-snapshot
+            export NODE_TLS_REJECT_UNAUTHORIZED=0 
+            yarn dev
+          working-directory: backstage-playground
+          tail: true
+          log-output: true
+          wait-on: http://localhost:7007/settings
+
+      - name: Check backstage resources
+        run: |
+          get_entities_length() {
+              curl -s -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" http://localhost:7007/api/catalog/entities?filter=kind=location | jq '. | length'
+          }
+          
+          until [[ $(get_entities_length) -gt 2 ]]; do
+             echo "Wait till locations are generated ..."
+             length=$(get_entities_length)
+             echo "Current length: $length"
+             sleep 5
+          done
+          
+          echo "Show the locations ..."
+          curl -s "http://localhost:7007/api/catalog/entities?filter=kind=location" \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
+            --compressed \
+           | jq -r
+
+      - name: Delete application repository
+        run: |
+          if gh repo view $REPO_ORG/$REPO_NAME > /dev/null 2>&1; then
+            echo "Repository '$REPO_ORG/$REPO_NAME' exists."
+            gh repo delete $REPO_ORG/$REPO_NAME --yes
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
+
+      - name : Scaffold a project
+        run: |
+           curl -s 'http://localhost:7007/api/scaffolder/v2/tasks' \
+           -X POST \
+           -H 'Content-Type: application/json' \
+           -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
+           -d @.github/resources/qshift/quarkus-app.json
+
+      - name: Check backstage components
+        run: |
+          echo "Show the components ..."
+          get_entities_length() {
+              curl -s -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" http://localhost:7007/api/catalog/entities?filter=kind=component | jq '. | length'
+          }
+          
+          until [[ $(get_entities_length) -gt 0 ]]; do
+             echo "Wait till component is created ..."
+             echo "Component(s) length: $(get_entities_length)"
+             sleep 10
+          done
+          
+          curl -s "http://localhost:7007/api/catalog/entities?filter=kind=component" \
+            -H 'Content-Type: application/json' \
+            -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
+            --compressed \
+           | jq -r
+
+      - name: Wait till the status of the Application parent is healthy
+        run: |
+          SCRIPTS=$(pwd)/.github/scripts
+
+          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-bootstrap argocd Healthy; then
+            echo "Failed to watch: application $REPO_NAME-bootstrap"
+            exit 1;
+          fi
+
+          echo "#########################################"          
+          echo "Detail Application(s) information"
+          echo "#########################################"
+          kubectl get application -A
+          
+          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-build-test-push ${KUBE_NAMESPACE} Synced ; then
+            echo "Failed to get: application $REPO_NAME-build-test-push Synced"
+            kubectl describe application $REPO_NAME-build-test-push -n ${KUBE_NAMESPACE}
+            exit 1;
+          fi
+          
+          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-db ${KUBE_NAMESPACE} Synced ; then
+            echo "Failed to get: application $REPO_NAME-db Synced"
+            kubectl describe application $REPO_NAME-db -n ${KUBE_NAMESPACE}
+            exit 1;
+          fi
+          
+          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-deploy ${KUBE_NAMESPACE} Synced ; then
+            echo "Failed to get: application $REPO_NAME-deploy Synced"
+            kubectl describe application $REPO_NAME-deploy -n ${KUBE_NAMESPACE}
+            exit 1;
+          fi
+          
+          echo "#########################################"
+          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-build-test-push
+          echo "#########################################"
+          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-deploy
+          echo "#########################################"
+          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-db
+
+      - name: Watch tekton resources ...
+        run: |
+          get_pipelineruns_length() {
+            tkn pipelinerun list -n ${KUBE_NAMESPACE} -o json | jq -r '.items | length'
+          }
+                 
+          echo "#########################################"
+          echo "Pipelineruns starting ..."
+          echo "#########################################"
+          for i in `seq 30`; do
+            if [[ $(get_pipelineruns_length) -gt 0 ]]; then
+              tkn pipelinerun logs -n ${KUBE_NAMESPACE} $REPO_NAME-build-test-push -f
+            else
+              echo "#########################################"
+              echo "Wait till the pipelineruns is running ..."
+              echo "#########################################"
+              kubectl get pods -n ${KUBE_NAMESPACE}
+          
+              sleep 30
+            fi
+          done
+
+      - name: Wait till the application is running and log it
+        run: |
+          SCRIPTS=$(pwd)/.github/scripts
+
+          if ! $SCRIPTS/waitFor.sh deployment $REPO_NAME -n ${KUBE_NAMESPACE} READY; then
+            echo "Failed to get deployment of $REPO_NAME"
+            exit 1;
+          else
+            kubectl logs -n ${KUBE_NAMESPACE} -lapp.kubernetes.io/name=${REPO_NAME}
+          fi
+
+      - name: Execute if the job fails
+        if: ${{ failure() }}
+        run: |
+          echo "#########################################"
+          echo "Get pods ...."
+          echo "#########################################"
+          kubectl get pods -A
+          
+          echo "#########################################"
+          echo "Get Tekton pipeline ..."
+          echo "#########################################"
+          kubectl get pipeline -A --ignore-not-found
+
+          echo "#########################################"  
+          echo "Get Tekton pipelineruns ..."
+          echo "#########################################"
+          kubectl get pipelineruns -A --ignore-not-found
+
+          echo "#########################################"          
+          echo "Get Tekton taskruns ..."
+          echo "#########################################"
+          kubectl get taskruns -A --ignore-not-found
+          
+          echo "#########################################"
+          echo "List Argo Application ..."
+          echo "#########################################"
+          argocd app list
+          
+          echo "#########################################"
+          echo "List the Argocd projects ..."
+          echo "#########################################"
+          kubectl get appprojects -A
+          
+          echo "#########################################"
+          echo "List the Argocd applications: parent and children ..."
+          echo "#########################################"
+          argocd app list -p ${REPO_NAME} -N argocd
+          argocd app list -p default -N ${KUBE_NAMESPACE}
+          
+          echo "#########################################"
+          echo "Detail the applications and projects ..."
+          echo "#########################################"
+          kubectl get appprojects -A -oyaml
+          kubectl describe applications -n ${KUBE_NAMESPACE}
+          
+
+          
+          
