@@ -223,7 +223,7 @@ jobs:
           APP_BASE_URL=http://localhost:3000
           BACKEND_BASE_URL=http://localhost:7007
           BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET
-          TEMPLATE_URL=https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
+          #TEMPLATE_URL=https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
           ARGOCD_SERVER=$ARGO_SERVER
           ARGOCD_ADMIN_USER=$ARGO_USERNAME
           ARGOCD_ADMIN_PASSWORD=$ARGO_PASSWORD
@@ -236,9 +236,9 @@ jobs:
           EOF
           
           export $(grep -v '^#' backstage_env_secret.env | xargs)
-          envsubst < manifest/templates/app-config.qshift.tmpl > backstage-playground/app-config.local.yaml
+          envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
           
-          cat backstage-playground/app-config.local.yaml
+          cat app-config.local.yaml
 
       - name: Start backstage
         # https://github.com/JarvusInnovations/background-action

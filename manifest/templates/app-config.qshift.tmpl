@@ -60,12 +60,13 @@ catalog:
     - allow: [API,Component,User,Group,Location,Resource,System,Template]
   locations:
     # Quarkus template, org, entity
-    - type: url
-      target: ${TEMPLATE_URL} # default could be : https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
+    - type: file
+      target: ../../locations/root.yaml
       rules:
         - allow: [API,Component,User,Group,Location,Resource,System,Template]
-    #- type: file
-    #  target: ../../locations/root.yaml
+
+    #- type: url
+    #  target: ${TEMPLATE_URL} # default could be : https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
     #  rules:
     #    - allow: [API,Component,User,Group,Location,Resource,System,Template]
 
