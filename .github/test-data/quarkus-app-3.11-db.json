@@ -28,10 +28,10 @@
       "visibility": "public"
     },
     "namespace": "dummy",
-    "imageRepository": "Gitea",
+    "imageRepository": "gitea.cnoe.localtest.me:8443/giteadmin",
+    "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job",
     "virtualMachineName": "quarkus-dev",
-    "virtualMachineNamespace": "dummy",
-    "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job"
+    "virtualMachineNamespace": "dummy"
   },
   "secrets": {}
 }

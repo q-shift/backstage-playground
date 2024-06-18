@@ -24,7 +24,7 @@ spec:
           title: Name
           type: string
           description: Unique name of the application
-          default: my-quarkus-app
+          default: my-quarkus-app-job
           ui:field: EntityNamePicker
         quarkusVersion:
           title: Quarkus version
@@ -59,7 +59,7 @@ spec:
         artifactId:
           title: Artifact ID
           type: string
-          default: my-quarkus-app
+          default: my-quarkus-app-job
           description: Maven Artifact ID
         version:
           title: Version
@@ -230,7 +230,7 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
+          default: gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app-job
 
         virtualMachineName:
           title: Virtual Machine Name
@@ -317,7 +317,9 @@ spec:
           system: ${{ parameters.system }}
           applicationType: service
           description: ${{ parameters.description }}
-          destination: ${{ parameters.repo.org }}/${{ parameters.component_id }}
+          # TODO: To be reviewed and find a way to properly set the DNS names of: gitea, argocd, etc
+          # destination: destination: ${{ parameters.repo.org }}/${{ parameters.component_id }}
+          destination: http://my-gitea-http.gitea.svc.cluster.local:3000/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
           host: ${{ parameters.repo.host }}
           namespace: ${{ parameters.namespace }}
           imageUrl: ${{ parameters.imageUrl }}
@@ -340,7 +342,9 @@ spec:
         values:
           component_id: ${{ parameters.component_id }}
           description: ${{ parameters.description }}
-          destination: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
+          # TODO: To be reviewed and find a way to properly set the DNS names of: gitea, argocd, etc
+          # destination: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
+          destination: http://my-gitea-http.gitea.svc.cluster.local:3000/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
           git_repo: ${{ parameters.repo.host }} # quay.io, ghcr.io, docker.io, etc
           git_org: ${{ parameters.repo.org }}
           git_repo_name: ${{ parameters.component_id }}
@@ -354,8 +358,8 @@ spec:
           database_username: postgres
           database_name: ${{ parameters.component_id}}-db
           
-    - id: publish
-      name: Publishing to Code Source Repository - Github
+    - id: publish-github
+      name: Publishing to Github
       action: publish:github
       if: ${{ parameters.repo.host === "github.com" }}
       input:
@@ -366,15 +370,15 @@ spec:
         protectDefaultBranch: false
         repoVisibility: ${{ parameters.repo.visibility }}
 
-    - id: debug-gitea
-      name: Publishing to a gitea repository
-      action: debug:log
-      if: ${{ parameters.repo.host !== "github.com" }}
-      input:
-        message: |
-          Pushing files to ${{ parameters.repo.host }} server and repo name: parameters.component_id
+    #- id: debug-gitea
+    #  name: Publishing to Gitea
+    #  action: debug:log
+    #  if: ${{ parameters.repo.host !== "github.com" }}
+    #  input:
+    #    message: |
+    #      Pushing files to ${{ parameters.repo.host }} server and repo name: ${{ parameters.component_id }}
 
-    - id: publish
+    - id: publish-gitea
       name: Publishing to a gitea git repository
       action: publish:gitea
       if: ${{ parameters.repo.host !== "github.com" }}
@@ -389,8 +393,10 @@ spec:
       name: Registering the Catalog Info Component
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: catalog-info.yaml
+        # TODO: Find a way to define properly define the address to access the gitea server or github
+        catalogInfoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}/src/branch/main/catalog-info.yaml
+        #repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        #catalogInfoPath: catalog-info.yaml
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources
@@ -400,7 +406,9 @@ spec:
         argoInstance: argocdQShift # Match appconfig => argocd/appLocatorMethods/instances/name
         projectName: ${{ parameters.component_id }}
         namespace: ${{ parameters.namespace }}
-        repoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{parameters.component_id}}.git
+        # repoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
+        # TODO: Find a way to define properly the address to access the gitea server
+        repoUrl: http://my-gitea-http.gitea.svc.cluster.local:3000/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
         path: 'argocd/'
 
   output:
