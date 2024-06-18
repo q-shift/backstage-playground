@@ -146,11 +146,12 @@ jobs:
           ARGO_SERVER_HOST=$(kubectl get ingress/argocd-server-ingress -n argocd -ojson | jq -r '.spec.rules[0].host')
           ARGO_SERVER_PORT=8443
           ARGO_SERVER_URL="https://$ARGO_SERVER_HOST:$ARGO_SERVER_PORT"
-          echo "ARGO_PASSWORD=$ARGO_PASSWORD" >> "$GITHUB_ENV"
+          
           echo "ARGO_SERVER_HOST=$ARGO_SERVER_HOST" >> "$GITHUB_ENV"
           echo "ARGO_SERVER_PORT=$ARGO_SERVER_PORT" >> "$GITHUB_ENV"
           echo "ARGO_SERVER=$ARGO_SERVER_URL" >> "$GITHUB_ENV"
           echo "ARGO_USERNAME=$ARGO_USERNAME" >> "$GITHUB_ENV"
+          echo "ARGO_PASSWORD=$ARGO_PASSWORD" >> "$GITHUB_ENV"
           
           SERVICE_ACCOUNT_TOKEN=$(kubectl get secret backstage-secret -n backstage -o json | jq -r '.data.token' | base64 -d)
           echo "SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN" >> "$GITHUB_ENV"
@@ -190,7 +191,7 @@ jobs:
         run: |
           echo "Creating the organization: $REPO_ORG on $GITEA_URL"
           curl -k -X POST \
-            "https://$GITEA_URL/api/v1/orgs" \
+            "https://$GITEA_URL:8443/api/v1/orgs" \
             -H 'accept: application/json' \
             -H 'Content-Type: application/json' \
             -u "$GITEA_USERNAME:$GITEA_PASSWORD" \

@@ -24,10 +24,11 @@
     ],
     "repo": {
       "host": "gitea.cnoe.localtest.me:8443",
-      "org": "qshift"
+      "org": "qshift",
+      "visibility": "public"
     },
     "namespace": "dummy",
-    "imageRepository": "gitea.cnoe.localtest.me:8443/giteadmin",
+    "imageRepository": "Gitea",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy",
     "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job"

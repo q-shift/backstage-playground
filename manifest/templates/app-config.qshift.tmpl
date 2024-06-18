@@ -76,6 +76,10 @@ integrations:
       # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
       # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
       token: ${GITHUB_PERSONAL_ACCESS_TOKEN}
+  gitea:
+    - host: ${GITEA_URL}:8443
+      username: ${GITEA_USERNAME}
+      password: "${GITEA_PASSWORD}"
 
 argocd:
   username: admin
