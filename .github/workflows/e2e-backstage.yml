@@ -153,8 +153,8 @@ jobs:
           GITEA_USERNAME=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.username')
           GITEA_PASSWORD=$(idpbuilder get secrets -p gitea -ojson | jq -r '.[].data.password')
           
-          echo "GITEA_URL=$GITEA_URL" >> "$GITHUB_ENV"          
-          echo "GITEA_USERNAME=$GITEA_USERNAME" >> "$GITHUB_ENV"  
+          echo "GITEA_URL=$GITEA_URL:8443" >> "$GITHUB_ENV"
+          echo "GITEA_USERNAME=$GITEA_USERNAME" >> "$GITHUB_ENV"
           echo "GITEA_PASSWORD=$GITEA_PASSWORD" >> "$GITHUB_ENV"
           
           ARGO_USERNAME=$(idpbuilder get secrets -p argocd -ojson | jq -r '.[].data.username')
@@ -191,7 +191,7 @@ jobs:
         run: |
           echo "Creating the organization: $REPO_ORG on $GITEA_URL
           curl -k -X POST \
-            "$GITEA_URL/api/v1/orgs" \
+            "https://$GITEA_URL/api/v1/orgs" \
             -H 'accept: application/json' \
             -H 'Content-Type: application/json' \
             -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
