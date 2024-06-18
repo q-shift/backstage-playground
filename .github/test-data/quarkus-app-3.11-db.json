@@ -27,7 +27,7 @@
       "org": "qshift"
     },
     "namespace": "dummy",
-    "imageRepository": "gitea.cnoe.localtest.me:8443",
+    "imageRepository": "gitea.cnoe.localtest.me:8443/giteadmin",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy",
     "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job"
