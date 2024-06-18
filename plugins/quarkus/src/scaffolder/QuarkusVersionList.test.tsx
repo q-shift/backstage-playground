@@ -4,6 +4,7 @@ import { renderInTestApp, TestApiProvider } from "@backstage/test-utils";
 import { ScaffolderRJSFFieldProps as FieldProps } from '@backstage/plugin-scaffolder-react';
 import { CatalogApi, catalogApiRef } from '@backstage/plugin-catalog-react';
 import { Entity } from '@backstage/catalog-model';
+import { act } from "@testing-library/react";
 
 describe('<QuarkusVersionList />', () => {
     let entities: Entity[];
@@ -47,14 +48,20 @@ describe('<QuarkusVersionList />', () => {
         });
 
         it('should get the default value including (RECOMMENDED)', async () => {
-            const rendered = await renderInTestApp(
-                <Wrapper>
-                    <QuarkusVersionList {...props}/>
-                </Wrapper>
-            );
-            // user.selectOptions()
+            const render = await renderInTestApp(
+                    <Wrapper>
+                        <QuarkusVersionList {...props}/>
+                    </Wrapper>
+                );
+
+            // To fix error discussed here: https://stackoverflow.com/questions/71159702/jest-warning-you-called-actasync-without-await
+            // like this one:  Warning: An update to ForwardRef(FormControl) inside a test was not wrapped in act(...).
+            act(() => {
+                // Unmount should be wrapped in an act, but don't use await
+                render.unmount();
+            });
             await new Promise((r) => setTimeout(r, 2000));
-            expect(rendered.findByText(defaultVersionLabel));
+            expect(render.findByText(defaultVersionLabel));
         });
 
     });
