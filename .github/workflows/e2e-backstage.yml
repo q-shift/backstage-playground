@@ -189,7 +189,7 @@ jobs:
 
       - name: Create the gitea organization
         run: |
-          echo "Creating the organization: $REPO_ORG on $GITEA_URL
+          echo "Creating the organization: $REPO_ORG on $GITEA_URL"
           curl -k -X POST \
             "https://$GITEA_URL/api/v1/orgs" \
             -H 'accept: application/json' \
