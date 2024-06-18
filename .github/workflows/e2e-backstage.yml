@@ -31,7 +31,7 @@ env:
 
   # The git repo name is also the name of the project's parameter of the template
   REPO_NAME: my-quarkus-app-job
-  REPO_ORG: ch007m
+  REPO_ORG: qshift
   QUAY_ORG: ch007m
 
   KUBE_NAMESPACE: dummy
@@ -186,6 +186,15 @@ jobs:
           
           echo "Allow argocd to handle applications in all the namespaces" 
           argocd proj add-source-namespace default '*'
+
+      - name: Create the gitea organization
+        run: |
+          echo "Creating the organization: $REPO_ORG on $GITEA_URL
+          curl -k -X GET \
+            "$GITEA_URL/api/v1/orgs/$REPO_ORG" \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -u "$GITEA_USERNAME:$GITEA_PASSWORD"
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
