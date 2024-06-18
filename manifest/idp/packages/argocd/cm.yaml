@@ -18,6 +18,7 @@ metadata:
   name: argocd-cm
   namespace: argocd
 data:
+  timeout.reconciliation: "5s"
   application.resourceTrackingMethod: "annotation"
   resource.exclusions: |
     - kinds:
