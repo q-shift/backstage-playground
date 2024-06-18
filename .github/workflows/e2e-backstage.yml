@@ -190,11 +190,12 @@ jobs:
       - name: Create the gitea organization
         run: |
           echo "Creating the organization: $REPO_ORG on $GITEA_URL
-          curl -k -X GET \
-            "$GITEA_URL/api/v1/orgs/$REPO_ORG" \
+          curl -k -X POST \
+            "$GITEA_URL/api/v1/orgs" \
             -H 'accept: application/json' \
             -H 'Content-Type: application/json' \
-            -u "$GITEA_USERNAME:$GITEA_PASSWORD"
+            -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
+            -d '{"username": "'"$REPO_ORG"'"}'
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
@@ -228,9 +229,9 @@ jobs:
           ARGOCD_ADMIN_USER=$ARGO_USERNAME
           ARGOCD_ADMIN_PASSWORD=$ARGO_PASSWORD
           GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN
-          #GITEA_URL=$GITEA_URL
-          #GITEA_USERNAME=$GITEA_USERNAME
-          #GITEA_PASSWORD='$GITEA_PASSWORD'
+          GITEA_URL=$GITEA_URL
+          GITEA_USERNAME=$GITEA_USERNAME
+          GITEA_PASSWORD='$GITEA_PASSWORD'
           KUBERNETES_API_URL=$API_URL
           SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN
           EOF

@@ -175,17 +175,32 @@ spec:
             host:
               title: Repo Host
               type: string
-              default: github.com
+              default: gitea.cnoe.localtest.me:8443
+              enum:
+                - gitea.cnoe.localtest.me:8443
+                - github.com
+
             org:
               title: Repo Org Owner
               type: string
               description: Your SCM organization/group
-              default: iocanel
+              default: qshift
               enum:
+                - qshift
+                - aureamunoz
                 - ch007m
                 - iocanel
-                - aureamunoz
-                - tqvarnst
+
+            visibility:
+              title: Visibility of the repository
+              type: string
+              default: 'public'
+              enum:
+                - 'public'
+                - 'private'
+              enumNames:
+                - 'public'
+                - 'private'
 
     - title: Provide Cloud information
       required:
@@ -196,16 +211,18 @@ spec:
           title: Namespace
           type: string
           description: The openshift/kubernetes namespace for deploying resources
-          default: iocanel
+          default: dummy
 
         imageRepository:
            title: Select a registry
            type: string
-           default: quay.io
+           default: gitea.cnoe.localtest.me:8443/giteadmin
            enum:
+             - gitea.cnoe.localtest.me:8443/giteadmin
              - quay.io
              - image-registry.openshift-image-registry.svc:5000
            enumNames:
+             - Gitea
              - Quay
              - Internal OpenShift Registry
 
@@ -213,7 +230,7 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/ikanello/my-quarkus-app
+          default: gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
 
         virtualMachineName:
           title: Virtual Machine Name
@@ -225,7 +242,7 @@ spec:
           title: VMI Namespace
           description: Namespace where the virtual machine runs
           type: string
-          default: test1
+          default: dummy
 
   steps:
     - id: template
@@ -340,20 +357,40 @@ spec:
     - id: publish
       name: Publishing to Code Source Repository - Github
       action: publish:github
+      if: ${{ parameters.repo.host === "github.com" }}
       input:
         allowedHosts: ['github.com']
         description: This is ${{ parameters.component_id }}
         repoUrl: "${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{parameters.component_id}}"
         defaultBranch: main
         protectDefaultBranch: false
-        repoVisibility: public
+        repoVisibility: ${{ parameters.repo.visibility }}
+
+    - id: debug-gitea
+      name: Publishing to a gitea repository
+      action: debug:log
+      if: ${{ parameters.repo.host !== "github.com" }}
+      input:
+        message: |
+          Pushing files to ${{ parameters.repo.host }} server and repo name: parameters.component_id
+
+    - id: publish
+      name: Publishing to a gitea git repository
+      action: publish:gitea
+      if: ${{ parameters.repo.host !== "github.com" }}
+      input:
+        name: This is a dummy project
+        description: This is ${{ parameters.component_id }}
+        repoUrl: ${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{ parameters.component_id }}
+        repoVisibility: ${{ parameters.repo.visibility }}
+        defaultBranch: main
 
     - id: register
       name: Registering the Catalog Info Component
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: /catalog-info.yaml
+        catalogInfoPath: catalog-info.yaml
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources

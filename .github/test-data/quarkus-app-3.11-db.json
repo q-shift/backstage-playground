@@ -6,7 +6,7 @@
     "native": false,
     "quarkusVersion": "io.quarkus.platform:3.11",
     "groupId": "io.quarkus",
-    "artifactId": "my-quarkus-app",
+    "artifactId": "my-quarkus-app-job",
     "version": "1.0.0-SNAPSHOT",
     "java_package_name": "io.quarkus.demo",
     "description": "A cool quarkus app",
@@ -23,14 +23,14 @@
       "io.quarkus:quarkus-hibernate-validator"
     ],
     "repo": {
-      "host": "github.com",
-      "org": "ch007m"
+      "host": "gitea.cnoe.localtest.me:8443",
+      "org": "qshift"
     },
     "namespace": "dummy",
-    "imageRepository": "quay.io",
+    "imageRepository": "gitea.cnoe.localtest.me:8443",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy",
-    "imageUrl": "quay.io/ch007m/my-quarkus-app"
+    "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job"
   },
   "secrets": {}
 }
