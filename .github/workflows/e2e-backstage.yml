@@ -201,9 +201,12 @@ jobs:
       #      -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
       #      -d '{"username": "'"$REPO_ORG"'"}'
 
-      - name: Create the secret containing the creds to write an image on Quay.io and org snowdrop
+      - name: Create the secret containing the creds to write an image on Quay.io and org qshift
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_ROBOT_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
         run: |
-          QUAY_CREDS=$(echo -n "${{ secrets.QUAY_USERNAME }}:${{ secrets.QUAY_ROBOT_TOKEN }}" | base64 -w 0)
+          QUAY_CREDS=$(echo -n "$QUAY_USERNAME:$QUAY_ROBOT_TOKEN" | base64 -w 0)
       
           cat <<EOF > config.json
           {
