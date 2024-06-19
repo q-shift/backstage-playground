@@ -398,9 +398,11 @@ spec:
       name: Registering the Catalog Info Component
       action: catalog:register
       input:
-        # TODO: To be reviewed and tested with different git providers
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: catalog-info.yaml
+        # TODO:
+        # - To be reviewed and tested with different git providers
+        # - This syntax fails: repoContentsUrl: ${{ steps.publish-${{ 'github' if parameters.repo.host == 'github.com' else 'gitea' }}.output.repoContentsUrl }}
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources
