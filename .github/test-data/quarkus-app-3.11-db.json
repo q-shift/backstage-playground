@@ -23,13 +23,12 @@
       "io.quarkus:quarkus-hibernate-validator"
     ],
     "repo": {
-      "host": "gitea.cnoe.localtest.me:8443",
-      "org": "qshift",
-      "visibility": "public"
+      "host": "github.com",
+      "org": "q-shift",
     },
     "namespace": "dummy",
-    "imageRepository": "gitea.cnoe.localtest.me:8443/giteadmin",
-    "imageUrl": "gitea.cnoe.localtest.me:8443/giteaadmin/my-quarkus-app-job",
+    "imageRepository": "quay.io",
+    "imageUrl": "quay.io/snowdrop/my-quarkus-app",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy"
   },
