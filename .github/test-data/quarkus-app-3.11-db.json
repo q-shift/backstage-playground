@@ -24,11 +24,12 @@
     ],
     "repo": {
       "host": "github.com",
-      "org": "q-shift"
+      "org": "q-shift",
+      "visibility": "public"
     },
     "namespace": "dummy",
     "imageRepository": "quay.io",
-    "imageUrl": "quay.io/snowdrop/my-quarkus-app",
+    "imageUrl": "quay.io/snowdrop/my-quarkus-app-job",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy"
   },

@@ -31,8 +31,12 @@ env:
 
   # The git repo name is also the name of the project's parameter of the template
   REPO_NAME: my-quarkus-app-job
-  REPO_ORG: qshift
+  REPO_ORG: q-shift
 
+  QUAY_ORG: qshift
+
+  # This namespace will be used to build/deploy the generated quarkus app and
+  # should be the same as the one defined within the ConfigMap of ArgocCD using: application.namespaces: "dummy"
   KUBE_NAMESPACE: dummy
 
 jobs:
@@ -172,20 +176,20 @@ jobs:
           echo "Allow argocd to handle applications in all the namespaces" 
           argocd proj add-source-namespace default '*'
 
-      - name: Create the secret containing the creds to write an image on Gitea
-        run: |
-          GITEA_CREDS=$(echo -n "$GITEA_USERNAME:$GITEA_PASSWORD" | base64 -w 0)
-          
-          cat <<EOF > config.json
-          {
-            "auths": {
-              "$GITEA_URL:8443": {
-                "auth": "$GITEA_CREDS"
-              }
-            }
-          }
-          EOF
-          kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
+      #- name: Create the secret containing the creds to write an image on Gitea
+      #  run: |
+      #    GITEA_CREDS=$(echo -n "$GITEA_USERNAME:$GITEA_PASSWORD" | base64 -w 0)
+      #
+      #    cat <<EOF > config.json
+      #    {
+      #      "auths": {
+      #        "$GITEA_URL:8443": {
+      #          "auth": "$GITEA_CREDS"
+      #        }
+      #      }
+      #    }
+      #    EOF
+      #    kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
 
       #- name: Create the gitea organization
       #  run: |
@@ -196,6 +200,21 @@ jobs:
       #      -H 'Content-Type: application/json' \
       #      -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
       #      -d '{"username": "'"$REPO_ORG"'"}'
+
+      - name: Create the secret containing the creds to write an image on Quay.io and org snowdrop
+        run: |
+          QUAY_CREDS=$(echo -n "${{ secrets.QUAY_USERNAME }}:${{ secrets.QUAY_ROBOT_TOKEN }}" | base64 -w 0)
+      
+          cat <<EOF > config.json
+          {
+            "auths": {
+                "quay.io/QUAY_ORG": {
+                  "auth": "$QUAY_CREDS"
+                }
+            }
+          }
+          EOF
+          kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
@@ -239,6 +258,16 @@ jobs:
           envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
           
           cat app-config.local.yaml
+
+      - name: Delete application repository
+        # WARNING: Don't run jobs in // as both will create/push or delete content from same github repository
+        run: |
+          if gh repo view $REPO_ORG/$REPO_NAME > /dev/null 2>&1; then
+            echo "Repository '$REPO_ORG/$REPO_NAME' exists."
+            gh repo delete $REPO_ORG/$REPO_NAME --yes
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
 
       - name: Start backstage
         # https://github.com/JarvusInnovations/background-action
