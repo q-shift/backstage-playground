@@ -187,15 +187,15 @@ jobs:
           EOF
           kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
 
-      - name: Create the gitea organization
-        run: |
-          echo "Creating the organization: $REPO_ORG on $GITEA_URL"
-          curl -k -X POST \
-            "https://$GITEA_URL:8443/api/v1/orgs" \
-            -H 'accept: application/json' \
-            -H 'Content-Type: application/json' \
-            -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
-            -d '{"username": "'"$REPO_ORG"'"}'
+      #- name: Create the gitea organization
+      #  run: |
+      #    echo "Creating the organization: $REPO_ORG on $GITEA_URL"
+      #    curl -k -X POST \
+      #      "https://$GITEA_URL:8443/api/v1/orgs" \
+      #      -H 'accept: application/json' \
+      #      -H 'Content-Type: application/json' \
+      #      -u "$GITEA_USERNAME:$GITEA_PASSWORD" \
+      #      -d '{"username": "'"$REPO_ORG"'"}'
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
@@ -224,7 +224,7 @@ jobs:
           BACKEND_BASE_URL=http://localhost:7007
           BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET
           #TEMPLATE_URL=https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml
-          ARGOCD_SERVER=$ARGO_SERVER
+          ARGOCD_SERVER=$ARGO_SERVER_URL
           ARGOCD_ADMIN_USER=$ARGO_USERNAME
           ARGOCD_ADMIN_PASSWORD=$ARGO_PASSWORD
           GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN
