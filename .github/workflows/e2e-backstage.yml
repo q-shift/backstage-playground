@@ -211,7 +211,7 @@ jobs:
           cat <<EOF > config.json
           {
             "auths": {
-                "quay.io/QUAY_ORG": {
+                "quay.io/$QUAY_ORG": {
                   "auth": "$QUAY_CREDS"
                 }
             }
