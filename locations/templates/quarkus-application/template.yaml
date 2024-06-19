@@ -24,7 +24,7 @@ spec:
           title: Name
           type: string
           description: Unique name of the application
-          default: my-quarkus-app-job
+          default: my-quarkus-app
           ui:field: EntityNamePicker
         quarkusVersion:
           title: Quarkus version
@@ -240,7 +240,7 @@ spec:
             - quay.io/snowdrop/my-quarkus-app
             - quay.io/ch007m/my-quarkus-app
             - quay.io/iocanel/my-quarkus-app
-            - gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app-job
+            - gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
 
         virtualMachineName:
           title: Virtual Machine Name
@@ -253,6 +253,7 @@ spec:
           description: Namespace where the virtual machine runs
           type: string
           default: demo
+          enum:
             - cmoullia
             - demo
             - dummy
