@@ -24,7 +24,7 @@
     ],
     "repo": {
       "host": "github.com",
-      "org": "q-shift",
+      "org": "q-shift"
     },
     "namespace": "dummy",
     "imageRepository": "quay.io",
