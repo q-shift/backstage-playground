@@ -318,15 +318,17 @@ jobs:
           retries=10
           until [[ $retries == 0 ]]; do
             TASK_ID=$(echo $RESPONSE | jq -r '.id')
-            EVENTS=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
-          
-            if [[ $EVENTS ]]; then
-              echo "We got the event of type completion :-)"
-              curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
-              break
-            else 
-              echo "Wait till we got the event of type: completion"
-            fi
+            EVENT_COMPLETION=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
+  
+            if [[ $EVENT_COMPLETION ]]; then
+              if [[ $(echo $EVENT_COMPLETION | jq -r '.body.message') == *"failed"* ]]; then
+                echo "#### Scaffolding failed ! ####"
+                curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
+                exit 1;
+             else
+                echo "#### Scaffolding succeeded :-) ####"
+                curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
+             fi
           
             sleep 15s
             retries=$((retries - 1))
