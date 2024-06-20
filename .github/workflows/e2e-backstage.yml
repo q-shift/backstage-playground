@@ -315,7 +315,7 @@ jobs:
           
           echo $RESPONSE
 
-          echo "Wait till we got the event of type: completion 
+          echo "Wait till we got the event of type: completion"
           TASK_ID=$(echo $RESPONSE | jq -r '.id')
           RESPONSE=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
   
