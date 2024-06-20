@@ -29,7 +29,7 @@
     },
     "namespace": "dummy",
     "imageRepository": "quay.io",
-    "imageUrl": "quay.io/snowdrop/my-quarkus-app-job",
+    "imageUrl": "quay.io/qshift/my-quarkus-app-job",
     "virtualMachineName": "quarkus-dev",
     "virtualMachineNamespace": "dummy"
   },
