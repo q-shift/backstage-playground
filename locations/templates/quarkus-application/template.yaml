@@ -235,9 +235,9 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/snowdrop/my-quarkus-app
+          default: quay.io/qshift/my-quarkus-app
           enumNames:
-            - quay.io/snowdrop/my-quarkus-app
+            - quay.io/qshift/my-quarkus-app
             - quay.io/ch007m/my-quarkus-app
             - quay.io/iocanel/my-quarkus-app
             - gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
