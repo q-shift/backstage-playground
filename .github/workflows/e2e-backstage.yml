@@ -328,7 +328,7 @@ jobs:
               echo "Wait till we got the event of type: completion"
             fi
           
-            sleep 10s
+            sleep 15s
             retries=$((retries - 1))
           done
 
