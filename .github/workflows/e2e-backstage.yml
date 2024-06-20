@@ -415,7 +415,7 @@ jobs:
         run: |
           SCRIPTS=$(pwd)/.github/scripts
 
-          if ! $SCRIPTS/waitFor.sh deployment $REPO_NAME -n ${KUBE_NAMESPACE} READY; then
+          if ! $SCRIPTS/waitFor.sh deployment $REPO_NAME ${KUBE_NAMESPACE} READY; then
             echo "Failed to get deployment of $REPO_NAME"
             exit 1;
           else
