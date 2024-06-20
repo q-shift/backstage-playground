@@ -412,6 +412,8 @@ jobs:
             echo "Failed to get deployment of $REPO_NAME"
             exit 1;
           else
+            echo "Show pods running within the namespace ${KUBE_NAMESPACE} ..."
+            kubectl get pods -n ${KUBE_NAMESPACE}
             kubectl logs -n ${KUBE_NAMESPACE} -lapp.kubernetes.io/name=${REPO_NAME}
           fi
 
