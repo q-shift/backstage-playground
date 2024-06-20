@@ -316,7 +316,7 @@ jobs:
           echo $RESPONSE
           echo "Check errors ..."
           TASK_ID=$(echo $RESPONSE | jq -r '.id')
-          curl -s 'http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events' \
+          curl -s "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" \
             -H 'Content-Type: application/json' \
             -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
             | jq -r
