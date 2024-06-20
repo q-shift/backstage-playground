@@ -314,15 +314,14 @@ jobs:
            -d @${DATA_TEST_PATH}/quarkus-app-3.11-db.json)
           
           echo $RESPONSE
-          echo "Sleeping a bit to let backstage to scaffold and to get all the events"
-          sleep 40s
-          
-          echo "Check errors ..."
+
+          echo "Wait till we got the event of type: completion 
           TASK_ID=$(echo $RESPONSE | jq -r '.id')
-          curl -s "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" \
-            -H 'Content-Type: application/json' \
-            -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
-            | jq -r
+          RESPONSE=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
+  
+          if [[ $RESPONSE ]]; then
+            curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
+          fi
 
       - name: Check backstage components
         run: |
