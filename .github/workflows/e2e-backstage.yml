@@ -315,13 +315,21 @@ jobs:
           
           echo $RESPONSE
 
-          echo "Wait till we got the event of type: completion"
-          TASK_ID=$(echo $RESPONSE | jq -r '.id')
-          RESPONSE=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
-  
-          if [[ $RESPONSE ]]; then
-            curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
-          fi
+          retries=10
+          until [[ $retries == 0 ]]; do
+            TASK_ID=$(echo $RESPONSE | jq -r '.id')
+            RESPONSE=$(curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.[] | select(.type=="completion")')
+          
+            if [[ $RESPONSE ]]; then
+              curl -s -H 'Content-Type: application/json' -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" | jq -r '.'
+              break
+            else 
+              echo "Wait till we got the event of type: completion"
+            fi
+          
+            sleep 5s
+            retries=$((retries - 1))
+          done
 
       - name: Check backstage components
         run: |
