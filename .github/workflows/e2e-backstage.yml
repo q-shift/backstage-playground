@@ -221,7 +221,7 @@ jobs:
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
-          echo "Rollout Argocd to take into consideration the new namespace created ..."
+          echo "Rollout Argocd to take into consideration the new namespace created ...."
           kubectl rollout restart -n argocd deployment argocd-server
           kubectl rollout restart -n argocd statefulset argocd-application-controller          
 
