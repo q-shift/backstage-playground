@@ -314,6 +314,8 @@ jobs:
            -d @${DATA_TEST_PATH}/quarkus-app-3.11-db.json)
           
           echo $RESPONSE
+          sleep 20s
+          
           echo "Check errors ..."
           TASK_ID=$(echo $RESPONSE | jq -r '.id')
           curl -s "http://localhost:7007/api/scaffolder/v2/tasks/$TASK_ID/events" \
