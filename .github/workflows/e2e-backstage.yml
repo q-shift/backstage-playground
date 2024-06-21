@@ -79,6 +79,30 @@ jobs:
         run: |
           kubectl create ns ${KUBE_NAMESPACE}
 
+      - name: Wait till IDP ArgoCD application is sync; ConfigMap patched
+        run: |
+          SCRIPTS=$(pwd)/.github/scripts
+          
+          echo "Temporary workaround to refresh ArgoCD Application till https://github.com/cnoe-io/idpbuilder/pull/307 is released"
+          kubectl annotate --overwrite applications -n argocd argocd argocd.argoproj.io/refresh='normal'
+          
+          if ! $SCRIPTS/waitFor.sh application argocd argocd Healthy; then
+            echo "Failed to watch application argocd in namespace argocd"
+            exit 1;
+          fi
+
+          echo "Wait till ConfigMap is patched with data: application.namespaces ..."          
+          until kubectl get -n argocd cm/argocd-cmd-params-cm -o json | jq -e '.data | has("application.namespaces")'; do
+             echo "Still waiting ..."
+             sleep 10s
+          done
+          
+          echo "Rollout Argocd as resources changed ..."
+          kubectl rollout restart -n argocd deployment argocd-server
+          kubectl rollout restart -n argocd statefulset argocd-application-controller
+
+          kubectl rollout status --watch statefulset/argocd-application-controller -n argocd --timeout=600s
+
       - name: Install Kubevirt
         run: |
           function is_nested_virt_enabled() {
@@ -90,20 +114,20 @@ jobs:
             fi
             [ "$kvm_nested" == "1" ] || [ "$kvm_nested" == "Y" ] || [ "$kvm_nested" == "y" ]
           }
-      
+
           echo "Deploying KubeVirt"
           kubectl apply -f "https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml"
           kubectl apply -f "https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml"
-      
+
           echo "Configuring Kubevirt to use emulation if needed"
           if ! is_nested_virt_enabled; then
             kubectl -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"configuration":{"developerConfiguration":{"useEmulation":true}}}}'
           fi
-      
+
           echo "Deploying KubeVirt containerized-data-importer"
           kubectl apply -f "https://github.com/kubevirt/containerized-data-importer/releases/download/${KUBEVIRT_CDI_VERSION}/cdi-operator.yaml"
           kubectl apply -f "https://github.com/kubevirt/containerized-data-importer/releases/download/${KUBEVIRT_CDI_VERSION}/cdi-cr.yaml"
-      
+
           echo "Waiting for KubeVirt to be ready"
           kubectl wait --for=condition=Available kubevirt kubevirt --namespace=kubevirt --timeout=5m
 
@@ -116,7 +140,7 @@ jobs:
           kubectl create clusterrolebinding pod-kubevirt-viewer --clusterrole=kubevirt.io:view --serviceaccount=${KUBE_NAMESPACE}:default
           kubectl create clusterrolebinding cdi-kubevirt-viewer --clusterrole=cdi.kubevirt.io:view --serviceaccount=${KUBE_NAMESPACE}:default
           kubectl create clusterrolebinding quarkus-dev --clusterrole=admin --serviceaccount=${KUBE_NAMESPACE}:default
-          
+
           # Give RBAC to the SA argocd-server of the namespace argocd to access Applications running in another namespaces
           kubectl create clusterrolebinding argocd-server-applications --clusterrole=argocd-applicationset-controller --serviceaccount=argocd:argocd-server
 
@@ -130,10 +154,11 @@ jobs:
         run: |
           ssh-keygen -N "" -f id_rsa
           kubectl create secret generic quarkus-dev-ssh-key -n ${KUBE_NAMESPACE} --from-file=key=id_rsa.pub
-          
+
           MANIFEST_PATH=./manifest/installation/virt
           kustomize build ${MANIFEST_PATH} | kubectl apply -n ${KUBE_NAMESPACE} -f -
           kubectl wait --for=condition=Ready vm/quarkus-dev -n ${KUBE_NAMESPACE} --timeout=360s
+
 
       - name: Set idp env variables
         run: |
@@ -169,7 +194,7 @@ jobs:
           API_URL="https://$CLUSTER_IP:$CLUSTER_PORT"
           echo "API_URL=$API_URL" >> "$GITHUB_ENV"
 
-      - name: Logon anc configure ArgoCD server
+      - name: Logon and configure ArgoCD server
         run: |
           argocd --insecure login $ARGOCD_SERVER_HOST:$ARGOCD_SERVER_PORT --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD
           
@@ -221,9 +246,11 @@ jobs:
 
       - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
         run: |
-          echo "Rollout Argocd to take into consideration the new namespace created ...."
+          echo "Rollout Argocd to take into consideration the new namespace created ..."
           kubectl rollout restart -n argocd deployment argocd-server
-          kubectl rollout restart -n argocd statefulset argocd-application-controller          
+          kubectl rollout restart -n argocd statefulset argocd-application-controller
+
+          kubectl rollout status --watch statefulset/argocd-application-controller -n argocd --timeout=600s
 
       - uses: actions/setup-node@v4
         with:
@@ -358,6 +385,11 @@ jobs:
       - name: Wait till the status of the Application parent is healthy
         run: |
           SCRIPTS=$(pwd)/.github/scripts
+          
+          # echo "#########################################"          
+          # echo "Create manually the ArgoCD resources: project and application bootstrap ..."
+          # echo "#########################################"          
+          # kubectl apply -f $(pwd)/.github/resources/argocd.yaml
 
           if ! $SCRIPTS/waitFor.sh application $REPO_NAME-bootstrap argocd Healthy; then
             echo "Failed to watch: application $REPO_NAME-bootstrap"
@@ -368,31 +400,53 @@ jobs:
           echo "Detail Application(s) information"
           echo "#########################################"
           kubectl get application -A
+
+      - name: Wait till the children applications are synced too
+        run: |          
+          SCRIPTS=$(pwd)/.github/scripts
+          
+          echo "#########################################"
+          echo "List the AppProject ..."
+          echo "#########################################"
+          kubectl get appproject -A
+          
+          echo "#########################################"
+          echo "Show the AppProject ..."
+          echo "#########################################"
+          kubectl get appproject -A -oyaml
+          
+          echo "#########################################"
+          echo "Log the Application YAML for $REPO_NAME-build-test-push ..."
+          echo "#########################################"
+          kubectl -n ${KUBE_NAMESPACE} get application $REPO_NAME-build-test-push -oyaml          
           
           if ! $SCRIPTS/waitFor.sh application $REPO_NAME-build-test-push ${KUBE_NAMESPACE} Synced ; then
-            echo "Failed to get: application $REPO_NAME-build-test-push Synced"
-            kubectl describe application $REPO_NAME-build-test-push -n ${KUBE_NAMESPACE}
+            $SCRIPTS/logApplication.sh $REPO_NAME build-test-push $KUBE_NAMESPACE
             exit 1;
+          else
+            echo "#########################################"
+            echo "Show Application ${REPO_NAME}-build-test-push in namespace ${KUBE_NAMESPACE}"
+            echo "#########################################"
+            argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-build-test-push
           fi
           
           if ! $SCRIPTS/waitFor.sh application $REPO_NAME-db ${KUBE_NAMESPACE} Synced ; then
-            echo "Failed to get: application $REPO_NAME-db Synced"
-            kubectl describe application $REPO_NAME-db -n ${KUBE_NAMESPACE}
+            $SCRIPTS/logApplication.sh $REPO_NAME db $KUBE_NAMESPACE
             exit 1;
+          else
+            echo "#########################################"
+            echo "Show Application ${REPO_NAME}-db in namespace ${KUBE_NAMESPACE}"
+            echo "#########################################"
           fi
           
-          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-deploy ${KUBE_NAMESPACE} Synced ; then
-            echo "Failed to get: application $REPO_NAME-deploy Synced"
-            kubectl describe application $REPO_NAME-deploy -n ${KUBE_NAMESPACE}
+          if ! $SCRIPTS/waitFor.sh application $REPO_NAME-deploy $KUBE_NAMESPACE Synced ; then
+            $SCRIPTS/logApplication.sh $REPO_NAME deploy $KUBE_NAMESPACE
             exit 1;
+          else
+            echo "#########################################"
+            echo "Show Application ${REPO_NAME}-deploy in namespace ${KUBE_NAMESPACE}"
+            echo "#########################################"
           fi
-          
-          echo "#########################################"
-          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-build-test-push
-          echo "#########################################"
-          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-deploy
-          echo "#########################################"
-          argocd app get ${KUBE_NAMESPACE}/${REPO_NAME}-db
 
       - name: Watch tekton resources ...
         run: |
@@ -421,7 +475,7 @@ jobs:
           SCRIPTS=$(pwd)/.github/scripts
 
           if ! $SCRIPTS/waitFor.sh deployment $REPO_NAME ${KUBE_NAMESPACE} READY; then
-            echo "Failed to get deployment of $REPO_NAME"
+            echo "Failed to get deployment of $REPO_NAME in namespace ${KUBE_NAMESPACE}"
             exit 1;
           else
             echo "Show pods running within the namespace ${KUBE_NAMESPACE} ..."
@@ -432,47 +486,28 @@ jobs:
       - name: Execute if the job fails
         if: ${{ failure() }}
         run: |
+          SCRIPTS=$(pwd)/.github/scripts
+          
           echo "#########################################"
           echo "Get pods ...."
           echo "#########################################"
           kubectl get pods -A
           
-          echo "#########################################"
-          echo "Get Tekton pipeline ..."
-          echo "#########################################"
-          kubectl get pipeline -A --ignore-not-found
-
-          echo "#########################################"  
-          echo "Get Tekton pipelineruns ..."
-          echo "#########################################"
-          kubectl get pipelineruns -A --ignore-not-found
-
           echo "#########################################"          
-          echo "Get Tekton taskruns ..."
+          echo "Show ArgoCD CM to verify if it includes parameters needed to work cross namespaces ..."
           echo "#########################################"
-          kubectl get taskruns -A --ignore-not-found
+          kubectl get -n argocd cm/argocd-cmd-params-cm -oyaml
+          
+          $SCRIPTS/listShowDescribeResource.sh AppProject argocd
+          
+          $SCRIPTS/listShowDescribeResource.sh Applications ${KUBE_NAMESPACE}
           
           echo "#########################################"
-          echo "List Argo Application ..."
+          echo "Log ArgoCD application-controller ..."
           echo "#########################################"
-          argocd app list
+          kubectl logs -n argocd -lapp.kubernetes.io/name=argocd-application-controller --tail=-1
           
-          echo "#########################################"
-          echo "List the Argocd projects ..."
-          echo "#########################################"
-          kubectl get appprojects -A
-          
-          echo "#########################################"
-          echo "List the Argocd applications: parent and children ..."
-          echo "#########################################"
-          argocd app list -p ${REPO_NAME} -N argocd
-          argocd app list -p default -N ${KUBE_NAMESPACE}
-          
-          echo "#########################################"
-          echo "Detail the applications and projects ..."
-          echo "#########################################"
-          kubectl get appprojects -A -oyaml
-          kubectl describe applications -n ${KUBE_NAMESPACE}
+          # $SCRIPTS/logTektonResources.sh
           
 
           
