@@ -19,12 +19,12 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 | Backstage plugin                                                                                                                                                                                                                                          | Backend system                                   | 
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
 | [Core - 1.27.x](https://github.com/backstage/versions/blob/main/v1/releases/1.23.4/manifest.json)                                                                                                                                                         | GitHub                                           |
-| [Kubernetes](https://backstage.io/docs/features/kubernetes/)                                                                                                                                                                                              | OpenShift 4.14                                   |
-| [Quarkus front & backend](https://github.com/q-shift/backstage-plugins)                                                                                                                                                                                   | code.quarkus.io, OpenShift Virtualization 4.14.3 |
-| [Quarkus Console](https://github.com/q-shift/backstage-plugins?tab=readme-ov-file#quarkus-console)                                                                                                                                                        | OpenShift 4.14                                   |
-| ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) | OpenShift GitOps 1.11.1                          |
-| [Tekton](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)                                                                                                                                                                         | OpenShift Pipelines 1.13.1                       |
-| [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | OpenShift 4.14                                   |
+| [Kubernetes](https://backstage.io/docs/features/kubernetes/)                                                                                                                                                                                              | OpenShift 4.15                                   |
+| [Quarkus front & backend](https://github.com/q-shift/backstage-plugins)                                                                                                                                                                                   | code.quarkus.io, OpenShift Virtualization 4.15.2 |
+| [Quarkus Console](https://github.com/q-shift/backstage-plugins?tab=readme-ov-file#quarkus-console)                                                                                                                                                        | OpenShift 4.15                                   |
+| ArgoCD [front](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/frontend/backstage-plugin-argo-cd) & [backend](https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/scaffolder-actions/scaffolder-backend-argocd) | OpenShift GitOps 1.12.3                          |
+| [Tekton](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/tekton)                                                                                                                                                                         | OpenShift Pipelines 1.15.0                       |
+| [Topology](https://github.com/janus-idp/backstage-plugins/tree/main/plugins/topology)                                                                                                                                                                     | OpenShift 4.15                                   |
 | [DevTools](https://github.com/backstage/backstage/blob/master/plugins/devtools/README.md)                                                                                                                                                                 |                                                  |
 
 **Note**: This backstage application is based on the backstage's version: 1.27.x
@@ -41,7 +41,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 
 ## Provision an ocp cluster
 
-The following section details the different commands to be used to deploy the backend systems needed by QShift on a new OCP cluster (e.g. 4.14.10)
+The following section details the different commands to be used to deploy the backend systems needed by QShift on a new OCP cluster (e.g. 4.15.x)
 
 #### Kubevirt
 
@@ -75,19 +75,21 @@ kubectl apply -f subscription-gitops.yml
 
 To use ArgoCD with QShift, it is needed to delete the existing `ArgoCD` CR and to deploy our `ArgoCD` CR.
 
-**Note**: Our CR includes different changes needed to work with QShift: `sourceNamespaces`, `extraConfig` and `tls.termination: reencrypt` and `resourceExclusions`
-
-**Todo**: The previous note should be documented to explain the changes needed !
+**Note**: Our CR includes different changes needed to work with QShift:
+- `extraConfig: resource.customizations.health.PersistentVolumeClaim` to avoid that ArgoCD watch the PVC resources
+- `tls.termination: reencrypt` to allow to access the ArgoCD route
 
 ```bash
-kubectl delete argocd/openshift-gitops -n openshift-gitops
-```
-Substitute within the `ArgoCD` CR the <MY_NAMESPACE> to be used using this command
-```bash
-cat argocd.tmpl | NAMESPACE=<MY_NAMESPACE> envsubst > argocd.yml
+kubectl delete argocd/argocd -n openshift-gitops
 kubectl apply -f argocd.yml
 ```
-**Todo**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize, helm chart. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
+**Todo**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
+
+To allow Argo CD to manage resources in [other namespaces](https://docs.openshift.com/gitops/1.12/argocd_instance/setting-up-argocd-instance.html#gitops-deploy-resources-different-namespaces_setting-up-argocd-instance) apart from where it is installed, configure the target namespace with a `argocd.argoproj.io/managed-by` label.
+```bash
+kubectl label namespace <target_namespace> \
+    argocd.argoproj.io/managed-by=<argocd_namespace> 
+```
 
 Patch the `AppProject` CR to support to deploy the `Applications` CR in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
 ```bash
@@ -97,20 +99,7 @@ kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNam
 Finally, create a new ClusterRoleBinding to give the `Admin` role to the ServiceAccount `openshift-gitops-argocd-application-controller`. That will allow it to manage the `Applications` CR deployed in any namespace of the cluster.
 
 ```bash
-cat << EOF | kubectl apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: argocd-controller-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
-subjects:
-- kind: ServiceAccount
-  name: openshift-gitops-argocd-application-controller
-  namespace: openshift-gitops
-EOF
+kubectl apply -f rbac.yml
 ```
 
 #### Tekton
