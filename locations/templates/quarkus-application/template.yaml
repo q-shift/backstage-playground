@@ -187,7 +187,7 @@ spec:
               default: q-shift
               enum:
                 - q-shift
-                - aureamunoz
+                - amunozhe
                 - ch007m
                 - iocanel
 
@@ -213,9 +213,9 @@ spec:
           description: The openshift/kubernetes namespace for deploying resources
           default: demo
           enum:
+            - amunozhe
             - cmoullia
             - demo
-            - dummy
             - iocanel
 
         imageRepository:
@@ -254,9 +254,9 @@ spec:
           type: string
           default: demo
           enum:
+            - amunozhe
             - cmoullia
             - demo
-            - dummy
             - iocanel
 
   steps:
