@@ -85,13 +85,7 @@ kubectl apply -f argocd.yml
 ```
 **Todo**: Instead of deleting and recreating a new ArgoCD CR, we should patch it or install it using kustomize. Example: https://github.com/redhat-cop/agnosticd/blob/development/ansible/roles_ocp_workloads/ocp4_workload_openshift_gitops/templates/openshift-gitops.yaml.j2
 
-To allow Argo CD to manage resources in [other namespaces](https://docs.openshift.com/gitops/1.12/argocd_instance/setting-up-argocd-instance.html#gitops-deploy-resources-different-namespaces_setting-up-argocd-instance) apart from where it is installed, configure the target namespace with a `argocd.argoproj.io/managed-by` label.
-```bash
-kubectl label namespace <target_namespace> \
-    argocd.argoproj.io/managed-by=<argocd_namespace> 
-```
-
-Patch the `AppProject` CR to support to deploy the `Applications` CR in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
+Patch the default `AppProject` CR to support to deploy the `Applications` CR in [different namespaces](https://github.com/q-shift/backstage-playground/issues/39#issuecomment-1938403564).
 ```bash
 kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
 ```
@@ -163,10 +157,10 @@ The commands described hereafter will help you to set up what it is needed:
   ```bash
   kubectl create secret generic dockerconfig-secret --from-file=config.json
   ```
-- **Warning**: To let ArgoCD to handle the `Applications` CR within your namespace, it is needed to patch the resource `kind: ArgoCD` to add your namespace using the field: `.spec.sourceNamespaces`. When patched, the ArgoCD operator will roll out automatically the ArgoCD server.
+- **Warning**: To allow Argo CD to manage resources in [other namespaces](https://docs.openshift.com/gitops/1.12/argocd_instance/setting-up-argocd-instance.html#gitops-deploy-resources-different-namespaces_setting-up-argocd-instance) apart from where it is installed, configure the target namespace with a `argocd.argoproj.io/managed-by` label.
   ```bash
-  kubectl get argocd/openshift-gitops -n openshift-gitops -o json \
-    | jq '.spec.sourceNamespaces += ["<MY_NAMESPACE>"]' | kubectl apply -f -
+  kubectl label namespace <target_namespace> \
+      argocd.argoproj.io/managed-by=<argocd_namespace> 
   ```
 - And finally, create the service account `my-backstage`. 
   ```bash
@@ -243,6 +237,7 @@ Next run the following commands to start the front and backend using the `app-co
 
 ```sh
 yarn install
+export NODE_TLS_REJECT_UNAUTHORIZED=0
 yarn dev
 ```
 
