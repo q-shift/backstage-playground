@@ -6,9 +6,10 @@ on:
     branches:
       - main
   pull_request:
-  pull_request_target:
-    branches: [ 'main' ]
-    # types: [opened, edited]
+  # TODO: To be reviewed to figure out if we need it or not
+  #pull_request_target:
+  #  branches: [ 'main' ]
+  #  # types: [opened, edited]
 
 permissions:
   contents: write
