@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: quay.io
-  REGISTRY_ORG: ${{ secrets.QUAY_ORG }}
+  REGISTRY_ORG: qshift
   BACKSTAGE_OCP_IMAGE_NAME: backstage-qshift-ocp
   BACKSTAGE_IMAGE_NAME: backstage-qshift
 
@@ -59,7 +59,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: quay.io
-          username: ${{ secrets.QUAY_ROBOT_USER }}
+          username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Push the built image
@@ -113,7 +113,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: quay.io
-          username: ${{ secrets.QUAY_ROBOT_USER }}
+          username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Push the built image
