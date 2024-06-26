@@ -115,9 +115,26 @@ This section explains how to use Backstage:
 
 Before to install and use our Backstage application, it is needed to perform some steps such as:
 - Create an OpenShift project 
-- Provide your registry credentials (quay.io, docker, etc) as a `config.json` file
+- Provide your registry credentials (quay.io, docker, etc) as `config.json` file
+- Create a ServiceAccount for backstage (needed to get the token)
+- Create a ClusterRoleBinding for the SA to allow backstage to access the Kube API resources
+- Create the Fedora Podman VM using your public key to ssh
 
-The commands described hereafter will help you to set up what it is needed:
+The commands hereafter will guide you to set up what it is needed
+
+**Important**: Alternatively, you can also use our bash script: [provision-namespace.sh](scripts%2Fprovision-namespace.sh)
+```bash
+./scripts/provision-namespace.sh -h
+Processing -h
+Usage: ./scripts/provision-namespace.sh [options]
+Options:
+  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)
+  -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
+  -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
+  -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
+  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM (mandatory)
+  -r, --dry-run                                          Run the kubectl command with dry-run=client
+```
 
 - Start first by cloning this project locally
   ```bash
