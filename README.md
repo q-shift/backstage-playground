@@ -115,9 +115,12 @@ This section explains how to use Backstage:
 
 Before to install and use our Backstage application, it is needed to perform some steps such as:
 - Create an OpenShift project 
-- Provide your registry credentials (quay.io, docker, etc) as a `config.json` file
+- Provide your registry credentials (quay.io, docker, etc) as `config.json` file
+- Create a ServiceAccount for backstage (needed to get the token)
+- Create a ClusterRoleBinding for the SA to allow backstage to access the Kube API resources
+- Create the Fedora Podman VM using your public key to ssh
 
-The commands described hereafter will help you to set up what it is needed:
+The commands hereafter will guide you to set up what it is needed
 
 - Start first by cloning this project locally
   ```bash
@@ -150,7 +153,6 @@ The commands described hereafter will help you to set up what it is needed:
   }
   EOF
   ```
-
   **Important**: The Org to define here for the container images registry should be the same as the one you will use when you scaffold a Quarkus application and build an image.
 
 - Deploy it using this command:
@@ -162,6 +164,31 @@ The commands described hereafter will help you to set up what it is needed:
   kubectl label namespace <MY_NAMESPACE> \
       argocd.argoproj.io/managed-by=<argocd_namespace> 
   ```
+
+- Patch the ArgoCD CR to add your namespace using the parameter: `sourceNamespaces`
+```bash
+NAMESPACE="<MY-NAMESPACE>"
+ARGOCD_NAME="argocd"
+NAMESPACE_ARGOCD="openshift-gitops"
+
+# Fetch the current ArgoCD resource
+ARGOCD_JSON=$(kubectl get argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD -o json)
+
+# Check if the namespace is already in the sourceNamespaces array
+if echo "$ARGOCD_JSON" | jq -e --arg ns "$NAMESPACE" '.spec.sourceNamespaces | index($ns)' > /dev/null; then
+  echo "Namespace '$NAMESPACE' already exists in sourceNamespaces."
+else
+  echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
+  PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
+  kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
+fi
+```
+
+- Patch also the default `AppProject` to support to deploy the Applications CR in different namespaces.
+  ```bash
+  kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
+  ```
+  
 - And finally, create the service account `my-backstage` and give it `admin` rights using the following RBAC to access the Kubernetes API resources. 
   ```bash
   kubectl create sa my-backstage
@@ -195,6 +222,30 @@ EOF
   NAMESPACE       NAME          AGE   STATUS    READY
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
+
+**Important**: Alternatively, you can use our bash script which can execute all the previous steps: [provision-namespace.sh](scripts%2Fprovision-namespace.sh)
+```bash
+./scripts/provision-namespace.sh -h
+
+Usage: ./scripts/provision-namespace.sh [options]
+Options:
+  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)
+  -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
+  -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
+  -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
+  -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
+  -r, --dry-run                                          Run the kubectl command with dry-run=client
+```
+Here is by example, how you could define the arguments
+```bash
+./scripts/provision-namespace.sh \
+  -n my-namespace \
+  -d "my-docker-user:my-docker-pwd" \
+  -q "my-quay-user:my-quay-pwd" \
+  -o "my-quay-org" \
+  -k $HOME/.ssh/id_rsa.pub
+```
+**Tips**: To execute the kubectl and oc commands of the script in `dry-run` mode, pass as argument `--dry-run`
 
 We are now ready to deploy and use backstage within your project as documented at the following section.
 
