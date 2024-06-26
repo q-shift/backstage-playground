@@ -32,7 +32,7 @@ The backstage QShift application has been designed to showcase QShift (Quarkus o
 ## Prerequisites
 
 - [nvm](https://github.com/nvm-sh/nvm)
-- [Node.js](https://nodejs.org/en) (18 or 20.x but not 22 as it fails on macOS as node-gyp fails to build: isolated-vm)
+- [Node.js](https://nodejs.org/en) (20.x but not 22 as it fails on macOS as node-gyp fails to build: isolated-vm)
 - [Yarn](https://yarnpkg.com/migration/guide). It is mandatory to migrate from yarn 1.x to 4.x and to enable `corepack enable` !
 - [GitHub client](https://cli.github.com/) (optional)
 - [argocd client](https://argo-cd.readthedocs.io/en/stable/getting_started/#2-download-argo-cd-cli) (optional)
@@ -159,12 +159,27 @@ The commands described hereafter will help you to set up what it is needed:
   ```
 - **Warning**: To allow Argo CD to manage resources in [other namespaces](https://docs.openshift.com/gitops/1.12/argocd_instance/setting-up-argocd-instance.html#gitops-deploy-resources-different-namespaces_setting-up-argocd-instance) apart from where it is installed, configure the target namespace with a `argocd.argoproj.io/managed-by` label.
   ```bash
-  kubectl label namespace <target_namespace> \
+  kubectl label namespace <MY_NAMESPACE> \
       argocd.argoproj.io/managed-by=<argocd_namespace> 
   ```
-- And finally, create the service account `my-backstage`. 
+- And finally, create the service account `my-backstage` and give it `admin` rights using the following RBAC to access the Kubernetes API resources. 
   ```bash
   kubectl create sa my-backstage
+  NAMESPACE=<MY_NAMESPACE>
+cat <<EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: backstage-$NAMESPACE-cluster-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: my-backstage
+  namespace: $NAMESPACE
+EOF
   ```
   **Note**: This is needed to create the SA in order to get the secret generated and containing the token that we will use at the step `Deploy and use Backstage on OCP`
 
