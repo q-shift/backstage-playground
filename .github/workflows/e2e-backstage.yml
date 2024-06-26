@@ -339,7 +339,7 @@ jobs:
            -X POST \
            -H 'Content-Type: application/json' \
            -H "Authorization: Bearer $BACKSTAGE_AUTH_SECRET" \
-           -d @${DATA_TEST_PATH}/quarkus-app-3.11-db.json)
+           -d @${DATA_TEST_PATH}/quarkus-app-3.12-db.json)
           
           echo $RESPONSE
 
