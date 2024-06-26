@@ -164,3 +164,18 @@ fi
 
 echo "### Apply the label: argocd.argoproj.io/managed-by=<argocd_namespace> on your namespace"
 execute_kubectl "label namespace $NAMESPACE argocd.argoproj.io/managed-by=openshift-gitops"
+
+echo "### Adding your namespace to the parameter: sourceNamespaces of the ArgoCD CR ..."
+ARGOCD_NAME="argocd"
+NAMESPACE_ARGOCD="openshift-gitops"
+
+# Fetch the current ArgoCD resource
+ARGOCD_JSON=$(kubectl get argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD -o json)
+
+if echo "$ARGOCD_JSON" | jq -e --arg ns "$NAMESPACE" '.spec.sourceNamespaces | index($ns)' > /dev/null; then
+  echo "Namespace '$NAMESPACE' already exists in sourceNamespaces."
+else
+  echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
+  PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
+  kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
+fi

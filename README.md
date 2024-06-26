@@ -179,6 +179,31 @@ Options:
   kubectl label namespace <MY_NAMESPACE> \
       argocd.argoproj.io/managed-by=<argocd_namespace> 
   ```
+
+- Patch the ArgoCD CR to add your namespace using the parameter: `sourceNamespaces`
+```bash
+NAMESPACE="<MY-NAMESPACE>"
+ARGOCD_NAME="argocd"
+NAMESPACE_ARGOCD="openshift-gitops"
+
+# Fetch the current ArgoCD resource
+ARGOCD_JSON=$(kubectl get argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD -o json)
+
+# Check if the namespace is already in the sourceNamespaces array
+if echo "$ARGOCD_JSON" | jq -e --arg ns "$NAMESPACE" '.spec.sourceNamespaces | index($ns)' > /dev/null; then
+  echo "Namespace '$NAMESPACE' already exists in sourceNamespaces."
+else
+  echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
+  PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
+  kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
+fi
+```
+
+- Patch also the default `AppProject` to support to deploy the Applications CR in different namespaces.
+  ```bash
+  kubectl get AppProject/default -n openshift-gitops -o json | jq '.spec.sourceNamespaces += ["*"]' | kubectl apply -f -
+  ```
+  
 - And finally, create the service account `my-backstage` and give it `admin` rights using the following RBAC to access the Kubernetes API resources. 
   ```bash
   kubectl create sa my-backstage
