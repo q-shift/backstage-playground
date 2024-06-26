@@ -27,11 +27,11 @@
       "org": "q-shift",
       "visibility": "public"
     },
-    "namespace": "dummy",
+    "namespace": "demo",
     "imageRepository": "quay.io",
     "imageUrl": "quay.io/qshift/my-quarkus-app-job",
     "virtualMachineName": "quarkus-dev",
-    "virtualMachineNamespace": "dummy"
+    "virtualMachineNamespace": "demo"
   },
   "secrets": {}
 }
