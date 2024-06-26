@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: quarkus-native-build
+  namespace: {{ .Values.app.namespace }}
 spec:
   workspaces:
     - name: project-dir
