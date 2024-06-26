@@ -176,16 +176,31 @@ spec:
               title: Repo Host
               type: string
               default: github.com
+              enum:
+                - github.com
+                - gitea.cnoe.localtest.me:8443
+
             org:
               title: Repo Org Owner
               type: string
               description: Your SCM organization/group
-              default: iocanel
+              default: q-shift
               enum:
+                - q-shift
+                - aureamunoz
                 - ch007m
                 - iocanel
-                - aureamunoz
-                - tqvarnst
+
+            visibility:
+              title: Visibility of the repository
+              type: string
+              default: 'public'
+              enum:
+                - 'public'
+                - 'private'
+              enumNames:
+                - 'public'
+                - 'private'
 
     - title: Provide Cloud information
       required:
@@ -196,7 +211,12 @@ spec:
           title: Namespace
           type: string
           description: The openshift/kubernetes namespace for deploying resources
-          default: iocanel
+          default: demo
+          enum:
+            - amunozhe
+            - cmoullia
+            - demo
+            - iocanel
 
         imageRepository:
            title: Select a registry
@@ -204,16 +224,23 @@ spec:
            default: quay.io
            enum:
              - quay.io
+             - gitea.cnoe.localtest.me:8443/giteadmin
              - image-registry.openshift-image-registry.svc:5000
            enumNames:
              - Quay
+             - Gitea
              - Internal OpenShift Registry
 
         imageUrl:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/ikanello/my-quarkus-app
+          default: quay.io/qshift/my-quarkus-app
+          enumNames:
+            - quay.io/qshift/my-quarkus-app
+            - quay.io/ch007m/my-quarkus-app
+            - quay.io/iocanel/my-quarkus-app
+            - gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
 
         virtualMachineName:
           title: Virtual Machine Name
@@ -225,7 +252,12 @@ spec:
           title: VMI Namespace
           description: Namespace where the virtual machine runs
           type: string
-          default: test1
+          default: demo
+          enum:
+            - amunozhe
+            - cmoullia
+            - demo
+            - iocanel
 
   steps:
     - id: template
@@ -300,6 +332,7 @@ spec:
           system: ${{ parameters.system }}
           applicationType: service
           description: ${{ parameters.description }}
+          # TODO: To be reviewed and tested with different git providers
           destination: ${{ parameters.repo.org }}/${{ parameters.component_id }}
           host: ${{ parameters.repo.host }}
           namespace: ${{ parameters.namespace }}
@@ -323,6 +356,7 @@ spec:
         values:
           component_id: ${{ parameters.component_id }}
           description: ${{ parameters.description }}
+          # TODO: To be reviewed and tested with different git providers
           destination: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
           git_repo: ${{ parameters.repo.host }} # quay.io, ghcr.io, docker.io, etc
           git_org: ${{ parameters.repo.org }}
@@ -337,23 +371,35 @@ spec:
           database_username: postgres
           database_name: ${{ parameters.component_id}}-db
           
-    - id: publish
-      name: Publishing to Code Source Repository - Github
+    - id: publish-github
+      name: Publishing to Github
       action: publish:github
+      if: ${{ parameters.repo.host === "github.com" }}
       input:
         allowedHosts: ['github.com']
         description: This is ${{ parameters.component_id }}
-        repoUrl: "${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{parameters.component_id}}"
+        repoUrl: ${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{parameters.component_id}}
         defaultBranch: main
         protectDefaultBranch: false
-        repoVisibility: public
+        repoVisibility: ${{ parameters.repo.visibility }}
+
+    - id: publish-gitea
+      name: Publishing to a gitea git repository
+      action: publish:gitea
+      if: ${{ parameters.repo.host !== "github.com" }}
+      input:
+        name: This is a dummy project
+        description: This is ${{ parameters.component_id }}
+        repoUrl: ${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{ parameters.component_id }}
+        repoVisibility: ${{ parameters.repo.visibility }}
+        defaultBranch: main
 
     - id: register
       name: Registering the Catalog Info Component
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: /catalog-info.yaml
+        # Github and Gitea
+        catalogInfoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}/${{ 'blob' if parameters.repo.host == 'github.com' else 'src/branch' }}/main/catalog-info.yaml
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources
@@ -363,7 +409,8 @@ spec:
         argoInstance: argocdQShift # Match appconfig => argocd/appLocatorMethods/instances/name
         projectName: ${{ parameters.component_id }}
         namespace: ${{ parameters.namespace }}
-        repoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{parameters.component_id}}.git
+        # TODO: To be reviewed and tested with different git providers
+        repoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
         path: 'argocd/'
 
   output:

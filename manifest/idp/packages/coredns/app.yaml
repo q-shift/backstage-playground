@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coredns
+  namespace: argocd
+  labels:
+    env: dev
+    app.kubernetes.io/name: coredns
+spec:
+  project: default
+  source:
+    repoURL: cnoe://manifests
+    targetRevision: HEAD
+    path: "."
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: kube-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true

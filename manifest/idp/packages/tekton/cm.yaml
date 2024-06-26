@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: default
+    app.kubernetes.io/part-of: tekton-pipelines
+  name: feature-flags
+  namespace: tekton-pipelines
+data:
+  await-sidecar-readiness: "true"
+  coschedule: "disabled"
+  disable-affinity-assistant: "false"
+  disable-creds-init: "false"
+  disable-inline-spec: ""
+  enable-api-fields: "beta"
+  enable-artifacts: "false"
+  enable-cel-in-whenexpression: "false"
+  enable-concise-resolver-syntax: "false"
+  enable-param-enum: "false"
+  enable-provenance-in-status: "true"
+  enable-step-actions: "false"
+  enable-tekton-oci-bundles: "false"
+  enforce-nonfalsifiability: "none"
+  keep-pod-on-cancel: "false"
+  require-git-ssh-secret-known-hosts: "false"
+  results-from: "termination-message"
+  running-in-environment-with-injected-sidecars: "true"
+  send-cloudevents-for-runs: "false"
+  set-security-context: "false"
+  trusted-resources-verification-no-match-policy: "ignore"
