@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: argocd-cmd-params-cm
     app.kubernetes.io/part-of: argocd
 data:
-  application.namespaces: "dummy"
+  application.namespaces: "demo"
 ---
 apiVersion: v1
 kind: ConfigMap

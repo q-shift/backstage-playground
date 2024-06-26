@@ -6,9 +6,10 @@ on:
     branches:
       - main
   pull_request:
-  pull_request_target:
-    branches: [ 'main' ]
-    # types: [opened, edited]
+  # TODO: To be reviewed to figure out if we need it or not
+  #pull_request_target:
+  #  branches: [ 'main' ]
+  #  # types: [opened, edited]
 
 permissions:
   contents: write
@@ -36,8 +37,8 @@ env:
   QUAY_ORG: qshift
 
   # This namespace will be used to build/deploy the generated quarkus app and
-  # should be the same as the one defined within the ConfigMap of ArgocCD using: application.namespaces: "dummy"
-  KUBE_NAMESPACE: dummy
+  # should be the same as the one defined within the ConfigMap of ArgocCD using: application.namespaces: "demo"
+  KUBE_NAMESPACE: demo
 
 jobs:
   setup-idp:
@@ -214,7 +215,7 @@ jobs:
       #      }
       #    }
       #    EOF
-      #    kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
+      #    kubectl create secret generic dockerconfig-secret -n demo --from-file=config.json
 
       #- name: Create the gitea organization
       #  run: |
@@ -242,9 +243,9 @@ jobs:
             }
           }
           EOF
-          kubectl create secret generic dockerconfig-secret -n dummy --from-file=config.json
+          kubectl create secret generic dockerconfig-secret -n demo --from-file=config.json
 
-      - name: Rollout ArgoCD as we created a dummy namespace where Applications will be deployed
+      - name: Rollout ArgoCD as we created a demo namespace where Applications will be deployed
         run: |
           echo "Rollout Argocd to take into consideration the new namespace created ..."
           kubectl rollout restart -n argocd deployment argocd-server

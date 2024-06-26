@@ -388,7 +388,7 @@ spec:
       action: publish:gitea
       if: ${{ parameters.repo.host !== "github.com" }}
       input:
-        name: This is a dummy project
+        name: This is a demo project
         description: This is ${{ parameters.component_id }}
         repoUrl: ${{ parameters.repo.host }}?owner=${{ parameters.repo.org }}&repo=${{ parameters.component_id }}
         repoVisibility: ${{ parameters.repo.visibility }}
