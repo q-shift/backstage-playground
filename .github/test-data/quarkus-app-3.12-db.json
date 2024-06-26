@@ -4,7 +4,7 @@
     "component_id": "my-quarkus-app-job",
     "owner": "user:guest",
     "native": false,
-    "quarkusVersion": "io.quarkus.platform:3.11",
+    "quarkusVersion": "io.quarkus.platform:3.12",
     "groupId": "io.quarkus",
     "artifactId": "my-quarkus-app-job",
     "version": "1.0.0-SNAPSHOT",
