@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -r|--dry-run)
-      DRY_RUN=true
+      DRY_RUN=$2
       shift 2
       ;;
     -h|--help)
