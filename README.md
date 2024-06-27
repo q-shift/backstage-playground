@@ -135,7 +135,9 @@ Options:
   -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
   -r, --dry-run                                          Run the kubectl command with dry-run=client
 ```
+For example:
 
+./scripts/provision-namespace.sh -n my-namespace -q "my-quay-user:my-quay-pwd" -o "my-quay-org" -d "my-docker-user:my-docker-pwd" -k $HOME/.ssh/id_rsa.pub
 - Start first by cloning this project locally
   ```bash
   git clone https://github.com/q-shift/backstage-playground.git
