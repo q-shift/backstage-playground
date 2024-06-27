@@ -141,5 +141,6 @@ spec:
           cpu: 250m
           memory: 128Mi
     provider: dex
+  sourceNamespaces: {}
   tls:
     ca: {}
