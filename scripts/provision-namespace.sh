@@ -21,6 +21,9 @@ execute_oc() {
   fi
 }
 
+# Set default values
+DRY_RUN=false
+
 # Display usage
 function usage() {
   echo "Usage: $0 [options]"
@@ -35,7 +38,7 @@ function usage() {
 }
 
 while [[ $# -gt 0 ]]; do
-  echo "Processing $1"
+  echo "Processing the argument: $1"
   case $1 in
     -n|--namespace)
       NAMESPACE=$2
@@ -58,8 +61,8 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -r|--dry-run)
-      DRY_RUN=$2
-      shift 2
+      DRY_RUN=true
+      shift
       ;;
     -h|--help)
       usage

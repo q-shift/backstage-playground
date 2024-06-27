@@ -122,22 +122,6 @@ Before to install and use our Backstage application, it is needed to perform som
 
 The commands hereafter will guide you to set up what it is needed
 
-**Important**: Alternatively, you can also use our bash script: [provision-namespace.sh](scripts%2Fprovision-namespace.sh)
-```bash
-./scripts/provision-namespace.sh -h
-Processing -h
-Usage: ./scripts/provision-namespace.sh [options]
-Options:
-  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)
-  -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
-  -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
-  -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
-  -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
-  -r, --dry-run                                          Run the kubectl command with dry-run=client
-```
-For example:
-
-./scripts/provision-namespace.sh -n my-namespace -q "my-quay-user:my-quay-pwd" -o "my-quay-org" -d "my-docker-user:my-docker-pwd" -k $HOME/.ssh/id_rsa.pub
 - Start first by cloning this project locally
   ```bash
   git clone https://github.com/q-shift/backstage-playground.git
@@ -169,7 +153,6 @@ For example:
   }
   EOF
   ```
-
   **Important**: The Org to define here for the container images registry should be the same as the one you will use when you scaffold a Quarkus application and build an image.
 
 - Deploy it using this command:
@@ -239,6 +222,30 @@ EOF
   NAMESPACE       NAME          AGE   STATUS    READY
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
+
+**Important**: Alternatively, you can use our bash script which can execute all the previous steps: [provision-namespace.sh](scripts%2Fprovision-namespace.sh)
+```bash
+./scripts/provision-namespace.sh -h
+
+Usage: ./scripts/provision-namespace.sh [options]
+Options:
+  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)
+  -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
+  -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
+  -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
+  -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
+  -r, --dry-run                                          Run the kubectl command with dry-run=client
+```
+Here is by example, how yoou could define the arguments
+```bash
+./scripts/provision-namespace.sh \
+  -n my-namespace \
+  -d "my-docker-user:my-docker-pwd" \
+  -q "my-quay-user:my-quay-pwd" \
+  -o "my-quay-org" \
+  -k $HOME/.ssh/id_rsa.pub
+```
+**Tips**: To execute the kubectl and oc commands of the script in `dry-run` mode, pass as argument `--dry-run`
 
 We are now ready to deploy and use backstage within your project as documented at the following section.
 
