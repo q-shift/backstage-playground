@@ -132,7 +132,7 @@ Options:
   -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
   -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
   -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
-  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM (mandatory)
+  -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
   -r, --dry-run                                          Run the kubectl command with dry-run=client
 ```
 
