@@ -236,7 +236,7 @@ Options:
   -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
   -r, --dry-run                                          Run the kubectl command with dry-run=client
 ```
-Here is by example, how yoou could define the arguments
+Here is by example, how you could define the arguments
 ```bash
 ./scripts/provision-namespace.sh \
   -n my-namespace \
