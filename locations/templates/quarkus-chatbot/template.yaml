@@ -228,7 +228,7 @@ spec:
           default: test1
 
   steps:
-    - id: template
+    - id: quarkus-app-create
       name: Generating the Source Code Component
       action: quarkus:app:create
       input:
@@ -362,6 +362,8 @@ spec:
           virtualMachineName: ${{ parameters.virtualMachineName }}
           virtualMachineNamespace: ${{ parameters.virtualMachineNamespace }}
           native: ${{ parameters.native }}
+          version: ${{ parameters.version }}
+          quarkusVersion: ${{ parameters.quarkusVersion}}
           
     - id: publish
       name: Publishing to Code Source Repository - Github

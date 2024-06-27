@@ -51,14 +51,14 @@ function findRecommendedVersion(versions: Version[]) {
     let recommendedVersion = '';
     versions.forEach((v: Version) => {
         if (v.recommended) {
-            recommendedVersion = v.key
+            recommendedVersion = v.quarkusCoreVersion
         }
     })
     return recommendedVersion;
 }
 
 export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) => {
-    const {
+    let {
         onChange,
         rawErrors,
         required,
@@ -74,13 +74,13 @@ export const QuarkusVersionList = (props: FieldExtensionComponentProps<string>) 
 
         const recommendedVersion = findRecommendedVersion(newData);
         console.log(`Recommended version: ${recommendedVersion}`)
-        formData !== undefined ? formData : onChange(recommendedVersion !== '' ? recommendedVersion : newData[0].key);
+        formData !== undefined ? formData : onChange(recommendedVersion !== '' ? recommendedVersion : newData[0].quarkusCoreVersion);
 
         return newData;
     });
 
     const versionItems: SelectItem[] = value
-        ? value?.map((i: Version) => ({label: userLabel(i), value: i.key}))
+        ? value?.map((i: Version) => ({label: userLabel(i), value: i.quarkusCoreVersion}))
         : [{label: 'Loading...', value: 'loading'}];
 
     if (loading) {

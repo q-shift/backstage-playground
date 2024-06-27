@@ -6,6 +6,7 @@ app:
   version: ${{ values.version }}
   namespace: ${{ values.appNamespace }}
   database: ${{ values.database }}
+  quarkusVersion: ${{ values.quarkusVersion }}
 
 git:
   repo: ${{ values.git_repo }}

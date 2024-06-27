@@ -65,6 +65,7 @@ Selector labels
 {{- define "quarkus-template.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "quarkus-template.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.quarkus.io/quarkus-version: {{ .Values.app.quarkusVersion }}
 {{- end }}
 
 {{/*

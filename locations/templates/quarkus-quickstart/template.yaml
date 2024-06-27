@@ -141,7 +141,7 @@ spec:
                   type: string
                   description: The namespace for deploying resources
   steps:
-    - id: template
+    - id: quarkus-quickstart-clone
       name: Generating the Source Code Component
       action: quarkus:quickstart:clone
       input:
@@ -151,6 +151,7 @@ spec:
           version: ${{ parameters.version }}
           quickstartName: ${{ parameters.quickstartName }}
           additionalProperties: ${{ parameters.additionalProperties }}
+          quarkusVersion: ${{ parameters.quarkusVersion }}
     - id: ciTemplate
       name: Generating the CI Component
       action: fetch:template

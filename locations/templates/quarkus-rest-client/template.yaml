@@ -226,7 +226,7 @@ spec:
           default: test1
 
   steps:
-    - id: template
+    - id: quarkus-app-create
       name: Generating the Source Code Component
       action: quarkus:app:create
       input:
