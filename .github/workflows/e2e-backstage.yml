@@ -27,6 +27,8 @@ env:
   ARGOCD_VERSION: 2.10.7
   GITEA_VERSION: 1.22
 
+  ARGOCD_CLIENT_VERSION: v2.11.4
+
   KUBEVIRT_VERSION: v1.2.1
   KUBEVIRT_CDI_VERSION: v1.59.0
 
@@ -58,7 +60,7 @@ jobs:
 
       - name: Install Argocd client
         run: |
-          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_CLIENT_VERSION}/argocd-linux-amd64
           sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
           rm argocd-linux-amd64
 
