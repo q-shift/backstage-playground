@@ -407,9 +407,9 @@ spec:
       name: Create ArgoCD Resources
       action: argocd:create-resources
       input:
-        appName: ${{ parameters.component_id }}-bootstrap
+        appName: ${{ parameters.namespace }}-${{ parameters.component_id }}-bootstrap
         argoInstance: argocdQShift # Match appconfig => argocd/appLocatorMethods/instances/name
-        projectName: ${{ parameters.component_id }}
+        projectName: ${{ parameters.namespace }}-${{ parameters.component_id }}
         namespace: ${{ parameters.namespace }}
         # TODO: To be reviewed and tested with different git providers
         repoUrl: https://${{ parameters.repo.host }}/${{ parameters.repo.org }}/${{ parameters.component_id }}.git
