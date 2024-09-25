@@ -1,0 +1,124 @@
+#!/bin/bash
+
+#
+# Render app-config.local.yaml from template
+#
+
+# Fallback to the second argument if the first is empty
+setf() {
+  if [ -z "${!1}" ]; then
+    export $1="$2"
+  fi
+}
+
+usage() {
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -t, --title <title>                 The title of the Backstage instance"
+  echo "  -o, --org <org>                     The organization name"
+  echo "  -u, --github-user <github-user>     The GitHub user"
+  echo "      --github-token <github-token>   The GitHub token"
+  echo "      --github-client-id <client-id>  The GitHub client id"
+  echo "      --github-client-secret <secret> The GitHub client secret"
+  exit 1
+}
+
+# Set defaults
+setf "BACKSTAGE_TITLE" "My Backstage"
+setf "BACKSTAGE_ORG" "q-shift"
+setf "BACKSTAGE_GITHUB_USER" "q-shift"
+setf "BACKSTAGE_GITHUB_TOKEN" ""
+setf "BACKSTAGE_TEAM_NAME" "team"
+
+#
+# Optionally override the default values (above) with command line arguments:
+# -t: Title
+# -o: Organization
+# --github-user: GitHub User
+# --github-token: GitHub Token
+# --github-client-id: GitHub Client ID
+# --github-client-secret: GitHub Client Secret
+#
+while [[ $# -gt 0 ]]; do
+  echo "Processing $1"
+  case $1 in
+    -t|--title)
+      BACKSTAGE_TITLE=$2
+      shift 2
+      ;;
+    -o|--org)
+      BACKSTAGE_ORG=$2
+      shift 2
+      ;;
+    -u|--github-user)
+      BACKSTAGE_GITHUB_USER=$2
+      shift 2
+      ;;
+    --github-token)
+      BACKSTAGE_GITHUB_TOKEN=$2
+      shift 2
+      ;;
+    --github-client-id)
+      BACKSTAGE_GITHUB_CLIENT_ID=$2
+      shift 2
+      ;;
+    -github-client-secret)
+      BACKSTAGE_GITHUB_CLIENT_SECRET=$2
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      usage
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+# Kubernetes
+setf KUBERNETES_CLUSTER_NAME "default"
+setf KUBERNETES_CONFIG_PATH "$HOME/.kube/config"
+setf KUBERNETES_API_URL `kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'`
+setf KUBERNETES_USER `kubectl config view --minify -o jsonpath='{.users[0].name}'`
+setf KUBERNETES_TOKEN `cat $KUBERNETES_CONFIG_PATH | grep -A 2 "name: $KUBERNETES_USER" | grep token | awk '{print $2}'`
+
+
+# Argo CD
+export ARGOCD_USERNAME=admin
+export ARGOCD_PASSWORD=`kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
+export ARGOCD_COOKIE=`kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
+
+# Github
+
+if [ -z "$BACKSTAGE_GITHUB_TOKEN" ]; then
+    if command -v gh &> /dev/null; then
+        setf BACKSTAGE_GITHUB_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
+    else
+        echo "BACKSTAGE_GITHUB_TOKEN is not defined and can't be read from 'gh' command. Aborting"
+        exit 1
+    fi
+fi
+
+echo "BACKSTAGE_TITLE=$BACKSTAGE_TITLE"
+echo "BACKSTAGE_ORG=$BACKSTAGE_ORG"
+echo "BACKSTAGE_GITHUB_USER=$BACKSTAGE_GITHUB_USER"
+echo "BACKSTAGE_GITHUB_TOKEN=$BACKSTAGE_GITHUB_TOKEN"
+echo "BACKSTAGE_GITHUB_CLIENT_ID=$BACKSTAGE_GITHUB_CLIENT_ID"
+echo "BACKSTAGE_GITHUB_CLIENT_SECRET=$BACKSTAGE_GITHUB_CLIENT_SECRET"
+echo "KUBERNETES_API_URL=$KUBERNETES_API_URL"
+echo "KUBERNETES_USER=$KUBERNETES_USER"
+
+envsubst < app-config.local.yaml.tmpl > app-config.local.yaml
+
+
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# Run Backstage in Development Mode
+yarn dev

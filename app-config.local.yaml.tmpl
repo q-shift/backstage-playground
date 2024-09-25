@@ -1,0 +1,119 @@
+# Backstage override configuration for QShift
+
+organization:
+  name: ${BACKSTAGE_ORG}
+
+app:
+  title: ${BACKSTAGE_TITLE}
+  baseUrl: http://localhost:3000
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    # Used for enabling authentication, secret is shared by all backend plugins
+    # See https://backstage.io/docs/auth/service-to-service-auth for
+    # information on the format
+    keys: 
+      - secret: HCS2MVvZueiKlfKxCMhNY6XuRiOU9Pe2
+  reading:
+    allow:
+      - host: 'raw.githubusercontent.com'
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers:
+    guest: {}
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.fnigro@redhat.com
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [ Component, System, API, Resource, Location ]
+  locations:
+    # Quarkus template, org, entity
+    - type: file
+      # The path needs to be relative to the root of the repository
+      target: ../../locations/root.yaml
+      rules:
+        - allow: [ Component, System, API, Resource, Location, Group, User, Template ]
+    - type: file
+      # The path needs to be relative to the root of the repository
+      target: ../../examples/components/all.yaml
+      rules:
+        - allow: [ Component, System, API, Resource, Location, Group, User, Template ]
+
+
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN}
+
+argocd:
+  username: ${ARGOCD_USERNAME}
+  password: ${ARGOCD_PASSWORD}
+  baseUrl: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: argocdQShift
+          url: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+
+proxy:
+  endpoints:
+    '/argocd/api':
+      target: https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+      changeOrigin: true
+      secure: false
+      rejectUnauthorized: false
+      headers:
+        Cookie:
+          $env: ${ARGOCD_COOKIE}
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - url: https://api.qshift.snowdrop.dev:6443
+          name: ocp-qshift
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: ${KUBERNETES_SERVICE_ACCOUNT_TOKEN}
+  customResources:
+    - group: 'tekton.dev'
+      apiVersion: 'v1'
+      plural: 'pipelineruns'
+    - group: 'tekton.dev'
+      apiVersion: 'v1'
+      plural: 'taskruns'
+    - apiVersion: 'v1'
+      group: 'route.openshift.io'
+      plural: 'routes'
+defaultGroupId: "da.mycompany"
