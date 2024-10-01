@@ -250,13 +250,28 @@ envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
 
 Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
 
+You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
+
 ```sh
 yarn install
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 yarn dev
 ```
 
-You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
+### Using the start-dev script
+
+A helper script that will create the `app-config.local.yaml` file and start the backstage application locally is available. 
+The script will also infer all the variables from the developers environment and also supports overriding inferred values using flags.
+
+```bash
+./bin/start-dev 
+```
+
+To see all the available options supported by the script:
+
+```bash
+./bin/start-dev --help
+```
 
 ## Automate a scenario
 
