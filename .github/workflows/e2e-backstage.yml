@@ -185,8 +185,8 @@ jobs:
           echo "ARGOCD_USERNAME=$ARGOCD_USERNAME" >> "$GITHUB_ENV"
           echo "ARGOCD_PASSWORD=$ARGOCD_PASSWORD" >> "$GITHUB_ENV"
           
-          SERVICE_ACCOUNT_TOKEN=$(kubectl get secret backstage-secret -n backstage -o json | jq -r '.data.token' | base64 -d)
-          echo "SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN" >> "$GITHUB_ENV"
+          KUBERNETES_TOKEN=$(kubectl get secret backstage-secret -n backstage -o json | jq -r '.data.token' | base64 -d)
+          echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> "$GITHUB_ENV"
           
           BACKSTAGE_AUTH_SECRET=$(node -p 'require("crypto").randomBytes(24).toString("base64")')
           echo "BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET" >> "$GITHUB_ENV"
@@ -284,7 +284,7 @@ jobs:
           GITEA_USERNAME=$GITEA_USERNAME
           GITEA_PASSWORD="$GITEA_PASSWORD"
           KUBERNETES_API_URL=$API_URL
-          SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN
+          KUBERNETES_TOKEN=$KUBERNETES_TOKEN
           EOF
           
           export $(grep -v '^#' backstage_env_secret.env | xargs)
