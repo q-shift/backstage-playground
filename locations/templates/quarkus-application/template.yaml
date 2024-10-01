@@ -184,7 +184,7 @@ spec:
               title: Repo Org Owner
               type: string
               description: Your SCM organization/group
-              default: q-shift
+              default: iocanel
               enum:
                 - q-shift
                 - aureamunoz
@@ -211,7 +211,7 @@ spec:
           title: Namespace
           type: string
           description: The openshift/kubernetes namespace for deploying resources
-          default: demo
+          default: iocanel
           enum:
             - amunozhe
             - cmoullia
@@ -235,7 +235,7 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/qshift/my-quarkus-app
+          default: quay.io/ikanello/my-quarkus-app
           enumNames:
             - quay.io/qshift/my-quarkus-app
             - quay.io/ch007m/my-quarkus-app
@@ -252,7 +252,7 @@ spec:
           title: VMI Namespace
           description: Namespace where the virtual machine runs
           type: string
-          default: demo
+          default: iocanel
           enum:
             - amunozhe
             - cmoullia

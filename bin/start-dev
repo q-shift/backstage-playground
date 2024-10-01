@@ -1,0 +1,218 @@
+#!/bin/bash
+
+#
+# Render app-config.local.yaml from template
+#
+
+# Define the green and red color escape sequences
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Fallback to the second argument if the first is empty
+setf() {
+  if [ -z "${!1}" ]; then
+    export $1="$2"
+  fi
+}
+
+# Print key-value pair in green if value is not empty, otherwise in red
+printv() {
+  if [ -z "$2" ]; then
+    echo -e "${RED}$1${NC}=${RED}<empty>${NC}"
+  else
+    echo -e "${GREEN}$1${NC}=$2"
+  fi
+}
+
+# Print key-password pair in green if value is not empty, otherwise in red, replacing password with '*'
+printp() {
+  if [ -z "$2" ]; then
+    echo -e "${RED}$1${NC}=${RED}<empty>${NC}"
+  else
+    echo -e "${GREEN}$1${NC}=********"
+  fi
+}
+
+# Wait for process to finish while showing a spinner
+waitp() {
+  local pid=$1
+  local message=$2
+  local delay=0.1
+  local spinner_chars="/-\|"
+  echo -n "$messge"
+  while [ -d /proc/$pid ]; do
+    for i in $(seq 0 3); do
+      echo -ne "$message ${spinner_chars:i:1}" "\r"
+      sleep $delay
+    done
+  done
+
+  # Check the exit status of the process
+  wait $pid
+  local exit_status=$?
+
+  # Replace spinner with a check mark or an X based on the result
+  if [ $exit_status -eq 0 ]; then
+    echo -e "$message ${GREEN}✔${NC}"
+  else
+    echo -e "$message ${RED}✘${NC}"
+  fi
+}
+
+usage() {
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -t, --title <title>                   The title of the Backstage instance"
+  echo "  -o, --org <org>                       The organization name"
+  echo "  -u, --github-user <github-user>       The GitHub user"
+  echo "      --github-token <github-token>     The GitHub token"
+  echo "      --gitea-host <host>               The Gitea Host"
+  echo "      --gitea-user <gitea-user>         The Gitea username"
+  echo "      --gitea-password <gitea-password> The Gitea username"
+  exit 1
+}
+
+# Set defaults
+setf "BACKSTAGE_TITLE" "My Backstage"
+setf "BACKSTAGE_ORG" "q-shift"
+setf "BACKSTAGE_GITHUB_USER" "q-shift"
+setf "GITHUB_PERSONAL_ACCESS_TOKEN" ""
+setf "BACKSTAGE_TEAM_NAME" "team"
+setf "BACKSTAGE_APP_BASE_URL" "http://localhost:3000"
+setf "BACKSTAGE_BACKEND_BASE_URL" "http://localhost:7007"
+setf "BACKSTAGE_AUTH_SECRET" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
+
+#
+# Optionally override the default values (above) with command line arguments:
+# -t: Title
+# -o: Organization
+# --github-user: GitHub User
+# --github-token: GitHub Token
+#
+while [[ $# -gt 0 ]]; do
+  echo "Processing $1"
+  case $1 in
+    -t|--title)
+      BACKSTAGE_TITLE=$2
+      shift 2
+      ;;
+    -o|--org)
+      BACKSTAGE_ORG=$2
+      shift 2
+      ;;
+    -u|--github-user)
+      BACKSTAGE_GITHUB_USER=$2
+      shift 2
+      ;;
+    --github-token)
+      GITHUB_PERSONAL_ACCESS_TOKEN=$2
+      shift 2
+      ;;
+    --gitea-url)
+      GITEA_HOST=$2
+      shift 2
+      ;;
+    --gitea-user)
+      GITEA_USERNAME=$2
+      shift 2
+      ;;
+      --gitea-password)
+      GITEA_PASSWORD=$2
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      usage
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+echo "Generating app-config.local.yaml."
+
+# if kubectl does not exist, then exit
+if ! command -v kubectl &> /dev/null; then
+    echo "kubectl is not installed. Aborting"
+    exit 1
+fi
+
+# check if ~/.kube/config exists and if not, then exit
+if [ ! -f "$HOME/.kube/config" ]; then
+    echo "Kubernetes config file ($HOME/.kube/config) does not exist. Aborting"
+    exit 1
+fi
+
+# Run kubectl version asynchronously
+kubectl version > /dev/null 2>&1 &
+KUBECTL_PID=$!
+
+# Show spinner while waiting for kubectl to complete
+waitp $KUBECTL_PID "Checking connection to the Kubernetes cluster"
+
+# Wait for kubectl to finish
+wait $KUBECTL_PID
+KUBECTL_EXIT_CODE=$?
+
+# Check exit code and print result
+if [ $KUBECTL_EXIT_CODE -ne 0 ]; then
+  exit 1
+fi
+
+# Kubernetes
+setf KUBERNETES_CONFIG_PATH "$HOME/.kube/config"
+setf KUBERNETES_API_URL `kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'`
+setf KUBERNETES_USER `kubectl config view --minify -o jsonpath='{.users[0].name}'`
+setf KUBERNETES_TOKEN `cat $KUBERNETES_CONFIG_PATH | grep -A 2 "name: $KUBERNETES_USER" | grep token | awk '{print $2}'`
+
+
+# Argo CD
+setf ARGOCD_ADMIN_USER admin
+setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
+setf ARGOCD_COOKIE `kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
+setf ARGOCD_SERVER "https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev"
+
+# Github
+if [ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
+    if command -v gh &> /dev/null; then
+        setf GITHUB_PERSONAL_ACCESS_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
+    else
+        echo "GITHUB_PERSONAL_ACCESS_TOKEN is not defined and can't be read from 'gh' command. Aborting"
+        exit 1
+    fi
+fi
+
+# Gitea
+setf GITEA_HOST "localhost"
+setf GITEA_USERNAME "admin"
+setf GITEA_PASSWORD "admin"
+
+echo "Using values..."
+printv "BACKSTAGE_TITLE" "$BACKSTAGE_TITLE"
+printv "BACKSTAGE_ORG" "$BACKSTAGE_ORG"
+printv "BACKSTAGE_GITHUB_USER" "$BACKSTAGE_GITHUB_USER"
+printp "GITHUB_PERSONAL_ACCESS_TOKEN" "${GITHUB_PERSONAL_ACCESS_TOKEN:0:4}******"
+printv "GITEA_HOST" "$GITEA_HOST"
+printv "GITEA_USERNAME" "$GITEA_USERNAME"
+printp "GITEA_PASSWORD" "$GITEA_PASSWORD"
+printv "KUBERNETES_API_URL" "$KUBERNETES_API_URL"
+printv "KUBERNETES_USER" "$KUBERNETES_USER"
+printp "KUBERNETES_TOKEN" "$KUBERNETES_TOKEN"
+printv "ARGOCD_SERVER" "$ARGOCD_SERVER"
+printv "ARGOCD_ADMIN_USER" "$ARGOCD_ADMIN_USER"
+printp "ARGOCD_ADMIN_PASSWORD" "$ARGOCD_ADMIN_PASSWORD"
+
+envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+
+echo "Starting Backstage..."
+# Run Backstage in Development Mode
+yarn dev
