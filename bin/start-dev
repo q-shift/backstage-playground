@@ -14,12 +14,15 @@ setf() {
 usage() {
   echo "Usage: $0 [options]"
   echo "Options:"
-  echo "  -t, --title <title>                 The title of the Backstage instance"
-  echo "  -o, --org <org>                     The organization name"
-  echo "  -u, --github-user <github-user>     The GitHub user"
-  echo "      --github-token <github-token>   The GitHub token"
-  echo "      --github-client-id <client-id>  The GitHub client id"
-  echo "      --github-client-secret <secret> The GitHub client secret"
+  echo "  -t, --title <title>                   The title of the Backstage instance"
+  echo "  -o, --org <org>                       The organization name"
+  echo "  -u, --github-user <github-user>       The GitHub user"
+  echo "      --github-token <github-token>     The GitHub token"
+  echo "      --github-client-id <client-id>    The GitHub client id"
+  echo "      --github-client-secret <secret>   The GitHub client secret"
+  echo "      --gitea-host <host>               The Gitea Host"
+  echo "      --gitea-user <gitea-user>         The Gitea username"
+  echo "      --gitea-password <gitea-password> The Gitea username"
   exit 1
 }
 
@@ -27,8 +30,11 @@ usage() {
 setf "BACKSTAGE_TITLE" "My Backstage"
 setf "BACKSTAGE_ORG" "q-shift"
 setf "BACKSTAGE_GITHUB_USER" "q-shift"
-setf "BACKSTAGE_GITHUB_TOKEN" ""
+setf "GITHUB_PERSONAL_ACCESS_TOKEN" ""
 setf "BACKSTAGE_TEAM_NAME" "team"
+setf "BACKSTAGE_APP_BASE_URL" "http://localhost:3000"
+setf "BACKSTAGE_BACKEND_BASE_URL" "http://localhost:7007"
+setf "BACKSTAGE_AUTH_SECRET" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
 
 #
 # Optionally override the default values (above) with command line arguments:
@@ -55,15 +61,27 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --github-token)
-      BACKSTAGE_GITHUB_TOKEN=$2
+      GITHUB_PERSONAL_ACCESS_TOKEN=$2
       shift 2
       ;;
     --github-client-id)
       BACKSTAGE_GITHUB_CLIENT_ID=$2
       shift 2
       ;;
-    -github-client-secret)
+    --github-client-secret)
       BACKSTAGE_GITHUB_CLIENT_SECRET=$2
+      shift 2
+      ;;
+    --gitea-url)
+      GITEA_HOST=$2
+      shift 2
+      ;;
+    --gitea-user)
+      GITEA_USERNAME=$2
+      shift 2
+      ;;
+      --gitea-password)
+      GITEA_PASSWORD=$2
       shift 2
       ;;
     -h|--help)
@@ -91,33 +109,36 @@ setf KUBERNETES_TOKEN `cat $KUBERNETES_CONFIG_PATH | grep -A 2 "name: $KUBERNETE
 
 
 # Argo CD
-export ARGOCD_USERNAME=admin
-export ARGOCD_PASSWORD=`kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
-export ARGOCD_COOKIE=`kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
+setf ARGOCD_ADMIN_USER admin
+setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
+setf ARGOCD_COOKIE `kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
+setf ARGOCD_SERVER "https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev"
 
 # Github
 
-if [ -z "$BACKSTAGE_GITHUB_TOKEN" ]; then
+if [ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
     if command -v gh &> /dev/null; then
-        setf BACKSTAGE_GITHUB_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
+        setf GITHUB_PERSONAL_ACCESS_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
     else
-        echo "BACKSTAGE_GITHUB_TOKEN is not defined and can't be read from 'gh' command. Aborting"
+        echo "GITHUB_PERSONAL_ACCESS_TOKEN is not defined and can't be read from 'gh' command. Aborting"
         exit 1
     fi
 fi
 
+# Gitea
+setf GITEA_HOST "localhost"
+setf GITEA_USERNAME "admin"
+setf GITEA_PASSWORD "admin"
+
 echo "BACKSTAGE_TITLE=$BACKSTAGE_TITLE"
 echo "BACKSTAGE_ORG=$BACKSTAGE_ORG"
 echo "BACKSTAGE_GITHUB_USER=$BACKSTAGE_GITHUB_USER"
-echo "BACKSTAGE_GITHUB_TOKEN=$BACKSTAGE_GITHUB_TOKEN"
-echo "BACKSTAGE_GITHUB_CLIENT_ID=$BACKSTAGE_GITHUB_CLIENT_ID"
-echo "BACKSTAGE_GITHUB_CLIENT_SECRET=$BACKSTAGE_GITHUB_CLIENT_SECRET"
+echo "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN"
 echo "KUBERNETES_API_URL=$KUBERNETES_API_URL"
 echo "KUBERNETES_USER=$KUBERNETES_USER"
 
-envsubst < app-config.local.yaml.tmpl > app-config.local.yaml
 
-
+envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # Run Backstage in Development Mode

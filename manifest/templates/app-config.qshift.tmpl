@@ -5,10 +5,10 @@ organization:
 
 app:
   title: QShift Backstage App
-  baseUrl: ${APP_BASE_URL}
+  baseUrl: ${BACKSTAGE_APP_BASE_URL}
 
 backend:
-  baseUrl: ${BACKEND_BASE_URL}
+  baseUrl: ${BACKSTAGE_BACKEND_BASE_URL}
   listen:
     port: 7007
   csp:
@@ -16,7 +16,7 @@ backend:
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: ${APP_BASE_URL} # Please include the port when using localhost !!
+    origin: ${BACKSTAGE_APP_BASE_URL} # Please include the port when using localhost !!
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production
@@ -77,7 +77,7 @@ integrations:
       # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
       token: ${GITHUB_PERSONAL_ACCESS_TOKEN}
   gitea:
-    - host: ${GITEA_URL}
+    - host: ${GITEA_HOST}
       username: ${GITEA_USERNAME}
       password: "${GITEA_PASSWORD}"
 
