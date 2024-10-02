@@ -4,7 +4,7 @@
 #  - create a new namespace,
 #  - set your registry creds,
 #  - install a KubeVirt VM using your ssh key
-#  - configure ArgoCD to access your resources"
+#  - configure ArgoCD to access your resources
 
 # Define the green and red color escape sequences
 GREEN='\033[0;32m'

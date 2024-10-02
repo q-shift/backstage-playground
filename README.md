@@ -223,18 +223,19 @@ EOF
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
 
-**Important**: Alternatively, you can use our bash script which can execute all the previous steps: [provision-namespace.sh](scripts%2Fprovision-namespace.sh)
+**Important**: Alternatively, you can use our bash script able to execute all steps: [provision-namespace.sh](bin%2Fprovision-namespace.sh)
 ```bash
-./scripts/provision-namespace.sh -h
+./bin/provision-namespace.sh -h
 
-Usage: ./scripts/provision-namespace.sh [options]
+This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !
+
 Options:
   -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)
-  -q, --quay          <quay_username:quay_password>      The Quay username and password (mandatory)
-  -o, --quay-org      <quay_username:quay_password>      The Quay organization hosting the images (mandatory)
-  -d, --docker        <docker_username:docker_password>  The docker username and password (mandatory)
-  -k, --key-path      <public_key_path>                  The path to your ssh public key for the VM (mandatory)
-  -r, --dry-run                                          Run the kubectl command with dry-run=client
+  -q, --quay-cred     <quay_username:quay_password>      The Quay registry credential: username:password to be used to push on quay.io(mandatory)
+  -o, --quay-org      <quay_organization>                The Quay registry organization hosting your images on quay.io (mandatory)
+  -d, --docker-cred   <docker_username:docker_password>  The docker registry credential: username:password on dockerhub (mandatory)
+  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM (optional)
+  --dry-run                                              Run the kubectl command with dry-run=client
 ```
 Here is by example, how you could define the arguments
 ```bash
