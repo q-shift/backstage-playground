@@ -223,9 +223,9 @@ EOF
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
 
-**Important**: Alternatively, you can use our bash script able to execute all steps: [provision-namespace](bin%2Fprovision-namespace)
+**Important**: Alternatively, you can use our bash script able to execute all the steps: [qshift](bin%2Fqshift)
 ```bash
-./bin/provision-namespace -h
+./bin/qshift provision-namespace -h
 
 This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !
 
@@ -239,7 +239,7 @@ Options:
 ```
 Here is by example, how you could define the arguments
 ```bash
-./bin/provision-namespace \
+./bin/qshift provision-namespace \
   -n my-namespace \
   -d "<my-docker-user>:<my-docker-registry-password>" \
   -q "<my-quay-registry-username>:<my-quay-registry-password>" \
@@ -316,13 +316,13 @@ A helper script that will create the `app-config.local.yaml` file and start the 
 The script will also infer all the variables from the developers environment and also supports overriding inferred values using flags.
 
 ```bash
-./bin/start-dev 
+./bin/qshift dev 
 ```
 
 To see all the available options supported by the script:
 
 ```bash
-./bin/start-dev --help
+./bin/qshift dev -h
 ```
 
 ## Automate a scenario
