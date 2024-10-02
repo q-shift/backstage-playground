@@ -223,9 +223,9 @@ EOF
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
 
-**Important**: Alternatively, you can use our bash script able to execute all steps: [provision-namespace.sh](bin%2Fprovision-namespace.sh)
+**Important**: Alternatively, you can use our bash script able to execute all steps: [provision-namespace](bin%2Fprovision-namespace)
 ```bash
-./bin/provision-namespace.sh -h
+./bin/provision-namespace -h
 
 This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !
 
@@ -239,11 +239,11 @@ Options:
 ```
 Here is by example, how you could define the arguments
 ```bash
-./scripts/provision-namespace.sh \
+./bin/provision-namespace \
   -n my-namespace \
-  -d "my-docker-user:my-docker-pwd" \
-  -q "my-quay-user:my-quay-pwd" \
-  -o "my-quay-org" \
+  -d "<my-docker-user>:<my-docker-registry-password>" \
+  -q "<my-quay-registry-username>:<my-quay-registry-password>" \
+  -o "<my-quay-registry-organization>" \
   -k $HOME/.ssh/id_rsa.pub
 ```
 **Tips**: To execute the kubectl and oc commands of the script in `dry-run` mode, pass as argument `--dry-run`

@@ -1,10 +1,11 @@
 #!/bin/bash
 
 #  This script will:
-#  - create a new namespace,
-#  - set your registry creds,
-#  - install a KubeVirt VM using your ssh key
-#  - configure ArgoCD to access your resources
+#  - Create a new namespace,
+#  - Set the registry credentials to pull/push images: dockerhub, quay.io, etc,
+#  - Install a KubeVirt VM using your ssh key
+#  - Configure ArgoCD to access your resources
+#  Note: You can define the registry credentials using the parameters otherwise the script ask you to select for podman - $HOME/.config/containers/auth.json or docker - "$HOME/.docker/config.json" your file if they exist"
 
 # Define the green and red color escape sequences
 GREEN='\033[0;32m'
@@ -53,19 +54,26 @@ execute_oc() {
 # Set default values
 DRY_RUN=false
 PUBLIC_KEY_PASS=$HOME/.ssh/id_rsa.pub
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+TEMP_DIR=$SCRIPT_DIR/_temp
+
+mkdir -p $TEMP_DIR
+
 
 # Display usage
 function usage() {
   echo "Usage: $0 [options]"
   echo ""
-  echo "This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !"
+  echo "This script will create a new namespace, set your registry credentials to pull/push images, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !"
+  echo "Note: You can define the registry credentials using the parameters otherwise the script ask you to select for podman - $HOME/.config/containers/auth.json or docker - "$HOME/.docker/config.json" your file if they exist"
+
   echo ""
   echo "Options:"
-  echo "  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)"
-  echo "  -q, --quay-cred     <quay_username:quay_password>      The Quay registry credential: username:password to be used to push on quay.io(mandatory)"
-  echo "  -o, --quay-org      <quay_organization>                The Quay registry organization hosting your images on quay.io (mandatory)"
-  echo "  -d, --docker-cred   <docker_username:docker_password>  The docker registry credential: username:password on dockerhub (mandatory)"
-  echo "  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM (optional)"
+  echo "  -n, --namespace     <namespace>                        Your namespace on the QShift cluster (mandatory)."
+  echo "  -q, --quay-cred     <quay_username:quay_password>      The Quay registry credential: username:password to be used to push on quay.io."
+  echo "  -o, --quay-org      <quay_organization>                The Quay registry organization hosting your images on quay.io."
+  echo "  -d, --docker-cred   <docker_username:docker_password>  The docker registry credential: username:password on dockerhub."
+  echo "  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM."
   echo "  --dry-run                                              Run the kubectl command with dry-run=client"
   exit 1
 }
@@ -112,9 +120,50 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ -z ${NAMESPACE+x} ]]; then
+  echo "Error: NAMESPACE is not set" >&2
+  usage
+  exit 1
+fi
+
+# List of registry credentials files to check
+registry_creds_files=(
+    "$HOMEE/.docker/config.json"
+    "$HOMEE/.config/containers/auth.json"
+)
+available_files=()
+
+# Check which files exist and do not contain the exclude word
+for file in "${registry_creds_files[@]}"; do
+    if [[ -f "$file" ]]; then
+        # Check if the file does NOT contain: oskeychain as won't work to create the secret
+        if ! grep -q "osxkeychain" "$file"; then
+            available_files+=("$file")
+        fi
+    fi
+done
+
+if [[ ${#available_files[@]} -eq 0 ]]; then
+    echo "No registry credentials files are available for selection, so we will use your DOCKER_CRED or QUAY_CRED arguments if provided"
+    echo ""
+else
+   # Show the user a list of available files and ask them to select one
+   echo "Please select your credentials file; podman or docker if password are not managed by osxkeychain:"
+
+   select file in "${available_files[@]}"; do
+       if [[ -n "$file" ]]; then
+           REGISTRY_CREDS_FILE=$file
+           break
+       else
+           echo "Invalid choice, try again."
+       fi
+   done
+fi
+
 echo "Let's creating the resources"
 echo "Using as values ..."
 printv "Your namespace" "$NAMESPACE"
+printv "Registry credentials file" "$REGISTRY_CREDS_FILE"
 printv "Quay registry username" "${QUAY_CRED%:*}"
 printp "Quay registry password" "${QUAY_CRED##*/}"
 printv "Quay registry organization" "$QUAY_ORG"
@@ -123,41 +172,23 @@ printp "Dockerhub registry password" "${DOCKER_CRED##*/}"
 printv "Public key path" "$PUBLIC_KEY_PASS"
 echo "....."
 
-if [[ -z ${NAMESPACE+x} ]]; then
-  echo "Error: NAMESPACE is not set" >&2
-  usage
-  exit 1
+echo "### Creating new project for: $NAMESPACE"
+execute_oc "new-project $NAMESPACE"
+
+echo "### Creating resources ..."
+if [[ "$REGISTRY_CREDS_FILE" ]]; then
+  execute_kubectl "create secret generic dockerconfig-secret --from-file=$REGISTRY_CREDS_FILE"
+  echo ""
 else
-  echo "### Creating new project for: $NAMESPACE"
-  execute_oc "new-project $NAMESPACE"
-fi
+  if [[ (-n "$QUAY_CRED" && -n "$QUAY_ORG") || -n "$DOCKER_CRED" ]]; then
+    QUAY_CRED_BASE64=$(echo -n "$QUAY_CRED" | base64)
+    DOCKER_CRED_BASE64=$(echo -n "$DOCKER_CRED" | base64)
 
-if [[ -z ${QUAY_CRED+x} ]]; then
-  echo "Error: QUAY_CRED is not set" >&2
-  usage
-  exit 1
-fi
-
-if [[ -z ${QUAY_ORG+x} ]]; then
-  echo "Error: QUAY_ORG is not set" >&2
-  usage
-  exit 1
-fi
-
-if [[ -z ${DOCKER_CRED+x} ]]; then
-  echo "Error: DOCKER_CRED is not set" >&2
-  usage
-  exit 1
-fi
-
-QUAY_CREDS_BASE64=$(echo -n "$QUAY_CRED" | base64)
-DOCKER_CRED_BASE64=$(echo -n "$DOCKER_CRED" | base64)
-
-cat <<EOF > config.json
+    cat <<EOF > $TEMP_DIR/config.json
 {
   "auths": {
     "quay.io/$QUAY_ORG": {
-      "auth": "$QUAY_CREDS_BASE64"
+      "auth": "$QUAY_CRED_BASE64"
     },
     "https://index.docker.io/v1/": {
       "auth": "$DOCKER_CRED_BASE64"
@@ -165,17 +196,20 @@ cat <<EOF > config.json
   }
 }
 EOF
-
-echo "### Creating container registry secret ..."
-execute_kubectl "create secret generic dockerconfig-secret --from-file=config.json"
-echo ""
+     execute_kubectl "create secret generic dockerconfig-secret --from-file=$TEMP_DIR/config.json"
+     echo ""
+   else
+     echo "## No registry DOCKER_CRED or QUAY_CRED arguments have been defined !"
+     exit 1
+   fi
+fi
 
 echo "### Creating the backstage service account"
 execute_kubectl "create sa my-backstage"
 echo ""
 
 echo "Give cluster-admin role to the backstage SA to access the kubernetes API resources"
-cat <<EOF > rbac.yml
+cat <<EOF > $TEMP_DIR/rbac.yml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -190,7 +224,7 @@ subjects:
   namespace: $NAMESPACE
 EOF
 
-execute_kubectl "apply -f rbac.yml"
+execute_kubectl "apply -f $TEMP_DIR/rbac.yml"
 echo ""
 
 echo "### Creating a secret hosting your SSH public key"
