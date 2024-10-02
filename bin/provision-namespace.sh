@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#  This script will:
+#  - create a new namespace,
+#  - set your registry creds,
+#  - install a KubeVirt VM using your ssh key
+#  - configure ArgoCD to access your resources"
+
 # Define the green and red color escape sequences
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -51,6 +57,9 @@ PUBLIC_KEY_PASS=$HOME/.ssh/id_rsa.pub
 # Display usage
 function usage() {
   echo "Usage: $0 [options]"
+  echo ""
+  echo "This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !"
+  echo ""
   echo "Options:"
   echo "  -n, --namespace     <namespace>                        The namespace on the QShift cluster (mandatory)"
   echo "  -q, --quay-cred     <quay_username:quay_password>      The Quay registry credential: username:password to be used to push on quay.io(mandatory)"
