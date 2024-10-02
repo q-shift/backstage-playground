@@ -310,7 +310,7 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 yarn dev
 ```
 
-### Using the start-dev script
+### Using the qshift script
 
 A helper script that will create the `app-config.local.yaml` file and start the backstage application locally is available. 
 The script will also infer all the variables from the developers environment and also supports overriding inferred values using flags.
