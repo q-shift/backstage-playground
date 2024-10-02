@@ -209,7 +209,7 @@ EOF
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
 
-**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](using-the-qshift-script)
+**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](#using-the-qshift-script)
 
 We are now ready to deploy and use backstage within your project as documented at the following section.
 
@@ -239,7 +239,7 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 yarn dev
 ```
 
-**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](using-the-qshift-script)
+**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](#using-the-qshift-script)
 
 ### Using the qshift script
 
