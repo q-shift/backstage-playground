@@ -1,17 +1,3 @@
-
-* [Backstage QShift Showcase](#backstage-qshift-showcase)
-  * [Prerequisites](#prerequisites)
-  * [Provision an ocp cluster](#provision-an-ocp-cluster)
-    * [Kubevirt](#kubevirt)
-    * [GitOps](#gitops)
-    * [Tekton](#tekton)
-  * [Backstage instructions](#backstage-instructions)
-    * [First steps](#first-steps)
-    * [Deploy and use Backstage on OCP](#deploy-and-use-backstage-on-ocp)
-    * [Run backstage locally](#run-backstage-locally)
-  * [Curl backstage](#curl-backstage)
-  * [Clean up](#clean-up)
-
 # Backstage QShift Showcase
 
 The backstage QShift application has been designed to showcase QShift (Quarkus on OpenShift). It is composed of the following plugins and integrated with different backend systems:
@@ -108,14 +94,14 @@ kubectl apply -f subscription-pipelines.yml
 ## Backstage instructions
 
 This section explains how to use Backstage:
-- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster or
-- Running [locally](#run-backstage-locally)
+- [locally](#run-backstage-locally)
+- [Deployed](#deploy-and-use-backstage-on-ocp) on an OpenShift cluster (e.g: https://console-openshift-console.apps.qshift.snowdrop.dev/)
 
 ### First steps
 
-Before to install and use our Backstage application, it is needed to perform some steps such as:
+Before to install and use our QShift Backstage application, it is needed to perform some steps such as:
 - Create an OpenShift project 
-- Provide your registry credentials (quay.io, docker, etc) as `config.json` file
+- Provide your registry credentials (quay.io, docker, etc.) as `config.json` file
 - Create a ServiceAccount for backstage (needed to get the token)
 - Create a ClusterRoleBinding for the SA to allow backstage to access the Kube API resources
 - Create the Fedora Podman VM using your public key to ssh
@@ -223,9 +209,46 @@ EOF
   <MY_NAMESPACE>  quarkus-dev   32s   Running   True
   ```
 
-**Important**: Alternatively, you can use our bash script able to execute all steps: [provision-namespace](bin%2Fprovision-namespace)
+**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](#using-the-qshift-script)
+
+We are now ready to deploy and use backstage within your project as documented at the following section.
+
+### Run backstage locally
+
+Create your `app-config.local.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different
+url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) like this
+
 ```bash
-./bin/provision-namespace -h
+cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+
+# Edit the backstage_env_secret.env and set the different url/password/tokens !!
+
+export $(grep -v '^#' backstage_env_secret.env | xargs)
+envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
+```
+
+**Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
+
+Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
+
+You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
+
+```sh
+yarn install
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+yarn dev
+```
+
+**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](#using-the-qshift-script)
+
+### Using the qshift script
+
+The `qshift` bash script provide 2 subcommands to either provision the namespace on the cluster or set create locally the `app-config-local.yaml` file with the proper credentials, etc.
+
+#### Subcommand: provision-namespace
+
+```bash
+./bin/qshift provision-namespace -h
 
 This script will create a new namespace, set your registry creds, install a KubeVirt VM using your ssh key and configure ArgoCD to access your resources !
 
@@ -237,9 +260,10 @@ Options:
   -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM (optional)
   --dry-run                                              Run the kubectl command with dry-run=client
 ```
+
 Here is by example, how you could define the arguments
 ```bash
-./bin/provision-namespace \
+./bin/qshift provision-namespace \
   -n my-namespace \
   -d "<my-docker-user>:<my-docker-registry-password>" \
   -q "<my-quay-registry-username>:<my-quay-registry-password>" \
@@ -248,7 +272,26 @@ Here is by example, how you could define the arguments
 ```
 **Tips**: To execute the kubectl and oc commands of the script in `dry-run` mode, pass as argument `--dry-run`
 
-We are now ready to deploy and use backstage within your project as documented at the following section.
+#### Subcommand: dev
+
+The command `./bin/qshift dev` will create an `app-config.local.yaml` file locally using the needed URLs to access: ArgoCD, Gitea, the cluster, etc. like the proper credentials and start the `backstage` application.
+
+The script will infer all the variables from the developers environment and also supports overriding inferred values using flags.
+
+```bash
+./bin/qshift dev -h                                   
+Processing -h
+Usage: ./bin/qshift dev [options]
+Options:
+  -t, --title <title>                   The title of the Backstage instance
+  -o, --org <org>                       The organization name
+  -u, --github-user <github-user>       The GitHub user
+      --github-token <github-token>     The GitHub token
+      --gitea-host <host>               The Gitea Host
+      --gitea-user <gitea-user>         The Gitea username
+      --gitea-password <gitea-password> The Gitea username
+
+```
 
 ### Deploy and use Backstage on OCP
 
@@ -283,47 +326,6 @@ Verify if backstage is alive using the URL: `https://backstage-<MY_NAMESPACE>.<O
 - Create a Quarkus TODO Application
 - Create a Quarkus Chatbot that consumes an API
 - Create a Quarkus Application from Quickstarts
-
-### Run backstage locally
-
-Create your `app-config.local.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different 
-url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) like this
-
-```bash
-cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
-
-# Edit the backstage_env_secret.env and set the different url/password/tokens !!
-
-export $(grep -v '^#' backstage_env_secret.env | xargs)
-envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
-```
-
-**Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
-
-Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
-
-You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
-
-```sh
-yarn install
-export NODE_TLS_REJECT_UNAUTHORIZED=0
-yarn dev
-```
-
-### Using the start-dev script
-
-A helper script that will create the `app-config.local.yaml` file and start the backstage application locally is available. 
-The script will also infer all the variables from the developers environment and also supports overriding inferred values using flags.
-
-```bash
-./bin/start-dev 
-```
-
-To see all the available options supported by the script:
-
-```bash
-./bin/start-dev --help
-```
 
 ## Automate a scenario
 
