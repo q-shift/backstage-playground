@@ -215,21 +215,25 @@ We are now ready to deploy and use backstage within your project as documented a
 
 ### Run backstage locally
 
-Create your `app-config.local.yaml` file using the [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) file and set the different
-url/password/tokens using the env [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl) like this
+A Backstage application uses an [application configuration](https://backstage.io/docs/conf/writing) file `app-config.<local|production|etc.>.yaml` to manage the `front` and `backend` applications like the different plugins accessing backend systems.
 
+This is why it is needed to create first, your `app-config.local.yaml` file. To simplify this work, we developed this template [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) where the sensitive data or urls can be defined using an env template file [backstage_env_secret.tmpl](manifest%2Ftemplates%2Fbackstage_env_secret.tmpl).
+
+To achieve this, please execute the commands:
 ```bash
 cp manifest/templates/backstage_env_secret.tmpl backstage_env_secret.env
+```
+Next, edit the `backstage_env_secret.env` and set the different variables. 
 
-# Edit the backstage_env_secret.env and set the different url/password/tokens !!
+**Note**: The text between double quotes next to the variable in this file help you to figure how to set the value !
 
+When done, substitute the env variables from the template to the configuration file 
+```bash
 export $(grep -v '^#' backstage_env_secret.env | xargs)
 envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
 ```
 
-**Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
-
-Next run the following commands to start the front and backend using the `app-config.local.yaml` config file:
+Next run the following commands to start the front and backend using your `app-config.local.yaml` config file:
 
 You can now open the backstage URL `http://localhodt:3000`, select from the left menu `/create` and scaffold a new project using the template `Create a Quarkus application`
 
@@ -239,7 +243,9 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 yarn dev
 ```
 
-**Note**: Alternatively, you can use the `Qshift` bash script automating all such steps as described at the section [Using the qshif script](#using-the-qshift-script)
+**Warning**: If you use node 20, then export the following env var `export NODE_OPTIONS=--no-node-snapshot` as documented [here](https://backstage.io/docs/getting-started/configuration/#create-a-new-component-using-a-software-template).
+
+**Important**: Alternatively, you can use the `Qshift` bash script and command `qshift dev` which automates all the steps of this section as documented at the section [Using the qshif script](#using-the-qshift-script)
 
 ### Using the qshift script
 
@@ -295,8 +301,6 @@ Options:
 
 ### Deploy and use Backstage on OCP
 
-A Backstage application uses an app-config.yaml [configuration](https://backstage.io/docs/conf/writing) file to configure its front and backend application like the plugins accessing the backend systems.
-
 As we cannot use a local config file as this is the case when you start backstage locally (`yarn dev`), then we will use for ocp a `configMap` and
 define the sensitive information in a kubernetes `secret`. 
 
@@ -313,7 +317,7 @@ This kubernetes secret, which contains k=v pairs, will be mounted as a volume wi
   ```bash
   kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
   ```
-- **Note**: The ConfigMap packaging the `app-config.qshift.yaml` file is deployed using our helm chart (see ./manifest/helm/configmap folder) and uses the template: `./templates/[app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl)` !
+- **Note**: The ConfigMap packaging the `app-config.qshift.yaml` file is deployed using our helm chart (see ./manifest/helm/configmap folder) and uses the template [app-config.qshift.tmpl](manifest%2Ftemplates%2Fapp-config.qshift.tmpl) !
 
 
 - To deploy backstage, create from the template `manifest/templates/argocd.tmpl` the argocd.yaml file and pass env variables to be substituted:
