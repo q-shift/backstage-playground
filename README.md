@@ -152,23 +152,23 @@ The commands hereafter will guide you to set up what it is needed
   ```
 
 - Patch the ArgoCD CR to add your namespace using the parameter: `sourceNamespaces`
-```bash
-NAMESPACE="<MY-NAMESPACE>"
-ARGOCD_NAME="argocd"
-NAMESPACE_ARGOCD="openshift-gitops"
-
-# Fetch the current ArgoCD resource
-ARGOCD_JSON=$(kubectl get argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD -o json)
-
-# Check if the namespace is already in the sourceNamespaces array
-if echo "$ARGOCD_JSON" | jq -e --arg ns "$NAMESPACE" '.spec.sourceNamespaces | index($ns)' > /dev/null; then
-  echo "Namespace '$NAMESPACE' already exists in sourceNamespaces."
-else
-  echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
-  PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
-  kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
-fi
-```
+  ```bash
+  NAMESPACE="<MY-NAMESPACE>"
+  ARGOCD_NAME="argocd"
+  NAMESPACE_ARGOCD="openshift-gitops"
+  
+  # Fetch the current ArgoCD resource
+  ARGOCD_JSON=$(kubectl get argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD -o json)
+  
+  # Check if the namespace is already in the sourceNamespaces array
+  if echo "$ARGOCD_JSON" | jq -e --arg ns "$NAMESPACE" '.spec.sourceNamespaces | index($ns)' > /dev/null; then
+    echo "Namespace '$NAMESPACE' already exists in sourceNamespaces."
+  else
+    echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
+    PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
+    kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
+  fi
+  ```
 
 - Patch also the default `AppProject` to support to deploy the Applications CR in different namespaces.
   ```bash
@@ -179,20 +179,20 @@ fi
   ```bash
   kubectl create sa my-backstage
   NAMESPACE=<MY_NAMESPACE>
-cat <<EOF | kubectl apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: backstage-$NAMESPACE-cluster-access
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: my-backstage
-  namespace: $NAMESPACE
-EOF
+  cat <<EOF | kubectl apply -f -
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: backstage-$NAMESPACE-cluster-access
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-admin
+  subjects:
+  - kind: ServiceAccount
+    name: my-backstage
+    namespace: $NAMESPACE
+  EOF
   ```
   **Note**: This is needed to create the SA in order to get the secret generated and containing the token that we will use at the step `Deploy and use Backstage on OCP`
 
