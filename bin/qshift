@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 # Fallback to the second argument if the first is empty
 setf() {
   if [ -z "${!1}" ]; then
-    export $1="$2"
+    export "$1"="$2"
   fi
 }
 
@@ -40,7 +40,7 @@ waitp() {
   local message=$2
   local delay=0.1
   local spinner_chars="/-\|"
-  echo -n "$messge"
+  echo -n "$message"
   while [ -d /proc/$pid ]; do
     for i in $(seq 0 3); do
       echo -ne "$message ${spinner_chars:i:1}" "\r"
@@ -60,7 +60,7 @@ waitp() {
   fi
 }
 execute_kubectl() {
-  local command=$1
+  local command=$*
   if $DRY_RUN; then
     echo "kubectl --dry-run=client $command "
     kubectl --dry-run=client $command
@@ -78,6 +78,53 @@ execute_oc() {
     echo "oc $command"
     oc $command
   fi
+}
+
+set_defaults() {
+    # Kubernetes
+    setf KUBERNETES_CONFIG_PATH "$HOME/.kube/config"
+    setf KUBERNETES_API_URL `kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'`
+    setf KUBERNETES_USER `kubectl config view --minify -o jsonpath='{.users[0].name}'`
+    setf KUBERNETES_TOKEN `cat $KUBERNETES_CONFIG_PATH | grep -A 2 "name: $KUBERNETES_USER" | grep token | awk '{print $2}'`
+    setf NAMESPACE `kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}'`
+
+
+    # Argo CD
+    setf ARGOCD_ADMIN_USER admin
+    setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
+    setf ARGOCD_COOKIE `kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
+    setf ARGOCD_SERVER "https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev"
+
+    # Github
+    if [ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
+        if command -v gh &> /dev/null; then
+            setf GITHUB_PERSONAL_ACCESS_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
+        else
+            echo "GITHUB_PERSONAL_ACCESS_TOKEN is not defined and can't be read from 'gh' command. Aborting"
+            exit 1
+        fi
+    fi
+
+    # Gitea
+    setf GITEA_HOST "localhost"
+    setf GITEA_USERNAME "admin"
+    setf GITEA_PASSWORD "admin"
+
+    echo "Using values..."
+    printv "BACKSTAGE_TITLE" "$BACKSTAGE_TITLE"
+    printv "BACKSTAGE_ORG" "$BACKSTAGE_ORG"
+    printv "BACKSTAGE_GITHUB_USER" "$BACKSTAGE_GITHUB_USER"
+    printp "GITHUB_PERSONAL_ACCESS_TOKEN" "${GITHUB_PERSONAL_ACCESS_TOKEN:0:4}******"
+    printv "GITEA_HOST" "$GITEA_HOST"
+    printv "GITEA_USERNAME" "$GITEA_USERNAME"
+    printp "GITEA_PASSWORD" "$GITEA_PASSWORD"
+    printv "KUBERNETES_API_URL" "$KUBERNETES_API_URL"
+    printv "KUBERNETES_USER" "$KUBERNETES_USER"
+    printp "KUBERNETES_TOKEN" "$KUBERNETES_TOKEN"
+    printp "NAMESPACE" "$NAMESPACE"
+    printv "ARGOCD_SERVER" "$ARGOCD_SERVER"
+    printv "ARGOCD_ADMIN_USER" "$ARGOCD_ADMIN_USER"
+    printp "ARGOCD_ADMIN_PASSWORD" "$ARGOCD_ADMIN_PASSWORD"
 }
 
 ########################################
@@ -193,49 +240,7 @@ dev() {
       exit 1
     fi
 
-    # Kubernetes
-    setf KUBERNETES_CONFIG_PATH "$HOME/.kube/config"
-    setf KUBERNETES_API_URL `kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'`
-    setf KUBERNETES_USER `kubectl config view --minify -o jsonpath='{.users[0].name}'`
-    setf KUBERNETES_TOKEN `cat $KUBERNETES_CONFIG_PATH | grep -A 2 "name: $KUBERNETES_USER" | grep token | awk '{print $2}'`
-
-
-    # Argo CD
-    setf ARGOCD_ADMIN_USER admin
-    setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
-    setf ARGOCD_COOKIE `kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
-    setf ARGOCD_SERVER "https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev"
-
-    # Github
-    if [ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]; then
-        if command -v gh &> /dev/null; then
-            setf GITHUB_PERSONAL_ACCESS_TOKEN `gh auth status -t | grep Token: | awk -F": " '{print $2}'`
-        else
-            echo "GITHUB_PERSONAL_ACCESS_TOKEN is not defined and can't be read from 'gh' command. Aborting"
-            exit 1
-        fi
-    fi
-
-    # Gitea
-    setf GITEA_HOST "localhost"
-    setf GITEA_USERNAME "admin"
-    setf GITEA_PASSWORD "admin"
-
-    echo "Using values..."
-    printv "BACKSTAGE_TITLE" "$BACKSTAGE_TITLE"
-    printv "BACKSTAGE_ORG" "$BACKSTAGE_ORG"
-    printv "BACKSTAGE_GITHUB_USER" "$BACKSTAGE_GITHUB_USER"
-    printp "GITHUB_PERSONAL_ACCESS_TOKEN" "${GITHUB_PERSONAL_ACCESS_TOKEN:0:4}******"
-    printv "GITEA_HOST" "$GITEA_HOST"
-    printv "GITEA_USERNAME" "$GITEA_USERNAME"
-    printp "GITEA_PASSWORD" "$GITEA_PASSWORD"
-    printv "KUBERNETES_API_URL" "$KUBERNETES_API_URL"
-    printv "KUBERNETES_USER" "$KUBERNETES_USER"
-    printp "KUBERNETES_TOKEN" "$KUBERNETES_TOKEN"
-    printv "ARGOCD_SERVER" "$ARGOCD_SERVER"
-    printv "ARGOCD_ADMIN_USER" "$ARGOCD_ADMIN_USER"
-    printp "ARGOCD_ADMIN_PASSWORD" "$ARGOCD_ADMIN_PASSWORD"
-
+    set_defaults
     envsubst < manifest/templates/app-config.qshift.tmpl > app-config.local.yaml
     export NODE_TLS_REJECT_UNAUTHORIZED=0
 
@@ -261,6 +266,8 @@ provision_namespace() {
 
       echo ""
       echo "Options:"
+      echo "  -t, --title         <title>                            The title of the Backstage instance"
+      echo "  -d, --domain        <domain>                           The domain of the OpenShift cluster"
       echo "  -n, --namespace     <namespace>                        Your namespace on the QShift cluster (mandatory)."
       echo "  -q, --quay-cred     <quay_username:quay_password>      The Quay registry credential: username:password to be used to push on quay.io."
       echo "  -o, --quay-org      <quay_organization>                The Quay registry organization hosting your images on quay.io."
@@ -270,16 +277,36 @@ provision_namespace() {
       exit 1
     }
 
-    # Set default values
+    # Set defaults
+    setf "BACKSTAGE_TITLE" "My Backstage"
+    setf "OCP_CLUSTER_DOMAIN" "apps.qshift.snowdrop.dev"
+    setf "BACKSTAGE_ORG" "q-shift"
+    setf "BACKSTAGE_GITHUB_USER" "q-shift"
+    setf "GITHUB_PERSONAL_ACCESS_TOKEN" ""
+    setf "BACKSTAGE_TEAM_NAME" "team"
+    setf "BACKSTAGE_APP_BASE_URL" "http://localhost:3000"
+    setf "BACKSTAGE_BACKEND_BASE_URL" "http://localhost:7007"
+    setf "BACKSTAGE_AUTH_SECRET" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
+
+
     DRY_RUN=false
     PUBLIC_KEY_PASS=$HOME/.ssh/id_rsa.pub
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     TEMP_DIR=$SCRIPT_DIR/_temp
 
+
     mkdir -p $TEMP_DIR
 
     while [[ $# -gt 0 ]]; do
       case $1 in
+        -t|--title)
+          BACKSTAGE_TITLE=$2
+          shift 2
+          ;;
+         --domain)
+          OCP_CLUSTER_DOMAIN=$2
+          shift 2
+          ;;
         -n|--namespace)
           NAMESPACE=$2
           shift 2
@@ -320,16 +347,12 @@ provision_namespace() {
       esac
     done
 
-    if [[ -z ${NAMESPACE+x} ]]; then
-      echo "Error: NAMESPACE is not set" >&2
-      usage
-      exit 1
-    fi
+    set_defaults
 
     # List of registry credentials files to check
     registry_creds_files=(
-        "$HOMEE/.docker/config.json"
-        "$HOMEE/.config/containers/auth.json"
+        "$HOME/.docker/config.json"
+        "$HOME/.config/containers/auth.json"
     )
     available_files=()
 
@@ -346,6 +369,8 @@ provision_namespace() {
     if [[ ${#available_files[@]} -eq 0 ]]; then
         echo "No registry credentials files are available for selection, so we will use your DOCKER_CRED or QUAY_CRED arguments if provided"
         echo ""
+    elif [[ ${#available_files[@]} -eq 1 ]]; then
+      REGISTRY_CREDS_FILE=${available_files[0]}
     else
        # Show the user a list of available files and ask them to select one
        echo "Please select your credentials file; podman or docker if password are not managed by osxkeychain:"
@@ -360,7 +385,7 @@ provision_namespace() {
        done
     fi
 
-    echo "Let's creating the resources"
+    echo "Let's create the resources"
     echo "Using as values ..."
     printv "Your namespace" "$NAMESPACE"
     printv "Registry credentials file" "$REGISTRY_CREDS_FILE"
@@ -383,46 +408,15 @@ provision_namespace() {
       if [[ (-n "$QUAY_CRED" && -n "$QUAY_ORG") || -n "$DOCKER_CRED" ]]; then
         QUAY_CRED_BASE64=$(echo -n "$QUAY_CRED" | base64)
         DOCKER_CRED_BASE64=$(echo -n "$DOCKER_CRED" | base64)
-
-        cat <<EOF > $TEMP_DIR/config.json
-{
-  "auths": {
-    "quay.io/$QUAY_ORG": {
-      "auth": "$QUAY_CRED_BASE64"
-    },
-    "https://index.docker.io/v1/": {
-      "auth": "$DOCKER_CRED_BASE64"
-    }
-  }
-}
-EOF
-         execute_kubectl "create secret generic dockerconfig-secret --from-file=$TEMP_DIR/config.json"
-         echo ""
-       else
-         echo "## No registry DOCKER_CRED or QUAY_CRED arguments have been defined !"
-         exit 1
-       fi
+        envsubst < manifest/templates/docker.json.tmpl > $TEMP_DIR/config.json
+      fi
     fi
 
     echo "### Creating the backstage service account"
     execute_kubectl "create sa my-backstage"
     echo ""
-
     echo "Give cluster-admin role to the backstage SA to access the kubernetes API resources"
-    cat <<EOF > $TEMP_DIR/rbac.yml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: backstage-$NAMESPACE-cluster-access
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: my-backstage
-  namespace: $NAMESPACE
-EOF
+    envsubst < manifest/templates/rbac.yaml.tmpl > $TEMP_DIR/rbac.yaml
 
     execute_kubectl "apply -f $TEMP_DIR/rbac.yml"
     echo ""
@@ -451,8 +445,34 @@ EOF
     else
       echo "Adding namespace '$NAMESPACE' to sourceNamespaces."
       PATCH=$(echo "$ARGOCD_JSON" | jq --arg ns "$NAMESPACE" '.spec.sourceNamespaces += [$ns] | {spec: {sourceNamespaces: .spec.sourceNamespaces}}')
-      kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
+      execute_kubectl patch argocd $ARGOCD_NAME -n $NAMESPACE_ARGOCD --type merge --patch "$PATCH"
     fi
+
+    #
+    # Installing Backstage
+    # 
+    BACKSTAGE_APP_BASE_URL="https://backstage-<NAMESPACE>.apps.<OCP_CLUSTER_DOMAIN>/"
+    BACKSTAGE_BACKEND_BASE_URL="https://backstage-<NAMESPACE>.apps.<OCP_CLUSTER_DOMAIN>/"
+    TEMPLATE_URL="https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml"
+
+    echo "BACKSTAGE_APP_BASE_URL=$BACKSTAGE_APP_BASE_URL" > backstage_env_secret.env
+    echo "BACKSTAGE_BACKEND_BASE_URL=$BACKSTAGE_BACKEND_BASE_URL" >> backstage_env_secret.env
+    echo "BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET" >> backstage_env_secret.env
+    echo "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN" >> backstage_env_secret.env
+    echo "TEMPLATE_URL=$TEMPLATE_URL" >> backstage_env_secret.env
+    echo "ARGOCD_SERVER=$ARGOCD_SERVER" >> backstage_env_secret.env
+    echo "ARGOCD_ADMIN_USER=$ARGOCD_ADMIN_USER" >> backstage_env_secret.env
+    echo "ARGOCD_ADMIN_PASSWORD=$ARGOCD_ADMIN_PASSWORD" >> backstage_env_secret.env
+    echo "KUBERNETES_API_URL=$KUBERNETES_API_URL" >> backstage_env_secret.env
+
+    envsubst < manifest/templates/backstage_env_secret.tmpl > backstage_env_secret.env
+    kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
+
+    echo "NAMESPACE=$NAMESPACE"
+    echo "OC_CLUSTER_DOMAIN=$OCP_CLUSTER_DOMAIN"
+    export NAMESPACE
+    envsubst < manifest/templates/argocd.yaml.tmpl > argocd.yaml
+    execute_kubectl apply -f argocd.yaml
 }
 
 # Check if at least one argument is provided

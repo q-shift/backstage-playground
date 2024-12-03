@@ -2,12 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: helm-backstage
-  namespace: $NAMESPACE
+  namespace: ${NAMESPACE}
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: $NAMESPACE
+    namespace: ${NAMESPACE}
   sources:
     - repoURL: 'https://github.com/q-shift/backstage-playground'
       targetRevision: HEAD
@@ -16,7 +16,7 @@ spec:
         values: |
           namespace: $NAMESPACE
           route:
-            domain: apps.$DOMAIN
+            domain: apps.${OCP_CLUSTER_DOMAIN}
     - chart: backstage
       repoURL: https://backstage.github.io/charts
       targetRevision: 1.9.3

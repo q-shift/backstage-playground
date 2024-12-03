@@ -5,10 +5,10 @@ organization:
 
 app:
   title: QShift Backstage App
-  baseUrl: ${APP_BASE_URL}
+  baseUrl: ${BACKSTAGE_APP_BASE_URL}
 
 backend:
-  baseUrl: ${BACKEND_BASE_URL}
+  baseUrl: ${BACKSTAGE_BACKEND_BASE_URL}
   listen:
     port: 7007
   csp:
