@@ -451,8 +451,8 @@ provision_namespace() {
     #
     # Installing Backstage
     # 
-    BACKSTAGE_APP_BASE_URL="https://backstage-<NAMESPACE>.apps.<OCP_CLUSTER_DOMAIN>/"
-    BACKSTAGE_BACKEND_BASE_URL="https://backstage-<NAMESPACE>.apps.<OCP_CLUSTER_DOMAIN>/"
+    BACKSTAGE_APP_BASE_URL="https://backstage-$NAMESPACE.apps.$OCP_CLUSTER_DOMAIN/"
+    BACKSTAGE_BACKEND_BASE_URL="https://backstage-$NAMESPACE.apps.$OCP_CLUSTER_DOMAIN/"
     TEMPLATE_URL="https://github.com/q-shift/backstage-playground/blob/main/locations/root.yaml"
 
     echo "BACKSTAGE_APP_BASE_URL=$BACKSTAGE_APP_BASE_URL" > backstage_env_secret.env
@@ -465,12 +465,11 @@ provision_namespace() {
     echo "ARGOCD_ADMIN_PASSWORD=$ARGOCD_ADMIN_PASSWORD" >> backstage_env_secret.env
     echo "KUBERNETES_API_URL=$KUBERNETES_API_URL" >> backstage_env_secret.env
 
-    envsubst < manifest/templates/backstage_env_secret.tmpl > backstage_env_secret.env
     kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
-
     echo "NAMESPACE=$NAMESPACE"
     echo "OC_CLUSTER_DOMAIN=$OCP_CLUSTER_DOMAIN"
     export NAMESPACE
+    echo "BACKSTAGE_AUTH_TOKEN=$BACKSTAGE_AUTH_TOKEN"
     envsubst < manifest/templates/argocd.yaml.tmpl > argocd.yaml
     execute_kubectl apply -f argocd.yaml
 }
