@@ -31,7 +31,7 @@ backend:
     externalAccess:
       - type: static
         options:
-          token: ${BACKSTAGE_AUTH_SECRET} # Generate it using: node -p 'require("crypto").randomBytes(24).toString("base64")'
+          token: ${BACKSTAGE_AUTH_SECRET}
           subject: curl-requests
 
 auth:
