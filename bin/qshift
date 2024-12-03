@@ -154,7 +154,7 @@ dev() {
     setf "BACKSTAGE_TEAM_NAME" "team"
     setf "BACKSTAGE_APP_BASE_URL" "http://localhost:3000"
     setf "BACKSTAGE_BACKEND_BASE_URL" "http://localhost:7007"
-    setf "BACKSTAGE_AUTH_SECRET" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
+    setf "BACKSTAGE_AUTH_TOKEN" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
 
     #
     # Optionally override the default values (above) with command line arguments:
@@ -286,7 +286,7 @@ provision_namespace() {
     setf "BACKSTAGE_TEAM_NAME" "team"
     setf "BACKSTAGE_APP_BASE_URL" "http://localhost:3000"
     setf "BACKSTAGE_BACKEND_BASE_URL" "http://localhost:7007"
-    setf "BACKSTAGE_AUTH_SECRET" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
+    setf "BACKSTAGE_AUTH_TOKEN" `node -p 'require("crypto").randomBytes(24).toString("base64")'`
 
 
     DRY_RUN=false
@@ -457,7 +457,7 @@ provision_namespace() {
 
     echo "BACKSTAGE_APP_BASE_URL=$BACKSTAGE_APP_BASE_URL" > backstage_env_secret.env
     echo "BACKSTAGE_BACKEND_BASE_URL=$BACKSTAGE_BACKEND_BASE_URL" >> backstage_env_secret.env
-    echo "BACKSTAGE_AUTH_SECRET=$BACKSTAGE_AUTH_SECRET" >> backstage_env_secret.env
+    echo "BACKSTAGE_AUTH_TOKEN=$BACKSTAGE_AUTH_TOKEN" >> backstage_env_secret.env
     echo "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN" >> backstage_env_secret.env
     echo "TEMPLATE_URL=$TEMPLATE_URL" >> backstage_env_secret.env
     echo "ARGOCD_SERVER=$ARGOCD_SERVER" >> backstage_env_secret.env
