@@ -115,4 +115,4 @@ proxy:
     secure: false
     headers:
       Cookie:
-        $env: ${ARGOCD_AUTH_TOKEN}
+        $env: ${ARGOCD_COOKIE}
