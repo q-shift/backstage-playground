@@ -273,6 +273,7 @@ provision_namespace() {
       echo "  -o, --quay-org      <quay_organization>                The Quay registry organization hosting your images on quay.io."
       echo "  -d, --docker-cred   <docker_username:docker_password>  The docker registry credential: username:password on dockerhub."
       echo "  -k, --key-path      <public_key_path>                  The path of your public to ssh to the VM."
+      echo "  --replace                                              Replace existing resources if they exist"
       echo "  --dry-run                                              Run the kubectl command with dry-run=client"
       exit 1
     }
@@ -290,6 +291,7 @@ provision_namespace() {
 
 
     DRY_RUN=false
+    REPLACE=false
     PUBLIC_KEY_PASS=$HOME/.ssh/id_rsa.pub
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     TEMP_DIR=$SCRIPT_DIR/_temp
@@ -326,6 +328,10 @@ provision_namespace() {
         -k|--key-path)
           PUBLIC_KEY_PASS=$2
           shift 2
+          ;;
+        --replace)
+          REPLACE=true
+          shift
           ;;
         --dry-run)
           DRY_RUN=true
@@ -400,8 +406,16 @@ provision_namespace() {
     echo "### Creating new project for: $NAMESPACE"
     execute_oc "new-project $NAMESPACE"
 
+    if $REPLACE; then
+      execute_kubectl "delete cm my-app-config"
+    fi
+
     echo "### Creating resources ..."
     if [[ "$REGISTRY_CREDS_FILE" ]]; then
+      # if secret exists and replace is true, then delete it
+      if $REPLACE; then
+        execute_kubectl "delete secret dockerconfig-secret"
+      fi
       execute_kubectl "create secret generic dockerconfig-secret --from-file=$REGISTRY_CREDS_FILE"
       echo ""
     else
@@ -413,6 +427,9 @@ provision_namespace() {
     fi
 
     echo "### Creating the backstage service account"
+    if $REPLACE; then
+      execute_kubectl "delete sa my-backstage"
+    fi
     execute_kubectl "create sa my-backstage"
     echo ""
     echo "Give cluster-admin role to the backstage SA to access the kubernetes API resources"
@@ -422,6 +439,9 @@ provision_namespace() {
     echo ""
 
     echo "### Creating a secret hosting your SSH public key"
+    if $REPLACE; then
+      execute_kubectl "delete secret quarkus-dev-ssh-key"
+    fi
     execute_kubectl "create secret generic quarkus-dev-ssh-key --from-file=key=$PUBLIC_KEY_PASS"
     echo ""
 
@@ -465,6 +485,9 @@ provision_namespace() {
     echo "ARGOCD_ADMIN_PASSWORD=$ARGOCD_ADMIN_PASSWORD" >> backstage_env_secret.env
     echo "KUBERNETES_API_URL=$KUBERNETES_API_URL" >> backstage_env_secret.env
 
+    if $REPLACE; then
+      execute_kubectl "delete secret my-backstage-secrets"
+    fi
     kubectl create secret generic my-backstage-secrets --from-env-file=backstage_env_secret.env
     echo "NAMESPACE=$NAMESPACE"
     echo "OC_CLUSTER_DOMAIN=$OCP_CLUSTER_DOMAIN"
