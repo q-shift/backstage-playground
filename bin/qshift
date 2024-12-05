@@ -93,7 +93,7 @@ set_defaults() {
     setf ARGOCD_ADMIN_USER admin
     setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
     setf ARGOCD_COOKIE `kubectl get secrets -n openshift-gitops argocd-secret -o yaml | grep clientSecret | awk '{print $2}' | base64 -d`
-    setf ARGOCD_SERVER "https://openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev"
+    setf ARGOCD_SERVER "https://argocd-server-openshift-gitops.apps.qshift.snowdrop.dev"
     setf ARGOCD_ADMIN_PASSWORD `kubectl get secrets -n openshift-gitops argocd-cluster -o yaml | grep password | awk '{print $2}' | base64 -d`
 
 

@@ -408,7 +408,7 @@ To delete the different resources created (cluster, github), execute the followi
 
 - ArgoCD
 ```bash
-ARGOCD_SERVER=openshift-gitops-server-openshift-gitops.apps.qshift.snowdrop.dev
+ARGOCD_SERVER=https://argocd-server-openshift-gitops.apps.qshift.snowdrop.dev
 ARGOCD_USER=admin
 ARGOCD_PWD=<ARGOCD_PWD>
 
