@@ -295,7 +295,7 @@ spec:
               artifactId: quarkus-hibernate-validator
             - groupId: io.quarkiverse.web-bundler
               artifactId: quarkus-web-bundler
-              version: 1.4.0
+              version: 1.8.1
             - groupId: 'org.mvnpm.at.mvnpm'
               artifactId: 'vaadin-webcomponents'
               version: '24.3.10'
