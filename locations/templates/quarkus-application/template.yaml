@@ -24,7 +24,7 @@ spec:
           title: Name
           type: string
           description: Unique name of the application
-          default: my-quarkus-app
+          default: quarkus-todo-app
           ui:field: EntityNamePicker
         quarkusVersion:
           title: Quarkus version
@@ -59,7 +59,7 @@ spec:
         artifactId:
           title: Artifact ID
           type: string
-          default: my-quarkus-app
+          default: quarkus-todo-app
           description: Maven Artifact ID
         version:
           title: Version
@@ -235,12 +235,12 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/ikanello/my-quarkus-app
+          default: quay.io/ikanello/quarkus-todo-app
           enumNames:
-            - quay.io/qshift/my-quarkus-app
-            - quay.io/ch007m/my-quarkus-app
-            - quay.io/iocanel/my-quarkus-app
-            - gitea.cnoe.localtest.me:8443/giteadmin/my-quarkus-app
+            - quay.io/qshift/quarkus-todo-app
+            - quay.io/ch007m/quarkus-todo-app
+            - quay.io/iocanel/quarkus-todo-app
+            - gitea.cnoe.localtest.me:8443/giteadmin/quarkus-todo-app
 
         virtualMachineName:
           title: Virtual Machine Name

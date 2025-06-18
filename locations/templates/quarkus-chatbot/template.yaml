@@ -3,7 +3,7 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: quarkus-chatbot
+  name: quarkus-todo-chatbot
   title: Create a Quarkus Chatbot that consumes an API
   description: Expose an API as a tool to your chatbot 
   tags:
@@ -24,7 +24,7 @@ spec:
           title: Name
           type: string
           description: Unique name of the application
-          default: my-quarkus-chatbot
+          default: quarkus-todo-chatbot
           ui:field: EntityNamePicker
         quarkusVersion:
           title: Quarkus version
@@ -77,7 +77,7 @@ spec:
         artifactId:
           title: Artifact ID
           type: string
-          default: my-quarkus-chatbot
+          default: quarkus-todo-chatbot
           description: Maven Artifact ID
         version:
           title: Version
@@ -213,7 +213,7 @@ spec:
           title: Image URL
           type: string
           description: The Quay.io or OpenShift Image URL <REGISTRY>/<IMAGE_URL>/<REPO_NAME>
-          default: quay.io/ikanello/my-quarkus-chatbot
+          default: quay.io/ikanello/quarkus-todo-chatbot
 
         virtualMachineName:
           title: Virtual Machine Name
